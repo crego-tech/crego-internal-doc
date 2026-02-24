@@ -1,0 +1,234 @@
+{
+  "main": {
+    "id": "45e5644bcacab9c9",
+    "type": "split",
+    "children": [
+      {
+        "id": "141cf2b84f4e431a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e9cbde50a2a3a885",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "release-management/team-release-playbook.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "team-release-playbook"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "deb389a3e9ba4117",
+    "type": "split",
+    "children": [
+      {
+        "id": "6da3208bfdb7d0b6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ed4dd4587a20275d",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "cf8813b2211c0b7c",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": true,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "82b3c4f3b8758c35",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 304.5
+  },
+  "right": {
+    "id": "1e065d34ebfd51f4",
+    "type": "split",
+    "children": [
+      {
+        "id": "8a2d6c18a78d9789",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "3cb73fa6af790188",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "release-management/CLAUDE.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for CLAUDE"
+            }
+          },
+          {
+            "id": "ef4ab5e5fd096272",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "918f3697a3e8005e",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "7ba1920a7fc86cac",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "380d3ec1ea2a5a0a",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "e9cbde50a2a3a885",
+  "lastOpenFiles": [
+    "engineering/unified-version-format.md",
+    "release-management/lu5376j8y.tmp",
+    "release-management/v2.3.0-release-plan.xlsx",
+    "engineering/remote-environment-access.md",
+    "engineering/environment-naming-standard.md",
+    "runbooks/sentry-alert-investigation.md",
+    "engineering/sentry-secret-rotation.md",
+    "release-management/~$release-handbook.xlsx",
+    "git-strategy/github-branch-tag-protection-rulesets.md",
+    "release-management/release-process-setup-guide.md",
+    "release-management/team-release-playbook.md",
+    "release-management/release-notes/v2.2.0.md",
+    "runbooks/rollback-release.md",
+    "git-strategy/practical-commands.md",
+    "INDEX.base",
+    "Untitled.canvas",
+    "2026-02-15.md",
+    "_archive/7-feb-work-notes.md",
+    "release-management/cycle-160-plan.xlsx",
+    "_archive/access-required.md",
+    "_archive/01-system-architecture.md",
+    "release-management/release-notes/v2.1.0.md",
+    "release-management/release-notes/v2.0.0.md",
+    "release-management/release-notes/v2.2.0-rc.md",
+    "release-management/~$release-management-tracker.xlsx",
+    "release-management/team-structure.md",
+    "README.md",
+    "release-management/release-notes/v2.2.0-linear.csv",
+    "onboarding/README.md",
+    "onboarding",
+    "_archive/README.md",
+    "_archive.md",
+    "architecture/README.md",
+    "CLAUDE.md",
+    "_archive/untitled-prd-template.md",
+    "_archive",
+    "templates/ci-template.yaml",
+    "compliance/network-architecture/images/crego-Network-Arch-Diagram.drawio.png",
+    "compliance/disaster-recovery/images/dr-2024-10-screenshot.png",
+    "compliance/disaster-recovery/images/dr-2024-10-image.png",
+    "compliance/disaster-recovery/images/dr-2024-10-image-2.png",
+    "compliance/disaster-recovery/images/dr-2024-10-image-1.png",
+    "compliance/disaster-recovery/images/dr-2023-08-image5.jpeg",
+    "compliance/disaster-recovery/images/dr-2023-08-image2.jpeg",
+    "compliance/disaster-recovery/images/dr-2023-08-image.png",
+    "compliance/disaster-recovery/images/dr-2023-08-image-2.png",
+    "compliance/disaster-recovery/images/dr-2023-08-image-1.png"
+  ]
+}
