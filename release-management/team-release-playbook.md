@@ -180,7 +180,173 @@ Once UAT is approved:
    ```
 2. **Update `CLIENT_VERSIONS.md`** in crego-infra with the new version.
 3. **Generate and share release notes.**
-4. **Delete the release branch** from GitHub (it's served its purpose).
+4. **Verify release tracking in Sentry** (see Release Tracking in Sentry section below).
+5. **Delete the release branch** from GitHub (it's served its purpose).
+
+#### Release Tracking in Sentry
+
+Verify that the new release is properly tracked in Sentry for error correlation and release health monitoring.
+
+##### Backend Services (Django & FastAPI)
+
+**1. Verify SENTRY_RELEASE environment variable:**
+
+```bash
+# Check omni-api deployment
+kubectl get deployment omni-api -n prod-gcp -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name=="SENTRY_RELEASE")].value}'
+# Expected output: v2.3.0
+
+# Check flow-api deployment
+kubectl get deployment flow-api -n prod-gcp -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name=="SENTRY_RELEASE")].value}'
+# Expected output: v2.3.0
+```
+
+**2. Check Sentry releases UI:**
+
+1. Navigate to Sentry → Projects → Omni/Flow
+2. Click "Releases" tab
+3. Verify release appears with correct version tag (e.g., `v2.3.0`)
+4. Check commit list shows recent commits
+5. Verify deploy timestamp matches actual deployment
+
+**3. Monitor release health:**
+
+- Navigate to release detail page
+- Check "Crash Free Sessions" metric (should be >99%)
+- Review "New Issues" introduced in this release
+- Compare error rate to previous release
+
+##### Frontend Services (React)
+
+**1. Verify source maps uploaded to Sentry:**
+
+Check CI/CD logs for source map upload confirmation:
+
+```bash
+# GitHub Actions logs (search for):
+"Source maps uploaded successfully to release v2.3.0"
+"Artifacts uploaded: main.abc123.js, main.abc123.js.map, vendor.def456.js, vendor.def456.js.map"
+```
+
+**2. Check Sentry artifacts:**
+
+1. Navigate to Sentry → Projects → Omni Web/Flow Web
+2. Go to Project Settings → Source Maps
+3. Select release version (e.g., `v2.3.0`)
+4. Verify bundle files and source maps are present:
+   - `main.*.js` and `main.*.js.map`
+   - `vendor.*.js` and `vendor.*.js.map`
+   - Other chunk files and their maps
+
+**3. Test source map resolution:**
+
+1. Trigger a test error in production (if safe)
+2. Check error in Sentry UI
+3. Verify stack trace shows readable file names (not minified)
+4. Verify line numbers match actual source code
+
+##### Monitoring
+
+**All New Errors Automatically Tagged:**
+
+- Every error captured after deployment includes release tag
+- Filter errors by release: `release:v2.3.0`
+- Compare error rates between releases in Sentry UI
+
+**Set Up Release Health Alerts:**
+
+1. Navigate to Sentry → Alerts → Create Alert Rule
+2. Configure "Release Health" alert:
+   - Condition: New release has >5% error rate
+   - Action: Notify release manager via Slack/email
+   - Timeframe: First 1 hour after deployment
+
+**Monitor First Hour After Deployment:**
+
+- Watch for new error types introduced in this release
+- Check P95 latency hasn't increased significantly
+- Verify no crashes or critical errors
+
+##### Troubleshooting
+
+**Problem: Release Not Appearing in Sentry**
+
+**Diagnosis:**
+```bash
+# Check SENTRY_RELEASE environment variable
+kubectl exec -it deployment/omni-api -n prod-gcp -- env | grep SENTRY_RELEASE
+
+# Check application startup logs
+kubectl logs deployment/omni-api -n prod-gcp | grep -i "sentry.*release"
+# Look for: "Sentry initialized with release: v2.3.0"
+```
+
+**Resolution:**
+- Verify `SENTRY_RELEASE` environment variable set in deployment manifest
+- Ensure ArgoCD/Kustomize overlay sets the correct release version
+- Restart pods to load new configuration
+
+---
+
+**Problem: Source Maps Missing for Frontend**
+
+**Diagnosis:**
+```bash
+# Check CI/CD build logs
+# Look for source map upload step in GitHub Actions
+
+# Verify SENTRY_AUTH_TOKEN exists
+gh secret list | grep SENTRY_AUTH_TOKEN
+```
+
+**Resolution:**
+
+Emergency manual upload:
+```bash
+# Install Sentry CLI
+npm install -g @sentry/cli
+
+# Set auth token
+export SENTRY_AUTH_TOKEN=your_token_here
+
+# Upload source maps
+sentry-cli releases files v2.3.0 upload-sourcemaps \
+  ./dist \
+  --url-prefix '~/assets' \
+  --org crego \
+  --project omni-web
+
+# Verify upload
+sentry-cli releases files v2.3.0 list
+```
+
+Permanent fix:
+- Update `SENTRY_AUTH_TOKEN` in GitHub Actions secrets
+- Verify Vite Sentry plugin configuration in `vite.config.ts`
+- Add source map verification step to CI/CD pipeline
+
+---
+
+**Problem: Commits Not Linked to Release**
+
+**Diagnosis:**
+- Release appears in Sentry but shows no commits
+- Cannot see code changes in release
+
+**Resolution:**
+1. Ensure git repository is connected in Sentry:
+   - Navigate to: Organization Settings → Integrations → GitHub
+   - Verify repository access granted
+
+2. Add git remote to Sentry release (if not automatic):
+   ```bash
+   sentry-cli releases set-commits v2.3.0 --auto
+   ```
+
+3. Manually associate commits (if needed):
+   ```bash
+   sentry-cli releases set-commits v2.3.0 --commit "crego/crego-omni@v2.2.0...v2.3.0"
+   ```
 
 ### Client-Specific Releases
 

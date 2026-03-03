@@ -451,6 +451,265 @@ jobs:
 | Alerting | PagerDuty | Notifications | P0: Immediate |
 | Dashboards | Grafana | Visualization | Custom per service |
 
+### **Error Tracking & Performance Monitoring with Sentry**
+
+Sentry provides comprehensive error tracking and performance monitoring across all Crego platform services with full multi-tenant context enrichment and release tracking.
+
+#### Integration Scope
+
+- **Backend Services**: Django (crego-omni), FastAPI (crego-flow)
+- **Frontend Applications**: React (omni-web, flow-web)
+- **Background Workers**: Celery workers and beat schedulers
+- **Multi-Tenant Context**: Automatic tenant ID, alias, domain, tier enrichment
+- **Release Tracking**: Correlate errors with deployment versions
+- **Performance Monitoring**: Transaction traces, profiling, and performance insights
+
+#### Configuration
+
+**Backend Services (Runtime Environment Variables):**
+- Loaded from cloud secret managers (AWS/GCP) via External Secrets Operator
+- Injected into Kubernetes pods at runtime
+- See `crego-infra/docs/environment-variables.md` for complete reference
+
+**Frontend Services (Build-Time Variables):**
+- Compiled into static JavaScript bundles during CI/CD build
+- Cannot be changed at runtime (requires rebuild)
+- Source maps uploaded automatically during build
+
+**Reference Documentation:**
+- Infrastructure setup: `crego-infra/CLAUDE.md` (Sentry section)
+- Environment variables: `crego-infra/docs/environment-variables.md`
+- Backend usage: `crego-omni/README.md`, `crego-flow/README.md`
+
+#### Development Practices
+
+##### 1. Automatic Error Tracking
+
+Most errors are captured automatically without manual instrumentation:
+
+- **Services and API endpoints**: Automatically instrumented via `BaseService` (Django) and FastAPI integration
+- **HTTP requests**: All incoming requests automatically create transactions
+- **Celery tasks**: Background tasks automatically tracked with tenant context
+- **Database queries**: Slow queries automatically flagged in performance traces
+
+**When to use automatic tracking:**
+- Standard CRUD operations via services
+- API endpoint implementations
+- Background task execution
+- Most application errors
+
+**No manual instrumentation needed** for typical service layer operations.
+
+##### 2. Performance Monitoring
+
+Use manual tracing for critical operations that need performance insights:
+
+**When to add manual tracing:**
+- Bulk operations (>10 items)
+- Complex calculations (>100ms execution time)
+- External API calls
+- Multi-step workflows
+- Background job processing steps
+
+**Django/Backend Example:**
+```python
+from project.lib.sentry_utils import sentry_trace, sentry_transaction
+
+# Decorator for function-level tracing
+@sentry_trace(op="invoice.bulk_approve", description="Bulk approve invoices")
+def bulk_approve_invoices(invoice_ids):
+    # Function execution automatically tracked with timing
+    for invoice_id in invoice_ids:
+        approve_invoice(invoice_id)
+
+# Context manager for block-level tracing
+def process_monthly_invoices():
+    with sentry_transaction(op="invoice.monthly_processing", name="Monthly invoice processing"):
+        invoices = get_pending_invoices()
+        for invoice in invoices:
+            process_invoice(invoice)
+```
+
+**FastAPI/Workflow Example:**
+```python
+import sentry_sdk
+
+async def execute_workflow(flow_id):
+    # Create transaction for workflow execution
+    with sentry_sdk.start_transaction(op="workflow.execute", name=f"Execute Flow {flow_id}"):
+        nodes = await get_workflow_nodes(flow_id)
+
+        # Create spans for each node execution
+        for node in nodes:
+            with sentry_sdk.start_span(op="node.execute", description=node.type):
+                await execute_node(node)
+```
+
+##### 3. Custom Context (When to Add)
+
+Add domain-specific context to help debug errors:
+
+**Backend - Add Business Context:**
+```python
+import sentry_sdk
+
+# Add context for financial operations
+sentry_sdk.set_context("invoice", {
+    "invoice_id": invoice.id,
+    "total_amount": str(invoice.total_amount),
+    "status": invoice.status,
+    "payment_method": invoice.payment_method
+})
+
+# Add context for workflow operations
+sentry_sdk.set_context("workflow", {
+    "flow_id": flow.id,
+    "node_count": len(nodes),
+    "execution_mode": "async"
+})
+```
+
+**Frontend - Add User Interaction Context:**
+```typescript
+import * as Sentry from '@sentry/react';
+
+// Add context for form submission
+Sentry.setContext('form_submission', {
+  form_name: 'invoice_approval',
+  field_count: 12,
+  validation_errors: errors.length
+});
+
+// Add context for feature usage
+Sentry.setContext('feature', {
+  feature_name: 'bulk_invoice_approval',
+  item_count: selectedInvoices.length
+});
+```
+
+**When to add custom context:**
+- Financial transactions (amounts, account numbers, transaction IDs)
+- Workflow execution (flow IDs, node types, execution state)
+- User interactions (form data, navigation path, feature flags)
+- Integration failures (external service names, API endpoints)
+
+##### 4. Error Handling Best Practices
+
+**Capture These Errors:**
+- ✅ Unexpected exceptions (system failures)
+- ✅ Integration failures (external API errors)
+- ✅ Data inconsistencies (state violations)
+- ✅ Infrastructure errors (database timeouts, connection failures)
+
+**Don't Capture These:**
+- ❌ User input validation errors (use `DRFValidationError` without Sentry)
+- ❌ Expected 404s (resource not found is normal)
+- ❌ Business rule violations (handled via normal error responses)
+- ❌ Permission errors (use proper HTTP status codes)
+
+**Example - Integration Failure (Capture):**
+```python
+import sentry_sdk
+from project.lib.exceptions import BusinessRuleError
+
+try:
+    response = payment_gateway.charge(amount)
+except RequestException as e:
+    # Add context for debugging
+    sentry_sdk.set_context("payment_gateway", {
+        "gateway": "stripe",
+        "amount": amount,
+        "invoice_id": invoice.id
+    })
+
+    # Capture exception
+    sentry_sdk.capture_exception(e)
+
+    # Handle gracefully
+    raise BusinessRuleError("Payment processing failed") from e
+```
+
+**Example - Validation Error (Don't Capture):**
+```python
+from rest_framework.exceptions import ValidationError as DRFValidationError
+
+# Don't capture - this is expected user input error
+if amount < 0:
+    raise DRFValidationError({"amount": "Amount must be positive"})
+
+# Sentry before_send hook already filters these
+```
+
+#### Monitoring Dashboards
+
+**Sentry UI (Error Tracking):**
+- Error rate trends and spikes
+- Error grouping and prioritization
+- Release health monitoring
+- User feedback and issue details
+- Filter by tenant, user, release version
+
+**Sentry UI (Performance Monitoring):**
+- Transaction throughput and duration
+- Slow operation identification
+- Database query performance
+- External API response times
+- P50, P75, P95, P99 latency percentiles
+
+**Grafana (Infrastructure Metrics):**
+- System metrics (CPU, memory, disk)
+- Database connection pooling
+- Redis cache hit rates
+- Message queue depth
+- Pod resource utilization
+
+**PagerDuty (Alert Routing):**
+- Sentry alerts routed via PagerDuty
+- On-call engineer paging
+- Escalation policies
+- Incident management
+
+#### Alert Configuration
+
+**New Errors:**
+- Alert on first occurrence of new error type
+- Severity: Medium (investigate within 24 hours)
+- Exclude: Validation errors, permission errors
+
+**Error Rate Spikes:**
+- Alert when error rate increases >10% vs. baseline (7-day average)
+- Severity: High (investigate within 1 hour)
+- Include: All 5xx server errors
+- Exclude: 4xx client errors
+
+**Performance Degradation:**
+- Alert when P95 latency exceeds 2x baseline
+- Severity: Medium (investigate within 4 hours)
+- Critical endpoints: Invoice approval, payment processing
+- Monitor: Database queries, external API calls
+
+**Release Health:**
+- Alert when new release has >5% error rate
+- Severity: Critical (investigate immediately, consider rollback)
+- Monitor: First 1 hour after deployment
+
+**Configuration in Sentry:**
+1. Navigate to: Alerts → Create Alert Rule
+2. Set conditions: Error rate, performance thresholds
+3. Configure notifications: PagerDuty, Slack, email
+4. Set alert frequency: Immediate, hourly digest, daily summary
+
+#### References
+
+For detailed usage examples and troubleshooting:
+
+- **Backend Usage**: `crego-omni/README.md` (Sentry Integration section)
+- **FastAPI Usage**: `crego-flow/README.md` (Monitoring & Error Tracking section)
+- **Infrastructure Setup**: `crego-infra/CLAUDE.md` (Sentry section)
+- **Environment Variables**: `crego-infra/docs/environment-variables.md`
+- **Alert Investigation**: `crego-internal-docs/runbooks/sentry-alert-investigation.md`
+- **Release Tracking**: `crego-internal-docs/release-management/team-release-playbook.md`
+
 ### **Key Metrics to Monitor**
 
 ```yaml
