@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "engineering/unified-version-format.md",
+                "file": "release-management/team-release-playbook.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "unified-version-format"
+              "title": "team-release-playbook"
             }
           }
         ]
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "unified-version-format",
+                "query": "",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": true,
@@ -74,8 +74,7 @@
               "title": "Bookmarks"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -184,10 +183,12 @@
   },
   "active": "e9cbde50a2a3a885",
   "lastOpenFiles": [
-    "engineering/environment-naming-standard.md",
-    "engineering/unified-version-format.md",
-    "INDEX.base",
+    "release-management/release-process-setup-guide.md",
+    "release-management/~$v2.3.0-release-plan.xlsx",
     "release-management/team-release-playbook.md",
+    "engineering/unified-version-format.md",
+    "engineering/environment-naming-standard.md",
+    "INDEX.base",
     "git-strategy/practical-commands.md",
     "release-management/lu5376j8y.tmp",
     "release-management/v2.3.0-release-plan.xlsx",
@@ -196,7 +197,6 @@
     "engineering/sentry-secret-rotation.md",
     "release-management/~$release-handbook.xlsx",
     "git-strategy/github-branch-tag-protection-rulesets.md",
-    "release-management/release-process-setup-guide.md",
     "release-management/release-notes/v2.2.0.md",
     "runbooks/rollback-release.md",
     "Untitled.canvas",
@@ -219,7 +219,6 @@
     "architecture/README.md",
     "CLAUDE.md",
     "_archive",
-    "templates/ci-template.yaml",
     "compliance/network-architecture/images/crego-Network-Arch-Diagram.drawio.png",
     "compliance/disaster-recovery/images/dr-2024-10-screenshot.png",
     "compliance/disaster-recovery/images/dr-2024-10-image.png",
