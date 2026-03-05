@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "release-management/team-release-playbook.md",
+                "file": "engineering/unified-version-format.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "team-release-playbook"
+              "title": "unified-version-format"
             }
           }
         ]
@@ -53,10 +53,10 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "unified-version-format",
                 "matchingCase": true,
                 "explainSearch": false,
-                "collapseAll": false,
+                "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical"
               },
@@ -74,7 +74,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -183,21 +184,21 @@
   },
   "active": "e9cbde50a2a3a885",
   "lastOpenFiles": [
+    "engineering/environment-naming-standard.md",
     "engineering/unified-version-format.md",
+    "INDEX.base",
+    "release-management/team-release-playbook.md",
+    "git-strategy/practical-commands.md",
     "release-management/lu5376j8y.tmp",
     "release-management/v2.3.0-release-plan.xlsx",
     "engineering/remote-environment-access.md",
-    "engineering/environment-naming-standard.md",
     "runbooks/sentry-alert-investigation.md",
     "engineering/sentry-secret-rotation.md",
     "release-management/~$release-handbook.xlsx",
     "git-strategy/github-branch-tag-protection-rulesets.md",
     "release-management/release-process-setup-guide.md",
-    "release-management/team-release-playbook.md",
     "release-management/release-notes/v2.2.0.md",
     "runbooks/rollback-release.md",
-    "git-strategy/practical-commands.md",
-    "INDEX.base",
     "Untitled.canvas",
     "2026-02-15.md",
     "_archive/7-feb-work-notes.md",
@@ -217,7 +218,6 @@
     "_archive.md",
     "architecture/README.md",
     "CLAUDE.md",
-    "_archive/untitled-prd-template.md",
     "_archive",
     "templates/ci-template.yaml",
     "compliance/network-architecture/images/crego-Network-Arch-Diagram.drawio.png",

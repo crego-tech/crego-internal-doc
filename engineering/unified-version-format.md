@@ -32,12 +32,12 @@ This made it impossible to:
 
 ### Format Components
 
-| Component | Required | Description | Example |
-|-----------|----------|-------------|---------|
-| `semver` | Yes | Semantic version (MAJOR.MINOR.PATCH) without 'v' prefix | `2.2.0` |
-| `client` | No | Client identifier for client-specific releases | `acme`, `globex` |
-| `commit` | Yes | 8-character short commit SHA for traceability | `a3f2c1b` |
-| `suffix` | Conditional | Environment suffix for non-production (`-preprod`, `-dev`) | `-preprod` |
+| Component | Required    | Description                                                | Example          |
+| --------- | ----------- | ---------------------------------------------------------- | ---------------- |
+| `semver`  | Yes         | Semantic version (MAJOR.MINOR.PATCH) without 'v' prefix    | `2.2.0`          |
+| `client`  | No          | Client identifier for client-specific releases             | `acme`, `globex` |
+| `commit`  | Yes         | 8-character short commit SHA for traceability              | `a3f2c1b`        |
+| `suffix`  | Conditional | Environment suffix for non-production (`-preprod`, `-dev`) | `-preprod`       |
 
 ### Key Principles
 
@@ -196,17 +196,9 @@ Created `crego-infra/.github/actions/parse-version/action.yml` for consistent ve
 3. **crego-omni/.github/workflows/infra-deployment.yml**
 4. **crego-flow/.github/workflows/infra-deployment.yaml**
 
-**Changes Needed:**
+**Required Workflow Pattern:**
 
 ```yaml
-# Current (old pattern)
-- name: Determine image tag
-  run: |
-    if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-      IMAGE_TAG="${{ github.ref_name }}-${COMMIT_SHORT}"
-    fi
-
-# New (unified pattern)
 - name: Parse version from git context
   id: version
   run: |
@@ -226,16 +218,9 @@ Created `crego-infra/.github/actions/parse-version/action.yml` for consistent ve
     echo "sentry-release=$(echo "$VERSION_JSON" | jq -r '.docker_tag')" >> $GITHUB_OUTPUT
 ```
 
-**Add VITE_RELEASE to Docker Environment:**
+**Docker Environment Configuration:**
 
 ```yaml
-# Current (missing VITE_RELEASE)
-DOCKER_ENVS="{
-  \"VITE_SENTRY_DSN\":\"${SENTRY_DSN}\",
-  \"VITE_API_ROOT\":\"${API_ROOT}\"
-}"
-
-# New (includes VITE_RELEASE)
 DOCKER_ENVS="{
   \"VITE_RELEASE\":\"${{ steps.version.outputs.sentry-release }}\",
   \"VITE_SENTRY_DSN\":\"${SENTRY_DSN}\",
