@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "141cf2b84f4e431a",
+        "id": "3a98a27a04a65f66",
         "type": "tabs",
         "children": [
           {
-            "id": "e9cbde50a2a3a885",
+            "id": "3b81cd24f07c1ce9",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "release-management/team-release-playbook.md",
+                "file": "engineering/deployment-guide.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "team-release-playbook"
+              "title": "deployment-guide"
             }
           }
         ]
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "deployment",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": true,
@@ -74,7 +74,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -181,11 +182,12 @@
       "bases:Create new base": false
     }
   },
-  "active": "e9cbde50a2a3a885",
+  "active": "3b81cd24f07c1ce9",
   "lastOpenFiles": [
+    "engineering/deployment-guide.md",
+    "release-management/team-release-playbook.md",
     "release-management/release-process-setup-guide.md",
     "release-management/~$v2.3.0-release-plan.xlsx",
-    "release-management/team-release-playbook.md",
     "engineering/unified-version-format.md",
     "engineering/environment-naming-standard.md",
     "INDEX.base",
