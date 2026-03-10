@@ -387,7 +387,8 @@ Both frontend applications are deployed as part of the Single Domain Architectur
 | **`ADMIN_EMAIL`**                         | Yes      | `admin@localhost`                               | Default admin user email                                                               | `admin@yourdomain.com`                                    |
 | **`RATE_LIMIT_ENABLED`**                  | No       | _(empty)_                                       | Enable API rate limiting (for future Flow services integration)                        | `false`                                                   |
 | **`RATE_LIMIT_REQUESTS`**                 | No       | _(empty)_                                       | Rate limit requests per minute (for future Flow services integration)                  | `500`                                                     |
-| **`SENTRY_DSN`**                          | No       | _(empty)_                                       | Sentry error tracking DSN for error monitoring (all services)                          | `https://key@org.ingest.sentry.io/project`                |
+| **`OMNI_SENTRY_DSN`**                     | No       | _(empty)_                                       | Sentry error tracking DSN for Omni service                                             | `https://key@org.ingest.sentry.io/project`                |
+| **`FLOW_SENTRY_DSN`**                     | No       | _(empty)_                                       | Sentry error tracking DSN for Flow service                                             | `https://key@org.ingest.sentry.io/project`                |
 | **`LOG_BACKENDS`**                        | No       | `console`                                       | Comma-separated logging backends (console, rsys)                                       | `console,rsys`                                            |
 | **`RSYS_HOST`**                           | No       | _(empty)_                                       | Remote syslog host for structured logging                                              | `rsyslog.yourdomain.com`                                  |
 | **`RSYS_PORT`**                           | No       | `514`                                           | Remote syslog port                                                                     | `514`                                                     |
@@ -750,7 +751,7 @@ Flow services depend on Omni for authentication. Here’s how it works:
   - **Sentry**: Error tracking and performance monitoring
   - **Remote Syslog**: Centralized log aggregation
 - **Configuration**:
-  - Sentry DSN configured via `SENTRY_DSN` environment variable
+  - Sentry DSN configured via service-specific environment variables (`OMNI_SENTRY_DSN`, `FLOW_SENTRY_DSN`)
   - Syslog configured via `RSYS_HOST` and `RSYS_PORT` variables
 
 ---

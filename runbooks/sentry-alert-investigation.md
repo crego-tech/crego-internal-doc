@@ -538,7 +538,7 @@ def before_send(event, hint):
     return event
 
 sentry_sdk.init(
-    dsn=SENTRY_DSN,
+    dsn=OMNI_SENTRY_DSN,  # or FLOW_SENTRY_DSN for Flow service
     before_send=before_send,
     # ... other config
 )

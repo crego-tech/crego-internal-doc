@@ -14,7 +14,7 @@
               "type": "markdown",
               "state": {
                 "file": "engineering/deployment-guide.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "deployment",
+                "query": "",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": true,
@@ -79,7 +79,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 304.5
+    "width": 304.5,
+    "collapsed": true
   },
   "right": {
     "id": "1e065d34ebfd51f4",
@@ -184,11 +185,11 @@
   },
   "active": "3b81cd24f07c1ce9",
   "lastOpenFiles": [
+    "engineering/unified-version-format.md",
     "engineering/deployment-guide.md",
     "release-management/team-release-playbook.md",
     "release-management/release-process-setup-guide.md",
     "release-management/~$v2.3.0-release-plan.xlsx",
-    "engineering/unified-version-format.md",
     "engineering/environment-naming-standard.md",
     "INDEX.base",
     "git-strategy/practical-commands.md",
