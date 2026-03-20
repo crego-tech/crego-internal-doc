@@ -30,22 +30,7 @@ This made it impossible to:
 {semver}[-{client}]-{commit}
 ```
 
-### Format Components
-
-| Component | Required    | Description                                                | Example          |
-| --------- | ----------- | ---------------------------------------------------------- | ---------------- |
-| `semver`  | Yes         | Semantic version (MAJOR.MINOR.PATCH) without 'v' prefix    | `2.2.0`          |
-| `client`  | No          | Client identifier for client-specific releases             | `acme`, `globex` |
-| `commit`  | Yes         | 8-character short commit SHA for traceability              | `a3f2c1b`        |
-| `suffix`  | Conditional | Environment suffix for non-production (`-preprod`, `-dev`) | `-preprod`       |
-
-### Key Principles
-
-1. **No 'v' prefix** in version strings (except Git tags)
-2. **Always include commit hash** for full traceability
-3. **Hyphens as separators** between all components
-4. **Lowercase client names** for consistency
-5. **Same format everywhere** - Git tag determines all downstream versions
+> **Visual reference:** For the full version-by-environment matrix, Sentry format examples, and CI/CD image tagging — see the **Versioning tab** in `crego-internal-docs/release-management/crego-release-flow.html`
 
 ## Version Examples by Release Type
 

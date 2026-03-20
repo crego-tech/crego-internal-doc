@@ -202,6 +202,8 @@
     <button class="tab" onclick="showPanel('versioning')">Versioning</button>
     <button class="tab" onclick="showPanel('hotfix')">Hotfix</button>
     <button class="tab" onclick="showPanel('commands')">Commands</button>
+    <button class="tab" onclick="showPanel('sentry')">Sentry</button>
+    <button class="tab" onclick="showPanel('setup')">Setup & Templates</button>
     <button class="tab" onclick="showPanel('constraints')">Rules & Constraints</button>
   </div>
 
@@ -889,7 +891,194 @@
     </div>
   </div>
 
-  <!-- ======================== PANEL 7: RULES & CONSTRAINTS ======================== -->
+  <!-- ======================== PANEL 7: SENTRY ======================== -->
+  <div id="sentry" class="panel">
+    <div class="section-title">
+      <span class="icon" style="background:var(--orange-dim);color:var(--orange);">S</span>
+      Sentry Release Tracking
+    </div>
+
+    <div class="card">
+      <div class="card-title">Post-Deploy Sentry Verification</div>
+      <div class="note"><strong>After every deployment</strong> (prod or preprod, internal or client), verify version appears correctly in Sentry.</div>
+
+      <div class="cmd-section-title" style="margin-top:16px;">Backend Services (Django)</div>
+      <div class="cmd-group">
+        <div class="cmd-label">1. Verify SENTRY_RELEASE env var</div>
+        <div class="cmd"><code>kubectl get deployment omni-api -n prod-gcp -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name=="SENTRY_RELEASE")].value}'</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        <div class="cmd"><code>kubectl get deployment flow-api -n prod-gcp -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name=="SENTRY_RELEASE")].value}'</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+      </div>
+      <div style="font-size:12px;margin:8px 0;">2. Check Sentry UI: Projects → Omni/Flow → Releases tab → verify tag, commits, deploy timestamp.</div>
+      <div style="font-size:12px;margin:8px 0;">3. Monitor release health: "Crash Free Sessions" >99%, review new issues, compare error rate to previous release.</div>
+
+      <div class="cmd-section-title" style="margin-top:16px;">Frontend Services (React)</div>
+      <div style="font-size:12px;margin:8px 0;">1. Check CI/CD logs for source map upload confirmation.</div>
+      <div style="font-size:12px;margin:8px 0;">2. Sentry UI → Project Settings → Source Maps → verify bundle files + .map files are present.</div>
+      <div style="font-size:12px;margin:8px 0;">3. Test: trigger a safe error in prod, verify stack trace shows readable file names (not minified).</div>
+
+      <div class="cmd-section-title" style="margin-top:16px;">Release Health Alerts</div>
+      <div style="font-size:12px;margin:8px 0;">Set up in Sentry → Alerts → "Release Health" rule: >5% error rate within 1 hour after deploy → notify release manager.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Troubleshooting</div>
+      <table>
+        <tr><th>Problem</th><th>Diagnosis</th><th>Fix</th></tr>
+        <tr>
+          <td>Release not in Sentry</td>
+          <td><span class="mono" style="font-size:10px;">kubectl exec -it deploy/omni-api -n prod-gcp -- env | grep SENTRY_RELEASE</span></td>
+          <td>Verify SENTRY_RELEASE in deployment manifest. Ensure ArgoCD/Kustomize overlay sets it. Restart pods.</td>
+        </tr>
+        <tr>
+          <td>Source maps missing (frontend)</td>
+          <td>Check GH Actions logs for upload step. Verify <span class="mono">SENTRY_AUTH_TOKEN</span> secret exists.</td>
+          <td>Emergency upload: <span class="mono" style="font-size:10px;">sentry-cli releases files vX.Y.Z upload-sourcemaps ./dist --url-prefix '~/assets' --org crego --project omni-web</span></td>
+        </tr>
+        <tr>
+          <td>Commits not linked</td>
+          <td>Release appears but shows no commits</td>
+          <td>Ensure GitHub integration in Sentry org settings. Run: <span class="mono" style="font-size:10px;">sentry-cli releases set-commits vX.Y.Z --auto</span></td>
+        </tr>
+        <tr>
+          <td>Backend shows commit-only release</td>
+          <td><span class="mono">omni@a3f2c1b</span> instead of <span class="mono">omni@2.2.0-a3f2c1b</span></td>
+          <td>SENTRY_RELEASE not injected in K8s. Update deployment manifest to include it.</td>
+        </tr>
+        <tr>
+          <td>Frontend shows "undefined"</td>
+          <td><span class="mono">VITE_RELEASE</span> not set during Docker build</td>
+          <td>Update workflow to pass <span class="mono">VITE_RELEASE</span> in <span class="mono">DOCKER_ENVS</span></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ======================== PANEL 8: SETUP & TEMPLATES ======================== -->
+  <div id="setup" class="panel">
+    <div class="section-title">
+      <span class="icon" style="background:var(--purple-dim);color:var(--purple);">T</span>
+      Setup & Issue Templates
+    </div>
+
+    <div class="card">
+      <div class="card-title">Linear Workspace Setup</div>
+      <table>
+        <tr><th>Setting</th><th>Configuration</th></tr>
+        <tr><td>Teams</td><td><strong>Tech</strong> and <strong>Product</strong> (currently configured)</td></tr>
+        <tr><td>Cycles</td><td>Weekly or biweekly sprints. At start: move Backlog → Todo. At end: incomplete issues roll to next cycle.</td></tr>
+        <tr><td>Projects</td><td>One per release version (e.g., <span class="mono">Release v2.5.0</span>) — shows completion % dashboard.</td></tr>
+        <tr><td>GitHub Integration</td><td>Linear → Settings → Integrations → GitHub. All repos connected.</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Issue Templates</div>
+      <div class="grid-2">
+        <div>
+          <div class="cmd-section-title">Feature Template</div>
+          <div class="cmd" style="display:block;white-space:pre-wrap;"><code>## Problem
+&lt;!-- What problem does this solve? Who is affected? --&gt;
+
+## Proposed Solution
+&lt;!-- High-level approach. Include mockups/links if available. --&gt;
+
+## Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+## Affected Repositories
+&lt;!-- Tag with repo labels --&gt;
+
+## Notes
+&lt;!-- Any dependencies, risks, or things to watch out for --&gt;</code><button class="copy-btn" onclick="cp(this)" style="position:absolute;top:8px;right:8px;">copy</button></div>
+        </div>
+        <div>
+          <div class="cmd-section-title">Bug Template</div>
+          <div class="cmd" style="display:block;white-space:pre-wrap;"><code>## Description
+&lt;!-- What is happening? What should be happening instead? --&gt;
+
+## Steps to Reproduce
+1. Step 1
+2. Step 2
+
+## Environment
+&lt;!-- Dev / Pre-prod / Prod? Which client? Browser/device? --&gt;
+
+## Expected Behavior
+&lt;!-- What should happen --&gt;
+
+## Actual Behavior
+&lt;!-- What actually happens. Include screenshots/logs. --&gt;
+
+## Severity
+&lt;!-- Blocker / Major / Minor / Cosmetic --&gt;</code><button class="copy-btn" onclick="cp(this)" style="position:absolute;top:8px;right:8px;">copy</button></div>
+        </div>
+      </div>
+      <div class="cmd-section-title" style="margin-top:12px;">Hotfix Template</div>
+      <div class="cmd" style="display:block;white-space:pre-wrap;position:relative;"><code>## Incident Description
+&lt;!-- What broke in production? --&gt;
+
+## Impact
+&lt;!-- Who is affected? How many users/clients? Revenue impact? --&gt;
+
+## Root Cause (if known)
+&lt;!-- What caused this? --&gt;
+
+## Fix
+&lt;!-- What needs to change? --&gt;
+
+## Rollback Plan
+&lt;!-- If the fix makes things worse, how do we revert? --&gt;</code><button class="copy-btn" onclick="cp(this)" style="position:absolute;top:8px;right:8px;">copy</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Release Notes Format</div>
+      <div class="cmd" style="display:block;white-space:pre-wrap;position:relative;"><code># Release vX.Y.Z — Date
+
+## New Features
+- CRE-xxx: Description
+
+## Bug Fixes
+- CRE-xxx: Description
+
+## Improvements
+- CRE-xxx: Description
+
+## Chores
+- CRE-xxx: Description</code><button class="copy-btn" onclick="cp(this)" style="position:absolute;top:8px;right:8px;">copy</button></div>
+      <div class="note" style="margin-top:8px;">Generate from Linear: Project → filter by Released state → group by type label. For client releases, also filter by <span class="mono">client:*</span> label.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Common Mistakes</div>
+      <table>
+        <tr><th>Mistake</th><th>What Goes Wrong</th><th>Prevention</th></tr>
+        <tr><td>Forget to merge master → develop after release</td><td>Next release reintroduces fixed bugs</td><td>Post-release checklist. Automate with GH Action.</td></tr>
+        <tr><td>Push features to release branch</td><td>Scope creep, UAT never converges</td><td>Release branch is frozen. Features → develop.</td></tr>
+        <tr><td>Skip <span class="mono">needs-backport</span> label</td><td>Release fixes never reach develop</td><td>QA + Release Manager check before closing release.</td></tr>
+        <tr><td>Don't update CLIENT_VERSIONS.md</td><td>Nobody knows what version clients run</td><td>Blocking step in release checklist.</td></tr>
+        <tr><td>Hotfix from develop (not master)</td><td>Hotfix includes unreleased code</td><td>Always branch hotfix from master.</td></tr>
+        <tr><td>Merge own PR</td><td>No second pair of eyes</td><td>Branch protection enforces reviewer.</td></tr>
+        <tr><td>Missing type/client/repo labels</td><td>Can't generate release notes per client</td><td>PR template reminds. Linear template has required fields.</td></tr>
+        <tr><td>Missing <span class="mono">found-in:*</span> label on bugs</td><td>No quality metrics by environment</td><td>Always tag where bug was discovered.</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">First-Time Setup Checklist</div>
+      <div class="rule rule-info"><span class="rule-icon">1</span><span>GitHub branch protection rules configured on all repos (master, develop)</span></div>
+      <div class="rule rule-info"><span class="rule-icon">2</span><span>Linear workflow states created (11 states — see Linear Flow tab)</span></div>
+      <div class="rule rule-info"><span class="rule-icon">3</span><span>Linear label groups created (Type, Found-in, Client, Repository, Release, Flags)</span></div>
+      <div class="rule rule-info"><span class="rule-icon">4</span><span>Linear issue templates created (Feature, Bug, Hotfix — see above)</span></div>
+      <div class="rule rule-info"><span class="rule-icon">5</span><span>Linear–GitHub integration connected and tested</span></div>
+      <div class="rule rule-info"><span class="rule-icon">6</span><span>CI/CD pipelines configured for all branch/tag patterns (see CI/CD tab)</span></div>
+      <div class="rule rule-info"><span class="rule-icon">7</span><span>CLIENT_VERSIONS.md created in crego-infra</span></div>
+      <div class="rule rule-info"><span class="rule-icon">8</span><span>First test release completed end-to-end (develop → release → master → tag)</span></div>
+      <div class="rule rule-info"><span class="rule-icon">9</span><span>Team onboarded on this document</span></div>
+    </div>
+  </div>
+
+  <!-- ======================== PANEL 9: RULES & CONSTRAINTS ======================== -->
   <div id="constraints" class="panel">
     <div class="section-title">
       <span class="icon" style="background:var(--red-dim);color:var(--red);">R</span>
