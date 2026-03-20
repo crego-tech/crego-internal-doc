@@ -4,10 +4,10 @@ Index of all compliance, security, and disaster recovery documentation.
 
 ## Security
 
-- [Source Code Security Assurance](security/source-code-security-assurance.md)
+- [Source Code Security Assurance](source-code-security-assurance.md)
 - [VAPT Solutions](security/vapt-solutions.md)
-- [Web Application Security Audit L2 Report (PDF)](security/Crego-Web-Application-Security-Audit-L2-Report_dsc.pdf)
-- [Source Code Review Report (PDF)](security/Crego_io__Source_Code_Review_Report_V_1_0.pdf)
+- [Web Application Security Audit L2 Report (PDF)](Crego-Web-Application-Security-Audit-L2-Report_dsc.pdf)
+- [Source Code Review Report (PDF)](Crego_io__Source_Code_Review_Report_V_1_0.pdf)
 
 ## Disaster Recovery
 
@@ -15,11 +15,11 @@ Index of all compliance, security, and disaster recovery documentation.
 - [DR Drill — August 2023](disaster-recovery/dr-drill-2023-08.md)
 - [DR Drill — October 2024](disaster-recovery/dr-drill-2024-10.md)
 - [DR Drill — December 2024](disaster-recovery/dr-drill-2024-12.md)
-- [Disaster Recovery Report (PDF)](disaster-recovery/Disaster_Recovery_Report.pdf)
+- [Disaster Recovery Report (PDF)](Disaster_Recovery_Report.pdf)
 
 ## Network Architecture
 
-- [Network Architecture Diagram](network-architecture/network-architecture-diagram.md)
+- [Network Architecture Diagram](network-architecture-diagram.md)
 
 ## Audit & Compliance Reports (PDFs)
 

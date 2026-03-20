@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "3a98a27a04a65f66",
+        "id": "715da1f37c1e9ec5",
         "type": "tabs",
         "children": [
           {
-            "id": "3b81cd24f07c1ce9",
+            "id": "5ec769bf7bbd6542",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "engineering/deployment-guide.md",
-                "mode": "preview",
+                "file": "architecture/high-level-design/01-system-architecture.md",
+                "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "deployment-guide"
+              "title": "01-system-architecture"
             }
           }
         ]
@@ -74,13 +74,11 @@
               "title": "Bookmarks"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 304.5,
-    "collapsed": true
+    "width": 304.5
   },
   "right": {
     "id": "1e065d34ebfd51f4",
@@ -183,54 +181,54 @@
       "bases:Create new base": false
     }
   },
-  "active": "3b81cd24f07c1ce9",
+  "active": "5ec769bf7bbd6542",
   "lastOpenFiles": [
-    "engineering/unified-version-format.md",
+    "architecture/high-level-design/02-deployment-topology.md",
+    "architecture/high-level-design/infrastructure-diagrams.md",
     "engineering/deployment-guide.md",
-    "release-management/team-release-playbook.md",
-    "release-management/release-process-setup-guide.md",
-    "release-management/~$v2.3.0-release-plan.xlsx",
-    "engineering/environment-naming-standard.md",
-    "INDEX.base",
-    "git-strategy/practical-commands.md",
-    "release-management/lu5376j8y.tmp",
-    "release-management/v2.3.0-release-plan.xlsx",
-    "engineering/remote-environment-access.md",
-    "runbooks/sentry-alert-investigation.md",
-    "engineering/sentry-secret-rotation.md",
-    "release-management/~$release-handbook.xlsx",
-    "git-strategy/github-branch-tag-protection-rulesets.md",
-    "release-management/release-notes/v2.2.0.md",
-    "runbooks/rollback-release.md",
-    "Untitled.canvas",
-    "2026-02-15.md",
-    "_archive/7-feb-work-notes.md",
-    "release-management/cycle-160-plan.xlsx",
-    "_archive/access-required.md",
-    "_archive/01-system-architecture.md",
-    "release-management/release-notes/v2.1.0.md",
-    "release-management/release-notes/v2.0.0.md",
-    "release-management/release-notes/v2.2.0-rc.md",
-    "release-management/~$release-management-tracker.xlsx",
-    "release-management/team-structure.md",
-    "README.md",
-    "release-management/release-notes/v2.2.0-linear.csv",
-    "onboarding/README.md",
-    "onboarding",
-    "_archive/README.md",
-    "_archive.md",
     "architecture/README.md",
-    "CLAUDE.md",
-    "_archive",
-    "compliance/network-architecture/images/crego-Network-Arch-Diagram.drawio.png",
-    "compliance/disaster-recovery/images/dr-2024-10-screenshot.png",
-    "compliance/disaster-recovery/images/dr-2024-10-image.png",
+    "architecture/network-architecture/README.md",
+    "engineering/environment-naming-standard.md",
+    "engineering/remote-environment-access.md",
+    "engineering/rule-expression.md",
+    "engineering/sdlc-development-guide.md",
+    "engineering/unified-version-format.md",
+    "engineering/semantic-versioning.md",
+    "engineering/sentry-secret-rotation.md",
+    "engineering/~$test-cases-template.xlsx",
+    "engineering/utility-commands.md",
+    "compliance/disaster-recovery/dr-drill-2024-10.md",
+    "compliance/disaster-recovery/dr-drill-2023-08.md",
+    "compliance/disaster-recovery/dr-drill-setup.md",
+    "compliance/disaster-recovery/dr-drill-2024-12.md",
+    "compliance/v1 reports/Disaster_Recovery_Report.pdf",
     "compliance/disaster-recovery/images/dr-2024-10-image-2.png",
-    "compliance/disaster-recovery/images/dr-2024-10-image-1.png",
+    "compliance/disaster-recovery/images/dr-2024-10-screenshot.png",
     "compliance/disaster-recovery/images/dr-2023-08-image5.jpeg",
-    "compliance/disaster-recovery/images/dr-2023-08-image2.jpeg",
-    "compliance/disaster-recovery/images/dr-2023-08-image.png",
     "compliance/disaster-recovery/images/dr-2023-08-image-2.png",
-    "compliance/disaster-recovery/images/dr-2023-08-image-1.png"
+    "compliance/disaster-recovery/images/dr-2023-08-image-1.png",
+    "compliance/disaster-recovery/images/dr-2023-08-image.png",
+    "security/source-code-security-assurance.md",
+    "compliance/v1 reports/Crego-Web-Application-Security-Audit-L2-Report_dsc.pdf",
+    "compliance/v1 reports/Crego_io__Source_Code_Review_Report_V_1_0.pdf",
+    "compliance/security/README.md",
+    "compliance/security/vapt-solutions.md",
+    "compliance/v1 reports/Crego_-_Audit_Log_Policy.pdf",
+    "hiring/devops-interview-standard.md",
+    "compliance/v1 reports",
+    "git-strategy/practical-commands.md",
+    "git-strategy/infrastructure-workflow.md",
+    "git-strategy/github-branch-tag-protection-rulesets.md",
+    "git-strategy/emergency-procedures.md",
+    "git-strategy/deployment-models.md",
+    "release-management/~$cycle-160-plan.xlsx",
+    "release-management/~$v2.3.0-release-plan.xlsx",
+    "release-management/~$release-handbook.xlsx",
+    "architecture/model-registry.csv",
+    "clients/Dehaat/dehaat-deployment-architecture.png",
+    "architecture/Dehaat/dehaat-deployment-architecture.png",
+    "architecture/service-wise-design/dehaat-deployment-architecture.png",
+    "compliance/disaster-recovery/images/dr-2024-10-image.png",
+    "Untitled.canvas"
   ]
 }
