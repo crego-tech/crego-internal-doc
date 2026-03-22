@@ -364,6 +364,69 @@ git push origin develop
 
 ---
 
+## Appendix: Client Release Process
+
+Client releases deploy to client-specific AWS ECR instead of internal GCR. All client config is centralized in `crego-infra/config/clients.yaml`.
+
+### Quick commands
+
+```bash
+# 1. Create client release branches (all repos)
+./scripts/release-client.sh v2.5.0-bcpl branch
+
+# 2. Build & push Docker images to client ECR (triggers Release Orchestrator)
+./scripts/release-client.sh v2.5.0-bcpl build
+
+# 3. After UAT passes, tag for production
+./scripts/release-client.sh v2.5.0-bcpl tag
+
+# Preview any action without executing
+./scripts/release-client.sh v2.5.0-bcpl branch --dry-run
+```
+
+### How it works
+
+1. **`branch`** — Creates `release/v2.5.0-bcpl` from develop in crego-omni, crego-flow, and crego-web (local git operations)
+2. **`build`** — Triggers the Release Orchestrator workflow (`release-orchestrator.yaml` in crego-infra), which calls `client_release.yaml` in each repo. Each repo reads `clients.yaml` for AWS region, platform arch, endpoints, Sentry DSN, and deployment type — only client_name, env, and version are needed as inputs
+3. **`tag`** — Creates the version tag in all repos, triggering production deployment
+
+### Alternative: Release Orchestrator (GitHub Actions UI)
+
+Instead of CLI, you can trigger the orchestrator directly:
+
+```bash
+# Cut branches across all repos
+gh workflow run release-orchestrator.yaml --repo crego-tech/crego-infra \
+  -f version=v2.5.0-bcpl -f action=cut -f dry_run=false
+
+# Trigger client ECR builds
+gh workflow run release-orchestrator.yaml --repo crego-tech/crego-infra \
+  -f version=v2.5.0-bcpl -f action=client-build -f env=preprod -f dry_run=false
+
+# Create ship PRs (release → production)
+gh workflow run release-orchestrator.yaml --repo crego-tech/crego-infra \
+  -f version=v2.5.0-bcpl -f action=ship -f dry_run=false
+```
+
+### Adding a new client
+
+1. Add entry to `crego-infra/config/clients.yaml`
+2. Ensure AWS OIDC role exists for the client
+3. Add Linear label: `client:<name>`
+4. Add celery worker/beat to the appropriate environment overlays in crego-infra
+
+### Deployment streams
+
+| Repo | Services | Notes |
+|---|---|---|
+| crego-omni | omni-api, omni-worker, omni-schedule, omni-flower | 4 Docker images per release |
+| crego-flow | flow-api, flow-worker | 2 Docker images per release |
+| crego-web | omni-web, flow-web (or both) | S3 or ECR deployment, configurable per client |
+
+> **Note:** crego-web deploys BOTH omni-web and flow-web. These are separate packages (`packages/omni-web/` and `packages/flow-web/`) that trigger independently based on path changes for internal releases, but both build during client releases.
+
+---
+
 ## Appendix: Repository Quick Reference
 
 | Repo | Prod Branch | Type | GitHub Actions URL |
