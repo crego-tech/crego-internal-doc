@@ -202,7 +202,9 @@
     <button class="tab" onclick="showPanel('versioning')">Versioning</button>
     <button class="tab" onclick="showPanel('hotfix')">Hotfix</button>
     <button class="tab" onclick="showPanel('commands')">Commands</button>
+    <button class="tab" onclick="showPanel('orchestrator')">Orchestrator</button>
     <button class="tab" onclick="showPanel('sentry')">Sentry</button>
+    <button class="tab" onclick="showPanel('clients')">Clients & Config</button>
     <button class="tab" onclick="showPanel('setup')">Setup & Templates</button>
     <button class="tab" onclick="showPanel('constraints')">Rules & Constraints</button>
   </div>
@@ -781,17 +783,22 @@
     <div class="card">
       <div class="cmd-section-title">Release Manager — Client Release (Multi-Repo)</div>
       <div class="cmd-group">
-        <div class="cmd-label">Dry run (preview, no changes)</div>
+        <div class="cmd-label">CLI: Dry run (preview, no changes)</div>
         <div class="cmd"><code>./scripts/release-client.sh vX.Y.Z-clientname branch --dry-run</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
       </div>
       <div class="cmd-group">
-        <div class="cmd-label">Create client preprod branches (all repos)</div>
+        <div class="cmd-label">CLI: Create client preprod branches (all repos)</div>
         <div class="cmd"><code>./scripts/release-client.sh vX.Y.Z-clientname branch</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
       </div>
       <div class="cmd-group">
-        <div class="cmd-label">Tag for client production (after UAT passes)</div>
+        <div class="cmd-label">CLI: Build & push client images to ECR (triggers orchestrator)</div>
+        <div class="cmd"><code>./scripts/release-client.sh vX.Y.Z-clientname build</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+      </div>
+      <div class="cmd-group">
+        <div class="cmd-label">CLI: Tag for client production (after UAT passes)</div>
         <div class="cmd"><code>./scripts/release-client.sh vX.Y.Z-clientname tag</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
       </div>
+      <div class="note" style="margin-top:8px;">See the <strong>Orchestrator</strong> tab for the full orchestrator flow, direct GitHub Actions commands, and how internal vs client releases differ.</div>
     </div>
 
     <!-- HOTFIX -->
@@ -891,7 +898,201 @@
     </div>
   </div>
 
-  <!-- ======================== PANEL 7: SENTRY ======================== -->
+  <!-- ======================== PANEL 7: RELEASE ORCHESTRATOR ======================== -->
+  <div id="orchestrator" class="panel">
+    <div class="section-title">
+      <span class="icon" style="background:var(--green-dim);color:var(--green);">O</span>
+      Release Orchestrator
+    </div>
+
+    <div class="note" style="margin-bottom:16px;"><strong>One command, all repos.</strong> The Release Orchestrator (<span class="mono">release-orchestrator.yaml</span>) runs from <span class="mono">crego-infra</span> and coordinates releases across crego-omni, crego-flow, and crego-web. It replaces running manual git commands in each repo separately.</div>
+
+    <!-- INTERNAL RELEASE FLOW -->
+    <div class="card">
+      <div class="card-title" style="color:var(--cyan);">Internal Release Flow (via Orchestrator)</div>
+      <div class="flow-horizontal">
+        <div class="flow-node node-blue">cut<span class="sub">branches from develop</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node node-orange">auto-deploy<span class="sub">preprod (infra-deployment)</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node node-cyan">QA + UAT<span class="sub">on preprod</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node node-green">ship<span class="sub">PRs → master/main</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node node-green">tag<span class="sub">at merge commit</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node node-blue">merge-back<span class="sub">prod → develop</span></div>
+      </div>
+      <table style="margin-top:12px;">
+        <tr><th>Step</th><th>Action</th><th>What It Does</th><th>Triggered Automatically?</th></tr>
+        <tr>
+          <td><span class="tag tag-blue">1</span></td>
+          <td class="mono">cut</td>
+          <td>Creates <span class="mono">release/vX.Y.Z</span> branches from <span class="mono">develop</span> in all 3 repos via GitHub API</td>
+          <td>No &mdash; manual trigger</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-orange">2</span></td>
+          <td><em>(automatic)</em></td>
+          <td>Branch push triggers <span class="mono">infra-deployment.yml</span> &rarr; builds images &rarr; pushes to GCR &rarr; ArgoCD deploys to preprod</td>
+          <td><span class="tag tag-green">Yes</span> &mdash; on push to <span class="mono">release/**</span></td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-cyan">3</span></td>
+          <td><em>(manual QA)</em></td>
+          <td>QA + UAT test on preprod environment. Bug fixes go to release branch, backported to develop.</td>
+          <td>No &mdash; human process</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-green">4</span></td>
+          <td class="mono">ship</td>
+          <td>Creates PRs from <span class="mono">release/vX.Y.Z</span> &rarr; <span class="mono">master</span>/<span class="mono">main</span> in all repos. PRs need 2 reviewer approvals.</td>
+          <td>No &mdash; manual trigger</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-green">5</span></td>
+          <td class="mono">tag</td>
+          <td>Verifies release PR was merged, then creates tag <span class="mono">vX.Y.Z</span> at the merge commit SHA (not HEAD). Tag triggers prod deploy.</td>
+          <td>No &mdash; manual trigger</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">6</span></td>
+          <td class="mono">merge-back</td>
+          <td>Creates PRs from <span class="mono">master</span>/<span class="mono">main</span> &rarr; <span class="mono">develop</span> to sync release fixes back.</td>
+          <td>No &mdash; manual trigger</td>
+        </tr>
+      </table>
+      <div class="cmd-group" style="margin-top:16px;">
+        <div class="cmd-label">Commands (run in sequence after each step completes)</div>
+        <div class="cmd"><code>gh workflow run release-orchestrator.yaml --repo crego-tech/crego-infra -f version=v2.5.0 -f action=cut -f dry_run=false</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        <div class="cmd"><code>gh workflow run release-orchestrator.yaml --repo crego-tech/crego-infra -f version=v2.5.0 -f action=ship -f dry_run=false</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        <div class="cmd"><code>gh workflow run release-orchestrator.yaml --repo crego-tech/crego-infra -f version=v2.5.0 -f action=tag -f dry_run=false</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        <div class="cmd"><code>gh workflow run release-orchestrator.yaml --repo crego-tech/crego-infra -f version=v2.5.0 -f action=merge-back -f dry_run=false</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+      </div>
+    </div>
+
+    <!-- CLIENT RELEASE FLOW -->
+    <div class="card">
+      <div class="card-title" style="color:var(--purple);">Client Release Flow (via Orchestrator)</div>
+      <div class="flow-horizontal">
+        <div class="flow-node node-purple">cut<span class="sub">branches from develop</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node node-purple">client-build<span class="sub">preprod → client ECR</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node node-cyan">Client UAT<span class="sub">on their cloud</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node node-purple">tag<span class="sub">mark approved code</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node node-purple">client-build<span class="sub">prod → client ECR</span></div>
+      </div>
+      <table style="margin-top:12px;">
+        <tr><th>Step</th><th>Action</th><th>What It Does</th><th>Key Difference from Internal</th></tr>
+        <tr>
+          <td><span class="tag tag-purple">1</span></td>
+          <td class="mono">cut</td>
+          <td>Creates <span class="mono">release/vX.Y.Z-bcpl</span> branches from <span class="mono">develop</span> in all 3 repos</td>
+          <td>Branch name includes client suffix. Does <strong>not</strong> trigger internal infra-deployment (skip guard).</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-purple">2</span></td>
+          <td class="mono">client-build</td>
+          <td>Reads <span class="mono">clients.yaml</span> for client config (AWS role, region, Sentry DSN). Triggers <span class="mono">client_release.yaml</span> in each repo with <span class="mono">--ref release/vX.Y.Z-bcpl</span>. Builds Docker images and pushes to client's ECR.</td>
+          <td>Uses <span class="mono">clients.yaml</span> (not GitHub env vars). Pushes to client AWS ECR (not GCR). No ArgoCD deploy.</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-cyan">3</span></td>
+          <td><em>(manual UAT)</em></td>
+          <td>Client tests on their own infrastructure using the images pushed to their ECR.</td>
+          <td>Client manages their own deployment. Fixes go to release branch, re-run <span class="mono">client-build</span> to redeploy.</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-purple">4</span></td>
+          <td class="mono">tag</td>
+          <td>Creates <span class="mono">vX.Y.Z-bcpl</span> tag in all 3 repos. Marks code as approved for client production.</td>
+          <td>Tag only &mdash; no PR to master/main. Client branches never merge to our production.</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-purple">5</span></td>
+          <td class="mono">client-build</td>
+          <td>Same as step 2 but with <span class="mono">env=prod</span>. Builds from the <span class="mono">vX.Y.Z-bcpl</span> tag. Pushes prod images to client ECR.</td>
+          <td>Builds from tag (immutable), not branch. Uses <span class="mono">--ref vX.Y.Z-bcpl</span>.</td>
+        </tr>
+      </table>
+      <div class="cmd-group" style="margin-top:16px;">
+        <div class="cmd-label">Commands (example: bcpl client release)</div>
+        <div class="cmd"><code>gh workflow run release-orchestrator.yaml --repo crego-tech/crego-infra -f version=v2.5.0-bcpl -f action=cut -f dry_run=false</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        <div class="cmd"><code>gh workflow run release-orchestrator.yaml --repo crego-tech/crego-infra -f version=v2.5.0-bcpl -f action=client-build -f env=preprod -f dry_run=false</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        <div class="cmd"><code>gh workflow run release-orchestrator.yaml --repo crego-tech/crego-infra -f version=v2.5.0-bcpl -f action=tag -f dry_run=false</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        <div class="cmd"><code>gh workflow run release-orchestrator.yaml --repo crego-tech/crego-infra -f version=v2.5.0-bcpl -f action=client-build -f env=prod -f dry_run=false</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+      </div>
+      <div class="note warn" style="margin-top:8px;"><strong>Not used for client releases:</strong> <span class="mono">ship</span> and <span class="mono">merge-back</span> are internal-only actions. Client branches don't merge to master/main &mdash; they are tag-only. No PR to production is needed because we just push images, not deploy to our infra.</div>
+    </div>
+
+    <!-- COMPARISON TABLE -->
+    <div class="card">
+      <div class="card-title">Internal vs Client &mdash; Action Comparison</div>
+      <table>
+        <tr><th>Action</th><th>Internal Release</th><th>Client Release</th></tr>
+        <tr>
+          <td class="mono">cut</td>
+          <td>Creates <span class="mono">release/vX.Y.Z</span> &rarr; auto-deploys to preprod (GCR + ArgoCD)</td>
+          <td>Creates <span class="mono">release/vX.Y.Z-client</span> &rarr; no auto-deploy (skip guard blocks infra-deployment)</td>
+        </tr>
+        <tr>
+          <td class="mono">client-build</td>
+          <td><span class="dim">Not used</span></td>
+          <td>Reads clients.yaml &rarr; triggers client_release.yaml &rarr; builds + pushes to client ECR</td>
+        </tr>
+        <tr>
+          <td class="mono">ship</td>
+          <td>Creates PRs: release &rarr; master/main (needs 2 reviewers)</td>
+          <td><span class="dim">Not used</span> &mdash; client branches don't merge to prod</td>
+        </tr>
+        <tr>
+          <td class="mono">tag</td>
+          <td>Tags at merge commit SHA &rarr; triggers prod deploy via infra-deployment</td>
+          <td>Tags release branch HEAD &rarr; used as immutable ref for client-build prod</td>
+        </tr>
+        <tr>
+          <td class="mono">merge-back</td>
+          <td>PRs master/main &rarr; develop (sync release fixes back)</td>
+          <td><span class="dim">Not used</span> &mdash; backport fixes manually if needed</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- SAFETY FEATURES -->
+    <div class="card">
+      <div class="card-title">Safety Features</div>
+      <div class="grid-2">
+        <div>
+          <div class="rule rule-must"><span class="rule-icon">✓</span><span><strong>Dry run by default</strong> &mdash; <span class="mono">dry_run=true</span> unless explicitly set to false</span></div>
+          <div class="rule rule-must"><span class="rule-icon">✓</span><span><strong>Idempotent</strong> &mdash; all actions skip if already done (branch/tag/PR already exists)</span></div>
+          <div class="rule rule-must"><span class="rule-icon">✓</span><span><strong>Concurrency control</strong> &mdash; only one run per version at a time</span></div>
+        </div>
+        <div>
+          <div class="rule rule-must"><span class="rule-icon">✓</span><span><strong>Pre-flight checks</strong> &mdash; validates branch exists (ship), PR was merged (tag), client in clients.yaml (client-build)</span></div>
+          <div class="rule rule-must"><span class="rule-icon">✓</span><span><strong>Merge-back gap check</strong> &mdash; cut warns if previous release wasn't merged back to develop</span></div>
+          <div class="rule rule-must"><span class="rule-icon">✓</span><span><strong>Summary job</strong> &mdash; runs <span class="mono">if: always()</span>, reports pass/fail across all repos</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORCHESTRATOR INPUTS -->
+    <div class="card">
+      <div class="card-title">Orchestrator Inputs</div>
+      <table>
+        <tr><th>Input</th><th>Required</th><th>Options</th><th>Notes</th></tr>
+        <tr><td class="mono">version</td><td><span class="tag tag-red">Yes</span></td><td>e.g. <span class="mono">v2.5.0</span> or <span class="mono">v2.5.0-bcpl</span></td><td>Determines if internal or client release based on suffix</td></tr>
+        <tr><td class="mono">action</td><td><span class="tag tag-red">Yes</span></td><td>cut, ship, tag, merge-back, client-build</td><td>See flows above</td></tr>
+        <tr><td class="mono">env</td><td>For client-build</td><td>preprod, prod</td><td>Determines git ref: branch (preprod) or tag (prod)</td></tr>
+        <tr><td class="mono">repos</td><td>No</td><td><span class="mono">all</span> or comma-separated</td><td>Default: all. Can target specific repos.</td></tr>
+        <tr><td class="mono">dry_run</td><td>No</td><td>true, false</td><td>Default: <span class="mono">true</span> (safe). Must set <span class="mono">false</span> to execute.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ======================== PANEL 8: SENTRY ======================== -->
   <div id="sentry" class="panel">
     <div class="section-title">
       <span class="icon" style="background:var(--orange-dim);color:var(--orange);">S</span>
@@ -953,7 +1154,102 @@
     </div>
   </div>
 
-  <!-- ======================== PANEL 8: SETUP & TEMPLATES ======================== -->
+  <!-- ======================== PANEL 9: CLIENTS & CONFIG ======================== -->
+  <div id="clients" class="panel">
+    <div class="section-title">
+      <span class="icon" style="background:var(--purple-dim);color:var(--purple);">C</span>
+      Clients & Deployment Config
+    </div>
+
+    <div class="note" style="margin-bottom:16px;"><strong>Source of truth:</strong> <span class="mono">crego-infra/config/clients.yaml</span> &mdash; all client deployment settings, environment presence, and AWS config live here.</div>
+
+    <div class="card">
+      <div class="card-title">Client Environment Matrix</div>
+      <table>
+        <tr><th>Client</th><th>Tier</th><th>Dev</th><th>Preprod</th><th>Prod</th><th>Linear Label</th></tr>
+        <tr><td><strong>bcpl</strong></td><td>free</td><td><span class="tag tag-blue">&#10003;</span></td><td><span class="tag tag-orange">&#10003;</span></td><td><span class="tag tag-green">&#10003;</span></td><td class="mono">client:bcpl</td></tr>
+        <tr><td><strong>solfin</strong></td><td>free</td><td><span class="tag tag-blue">&#10003;</span></td><td><span class="tag tag-orange">&#10003;</span></td><td>&mdash;</td><td class="mono">client:solfin</td></tr>
+        <tr><td><strong>vayana</strong></td><td>free</td><td><span class="tag tag-blue">&#10003;</span></td><td><span class="tag tag-orange">&#10003;</span></td><td>&mdash;</td><td class="mono">client:vayana</td></tr>
+        <tr><td><strong>dehaat</strong></td><td>free</td><td><span class="tag tag-blue">&#10003;</span></td><td><span class="tag tag-orange">&#10003;</span></td><td>&mdash;</td><td class="mono">client:dehaat</td></tr>
+        <tr><td><strong>ucic</strong></td><td>premium</td><td><span class="tag tag-blue">&#10003;</span></td><td><span class="tag tag-orange">&#10003;</span></td><td>&mdash;</td><td class="mono">client:ucic</td></tr>
+        <tr><td><strong>aerem</strong></td><td>free</td><td>&mdash;</td><td><span class="tag tag-orange">&#10003;</span></td><td>&mdash;</td><td class="mono">client:aerem</td></tr>
+        <tr><td><strong>aspire</strong></td><td>premium</td><td>&mdash;</td><td><span class="tag tag-orange">&#10003;</span></td><td>&mdash;</td><td class="mono">client:aspire</td></tr>
+        <tr><td><strong>tyger</strong> <span class="dim">(was adani)</span></td><td>enterprise</td><td>&mdash;</td><td><span class="tag tag-orange">&#10003;</span></td><td>&mdash;</td><td class="mono">client:tyger</td></tr>
+        <tr><td><strong>wogom</strong></td><td>premium</td><td>&mdash;</td><td><span class="tag tag-orange">&#10003;</span></td><td>&mdash;</td><td class="mono">client:wogom</td></tr>
+        <tr><td><strong>credflow</strong></td><td>free</td><td>&mdash;</td><td><span class="tag tag-orange">&#10003;</span></td><td>&mdash;</td><td class="dim">missing &mdash; add</td></tr>
+        <tr><td><strong>zetapp</strong></td><td>free</td><td>&mdash;</td><td><span class="tag tag-orange">&#10003;</span></td><td>&mdash;</td><td class="dim">missing &mdash; add</td></tr>
+        <tr><td><strong>indifi</strong></td><td>free</td><td>&mdash;</td><td><span class="tag tag-orange">&#10003;</span></td><td>&mdash;</td><td class="mono">client:indifi</td></tr>
+      </table>
+      <div class="note" style="margin-top:8px;"><strong>Only BCPL is in production.</strong> All other clients are preprod-only (some also dev). Planned clients with Linear labels only: flexiloans, switchmyloan.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Internal Tenants (not client releases)</div>
+      <table>
+        <tr><th>Tenant</th><th>Dev</th><th>Preprod</th><th>Prod</th><th>Domain Pattern</th></tr>
+        <tr><td><strong>default</strong></td><td><span class="tag tag-blue">&#10003;</span></td><td><span class="tag tag-orange">&#10003;</span></td><td><span class="tag tag-green">&#10003;</span></td><td class="mono">demo.{env}.crego.ai</td></tr>
+        <tr><td><strong>qa</strong></td><td><span class="tag tag-blue">&#10003;</span></td><td>&mdash;</td><td>&mdash;</td><td class="mono">qa.dev.crego.ai</td></tr>
+      </table>
+      <div class="note" style="margin-top:8px;">QA is a tenant within the dev namespace &mdash; gets dedicated celery workers (<span class="mono">omni-celery-worker-qa</span>) but shares the same API pods. Not a separate environment.</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="color:var(--cyan);">Internal Release &mdash; Config Source</div>
+        <table>
+          <tr><th>Setting</th><th>Source</th></tr>
+          <tr><td>Cloud</td><td>GCP (dev/preprod) + AWS (prod)</td></tr>
+          <tr><td>Registry</td><td>GCP Artifact Registry (GCR)</td></tr>
+          <tr><td>AWS credentials</td><td>GitHub environment secrets</td></tr>
+          <tr><td>Sentry DSN</td><td>GitHub environment variables</td></tr>
+          <tr><td>Deploy mechanism</td><td>ArgoCD auto-sync &rarr; K8s</td></tr>
+          <tr><td>Triggered by</td><td><span class="mono">infra-deployment.yml</span></td></tr>
+        </table>
+        <div class="note" style="margin-top:8px;"><span class="mono">clients.yaml</span> is <strong>not used</strong> for internal releases.</div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--purple);">Client Release &mdash; Config Source</div>
+        <table>
+          <tr><th>Setting</th><th>Source</th></tr>
+          <tr><td>Cloud</td><td>AWS only (all environments)</td></tr>
+          <tr><td>Registry</td><td>Client's ECR (via OIDC role)</td></tr>
+          <tr><td>AWS credentials</td><td><span class="mono">clients.yaml</span> &rarr; assume_role_arn</td></tr>
+          <tr><td>Sentry DSN</td><td><span class="mono">clients.yaml</span> &rarr; web.sentry_dsn</td></tr>
+          <tr><td>Deploy mechanism</td><td>Push images only (client deploys)</td></tr>
+          <tr><td>Triggered by</td><td><span class="mono">client_release.yaml</span> / orchestrator</td></tr>
+        </table>
+        <div class="note" style="margin-top:8px;"><span class="mono">clients.yaml</span> is the <strong>sole config source</strong> for client releases. GitHub env vars are not used.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Client Config Fields (clients.yaml)</div>
+      <table>
+        <tr><th>Field</th><th>Used By</th><th>Notes</th></tr>
+        <tr><td class="mono">assume_role_arn</td><td>omni, flow, web</td><td>OIDC cross-account role for ECR push. AWS account ID is embedded in the ARN.</td></tr>
+        <tr><td class="mono">aws_region</td><td>omni, flow, web</td><td>Default: <span class="mono">ap-south-1</span>. Override per client if needed.</td></tr>
+        <tr><td class="mono">platform_arch</td><td>omni, flow</td><td>Default: <span class="mono">linux/amd64</span>. Docker buildx platform target.</td></tr>
+        <tr><td class="mono">web.deployment_type</td><td>web</td><td><span class="mono">ecr</span> (Docker) or <span class="mono">s3</span> (static). Determines build pipeline.</td></tr>
+        <tr><td class="mono">web.sentry_dsn</td><td>web</td><td>Client-specific Sentry DSN. <strong>Required</strong> for client web builds (not from GitHub env).</td></tr>
+        <tr><td class="mono">web.api_root_omni</td><td>web</td><td>API root path. Default: <span class="mono">/api</span></td></tr>
+        <tr><td class="mono">web.api_root_flow</td><td>web</td><td>Flow API root path. Default: <span class="mono">/flow/api</span></td></tr>
+        <tr><td class="mono">web.service_selection</td><td>web</td><td><span class="mono">both</span>, <span class="mono">omni-web</span>, or <span class="mono">flow-web</span></td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Adding a New Client &mdash; Checklist</div>
+      <div class="rule rule-info"><span class="rule-icon">1</span><span>Add entry to <span class="mono">crego-infra/config/clients.yaml</span> with all fields</span></div>
+      <div class="rule rule-info"><span class="rule-icon">2</span><span>Create AWS OIDC role in client's account (for ECR push)</span></div>
+      <div class="rule rule-info"><span class="rule-icon">3</span><span>Create ECR repositories in client's AWS account</span></div>
+      <div class="rule rule-info"><span class="rule-icon">4</span><span>Add Linear label: <span class="mono">client:&lt;name&gt;</span></span></div>
+      <div class="rule rule-info"><span class="rule-icon">5</span><span>Add celery worker/beat K8s manifests to environment overlays</span></div>
+      <div class="rule rule-info"><span class="rule-icon">6</span><span>Add domain + TLS certificate in infra overlays</span></div>
+      <div class="rule rule-info"><span class="rule-icon">7</span><span>Test with dry run: <span class="mono">gh workflow run release-orchestrator.yaml -f version=vX.Y.Z-newclient -f action=client-build -f dry_run=true</span></span></div>
+    </div>
+  </div>
+
+  <!-- ======================== PANEL 10: SETUP & TEMPLATES ======================== -->
   <div id="setup" class="panel">
     <div class="section-title">
       <span class="icon" style="background:var(--purple-dim);color:var(--purple);">T</span>
