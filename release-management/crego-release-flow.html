@@ -381,7 +381,7 @@
           </div>
           <div class="branch-event ev-master">
             <div class="label">Post-release: merge master → develop</div>
-            <div class="detail">Ensures release-branch fixes flow back. Update CLIENT_VERSIONS.md.</div>
+            <div class="detail">Ensures release-branch fixes flow back.</div>
           </div>
         </div>
       </div>
@@ -412,7 +412,7 @@
           </div>
           <div class="branch-event ev-client">
             <div class="label">Post-release</div>
-            <div class="detail">Update CLIENT_VERSIONS.md. Backport fixes to develop if needed.</div>
+            <div class="detail">Backport fixes to develop if needed.</div>
           </div>
         </div>
       </div>
@@ -565,7 +565,7 @@
         <tr><td>Sentry (backend)</td><td class="mono">{svc}@{docker-tag}</td><td class="mono">omni@2.2.0-acme-a3f2c1b</td></tr>
         <tr><td>Sentry (frontend)</td><td class="mono">{svc}@{docker-tag}</td><td class="mono">omni-web@2.2.0-acme-a3f2c1b</td></tr>
         <tr><td>Web app display</td><td class="mono">{semver}-{client}</td><td class="mono">2.2.0-acme</td></tr>
-        <tr><td>CLIENT_VERSIONS.md</td><td>Manual entry</td><td>Updated post-release</td></tr>
+        <tr><td>Git tags</td><td class="mono">vX.Y.Z / vX.Y.Z-client</td><td class="mono">v2.2.0-acme</td></tr>
       </table>
     </div>
   </div>
@@ -653,14 +653,20 @@
     </div>
 
     <div class="card">
-      <div class="card-title">CLIENT_VERSIONS.md — Source of Truth</div>
-      <table>
-        <tr><th>Client</th><th>Version</th><th>Cloud</th><th>Env</th><th>Last Deployed</th><th>Upgrade Policy</th></tr>
-        <tr><td>Shared (internal)</td><td class="mono">v2.2.0</td><td>GCP</td><td>prod</td><td>2026-03-15</td><td>Auto (company managed)</td></tr>
-        <tr><td>Acme Corp</td><td class="mono">v2.1.0-acme</td><td>AWS</td><td>client-prod</td><td>2026-03-01</td><td>Manual (client controls)</td></tr>
-        <tr><td>Globex Inc</td><td class="mono">v2.2.0-globex</td><td>GCP</td><td>client-prod</td><td>2026-03-15</td><td>Manual (stays current)</td></tr>
-      </table>
-      <div class="note">Lives in <span class="mono">crego-infra/CLIENT_VERSIONS.md</span>. Updated as a blocking post-release step — release isn't "done" until this is current.</div>
+      <div class="card-title">Version Tracking — Git Tags as Source of Truth</div>
+      <div class="note">All release versions are tracked via Git tags. No separate version file is needed.</div>
+      <div class="cmd-group" style="margin-top:12px;">
+        <div class="cmd-label">Query latest internal release</div>
+        <div class="cmd"><code>git tag -l 'v*' --sort=-version:refname | grep -v '-' | head -1</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+      </div>
+      <div class="cmd-group">
+        <div class="cmd-label">Query all releases for a specific client</div>
+        <div class="cmd"><code>git tag -l '*-bcpl' --sort=-version:refname</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+      </div>
+      <div class="cmd-group">
+        <div class="cmd-label">List all client releases across all clients</div>
+        <div class="cmd"><code>git tag -l 'v*-*' --sort=-version:refname</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+      </div>
     </div>
   </div>
 
@@ -1352,7 +1358,7 @@
         <tr><td>Forget to merge master → develop after release</td><td>Next release reintroduces fixed bugs</td><td>Post-release checklist. Automate with GH Action.</td></tr>
         <tr><td>Push features to release branch</td><td>Scope creep, UAT never converges</td><td>Release branch is frozen. Features → develop.</td></tr>
         <tr><td>Skip <span class="mono">needs-backport</span> label</td><td>Release fixes never reach develop</td><td>QA + Release Manager check before closing release.</td></tr>
-        <tr><td>Don't update CLIENT_VERSIONS.md</td><td>Nobody knows what version clients run</td><td>Blocking step in release checklist.</td></tr>
+        <tr><td>Don't tag releases properly</td><td>Can't trace what version clients run</td><td>Orchestrator auto-tags. Verify with <span class="mono">git tag -l</span>.</td></tr>
         <tr><td>Hotfix from develop (not master)</td><td>Hotfix includes unreleased code</td><td>Always branch hotfix from master.</td></tr>
         <tr><td>Merge own PR</td><td>No second pair of eyes</td><td>Branch protection enforces reviewer.</td></tr>
         <tr><td>Missing type/client/repo labels</td><td>Can't generate release notes per client</td><td>PR template reminds. Linear template has required fields.</td></tr>
@@ -1368,7 +1374,7 @@
       <div class="rule rule-info"><span class="rule-icon">4</span><span>Linear issue templates created (Feature, Bug, Hotfix — see above)</span></div>
       <div class="rule rule-info"><span class="rule-icon">5</span><span>Linear–GitHub integration connected and tested</span></div>
       <div class="rule rule-info"><span class="rule-icon">6</span><span>CI/CD pipelines configured for all branch/tag patterns (see CI/CD tab)</span></div>
-      <div class="rule rule-info"><span class="rule-icon">7</span><span>CLIENT_VERSIONS.md created in crego-infra</span></div>
+      <div class="rule rule-info"><span class="rule-icon">7</span><span>Client config (<span class="mono">clients.yaml</span>) created in crego-infra</span></div>
       <div class="rule rule-info"><span class="rule-icon">8</span><span>First test release completed end-to-end (develop → release → master → tag)</span></div>
       <div class="rule rule-info"><span class="rule-icon">9</span><span>Team onboarded on this document</span></div>
     </div>
@@ -1388,7 +1394,7 @@
         <div class="rule rule-must"><span class="rule-icon">✓</span><span>Always merge master back to develop after every release</span></div>
         <div class="rule rule-must"><span class="rule-icon">✓</span><span>PR title must include <span class="mono">CRE-xxx</span> issue ID</span></div>
         <div class="rule rule-must"><span class="rule-icon">✓</span><span>Every PR needs at least 1 approval (2 for master/release)</span></div>
-        <div class="rule rule-must"><span class="rule-icon">✓</span><span>Update CLIENT_VERSIONS.md after every prod deploy</span></div>
+        <div class="rule rule-must"><span class="rule-icon">✓</span><span>Verify git tags after every prod deploy (<span class="mono">git tag -l 'v*'</span>)</span></div>
         <div class="rule rule-must"><span class="rule-icon">✓</span><span>Backport every release-branch fix to develop (<span class="mono">needs-backport</span>)</span></div>
         <div class="rule rule-must"><span class="rule-icon">✓</span><span>Hotfix branches from master, never from develop</span></div>
         <div class="rule rule-must"><span class="rule-icon">✓</span><span>Add <span class="mono">found-in:*</span> label on every bug</span></div>
@@ -1404,7 +1410,7 @@
         <div class="rule rule-never"><span class="rule-icon">✗</span><span>Deploy RC tags (<span class="mono">-rc.*</span>) to production</span></div>
         <div class="rule rule-never"><span class="rule-icon">✗</span><span>Skip review for hotfixes — 2 reviewers still required</span></div>
         <div class="rule rule-never"><span class="rule-icon">✗</span><span>Use squash merge on release → master (loses commit history)</span></div>
-        <div class="rule rule-never"><span class="rule-icon">✗</span><span>Close a release without updating CLIENT_VERSIONS.md</span></div>
+        <div class="rule rule-never"><span class="rule-icon">✗</span><span>Close a release without verifying tags exist in all repos</span></div>
       </div>
     </div>
 
@@ -1437,7 +1443,7 @@
         <tr><td>Docker image</td><td class="mono" style="font-size:10px;">kubectl get deploy {svc} -n {ns} -o jsonpath='{.spec...image}'</td><td>Correct semver-sha tag</td></tr>
         <tr><td>Sentry release</td><td class="mono" style="font-size:10px;">kubectl exec deploy/{svc} -- env | grep SENTRY_RELEASE</td><td>Matches Docker tag</td></tr>
         <tr><td>Web version</td><td>Browser console: <span class="mono">__APP_VERSION__</span></td><td>Clean semver (no sha)</td></tr>
-        <tr><td>CLIENT_VERSIONS.md</td><td>Check crego-infra repo</td><td>Entry updated with new version + date</td></tr>
+        <tr><td>Git tags</td><td class="mono" style="font-size:10px;">git tag -l 'v*' --sort=-version:refname | head -3</td><td>Tag matches release version</td></tr>
       </table>
     </div>
   </div>
