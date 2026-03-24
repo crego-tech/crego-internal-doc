@@ -756,6 +756,7 @@
       <div class="cmd-group">
         <div class="cmd-label">PR title format</div>
         <div class="cmd"><code>CRE-xxx: Short description of what this does</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        <div class="note" style="margin-top:6px;">Also accepted: <span class="mono">release: vX.Y.Z</span> · <span class="mono">hotfix: description</span> · <span class="mono">chore: merge master back to develop</span> · <span class="mono">Merge …</span> · <span class="mono">Revert …</span></div>
       </div>
     </div>
 
@@ -1392,7 +1393,7 @@
         <div class="card-title" style="color:var(--green);">MUST DO</div>
         <div class="rule rule-must"><span class="rule-icon">✓</span><span>Always use merge commits (not squash) for release → master</span></div>
         <div class="rule rule-must"><span class="rule-icon">✓</span><span>Always merge master back to develop after every release</span></div>
-        <div class="rule rule-must"><span class="rule-icon">✓</span><span>PR title must include <span class="mono">CRE-xxx</span> issue ID</span></div>
+        <div class="rule rule-must"><span class="rule-icon">✓</span><span>PR title must include <span class="mono">CRE-xxx</span> issue ID (exceptions: <span class="mono">release:</span>, <span class="mono">hotfix:</span>, <span class="mono">chore:</span>, merge/revert PRs)</span></div>
         <div class="rule rule-must"><span class="rule-icon">✓</span><span>Every PR needs at least 1 approval (2 for master/release)</span></div>
         <div class="rule rule-must"><span class="rule-icon">✓</span><span>Verify git tags after every prod deploy (<span class="mono">git tag -l 'v*'</span>)</span></div>
         <div class="rule rule-must"><span class="rule-icon">✓</span><span>Backport every release-branch fix to develop (<span class="mono">needs-backport</span>)</span></div>
