@@ -62,6 +62,116 @@ This document provides an overview of the technologies used across all Crego pro
 
 ---
 
+## crego-app
+
+**Mobile Application** - Cross-platform React Native app (iOS, iPadOS, Android)
+
+### Core Framework
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React Native | 0.81.5 | Cross-platform mobile framework |
+| React | 19.1.0 | UI framework |
+| Expo | ~54.0.29 | Managed workflow with New Architecture |
+| Expo Router | ~6.0.19 | File-based routing |
+| TypeScript | ~5.9.2 | Type-safe JavaScript |
+| pnpm | - | Package manager |
+
+### Styling & UI
+
+| Technology | Purpose |
+|------------|---------|
+| Tailwind CSS v4 | Utility-first CSS framework (via Uniwind) |
+| Uniwind | Tailwind CSS adapter for React Native |
+| RN Primitives (@rn-primitives) | Headless UI primitives (20+ components) |
+| React Native Reusables | shadcn-ui style component library for RN |
+| Class Variance Authority | Component variant management |
+| Lucide React Native | Icon library |
+| tailwind-merge | Tailwind class merging |
+| tw-animate-css | Animation utilities |
+
+### State & Data Management
+
+| Technology | Purpose |
+|------------|---------|
+| TanStack Query (React Query) | Server state management and caching |
+| AJV | JSON Schema-based form validation |
+| Zod | Schema validation |
+| Axios | HTTP client |
+
+### Navigation & Gestures
+
+| Technology | Purpose |
+|------------|---------|
+| Expo Router v6 | File-based navigation |
+| @react-navigation/native | Navigation primitives |
+| react-native-gesture-handler | Touch and gesture handling |
+| react-native-screens | Native screen components |
+| react-native-reanimated | Performant animations |
+| react-native-keyboard-controller | Keyboard interaction management |
+
+### Device & Platform APIs
+
+| Technology | Purpose |
+|------------|---------|
+| expo-camera | Camera access |
+| react-native-vision-camera | Advanced camera with face detection |
+| expo-location | GPS and geolocation |
+| expo-contacts | Contact book access |
+| expo-notifications | Push notifications (FCM/APNs) |
+| expo-document-picker | File selection |
+| expo-image-picker | Image selection from gallery |
+| expo-file-system | Local file system access |
+| expo-secure-store | Encrypted credential storage |
+| expo-haptics | Haptic feedback |
+| expo-device | Device information |
+
+### Multi-Tenant Support
+
+| Technology | Purpose |
+|------------|---------|
+| Tenant config system | Per-tenant branding, bundle IDs, and API URLs |
+| set-tenant.js | CLI script for switching tenant context |
+| EAS Build | Expo Application Services for CI/CD |
+| expo-updates | OTA updates |
+
+### Internationalization
+
+| Technology | Purpose |
+|------------|---------|
+| i18next | Internationalization framework |
+| react-i18next | React bindings for i18next |
+| expo-localization | Device locale detection |
+
+### Third-Party SDKs
+
+| Technology | Purpose |
+|------------|---------|
+| @digiotech/react-native | Digio eSign/eKYC SDK |
+| react-native-webview | Embedded web views |
+| piexifjs | EXIF metadata handling |
+
+### Date & Utilities
+
+| Technology | Purpose |
+|------------|---------|
+| date-fns | Date manipulation |
+| date-fns-tz | Timezone support |
+| clsx | Conditional class names |
+| @react-native-async-storage/async-storage | Persistent key-value storage |
+
+### Developer Experience
+
+| Technology | Purpose |
+|------------|---------|
+| Prettier | Code formatting |
+| prettier-plugin-tailwindcss | Tailwind class sorting |
+| Babel | JavaScript compilation |
+| Metro | JavaScript bundler |
+| dotenv | Environment variable management |
+
+---
+
 ## crego-infra
 
 **Infrastructure as Code** - GitOps-based Kubernetes infrastructure
@@ -312,16 +422,17 @@ This document provides an overview of the technologies used across all Crego pro
 
 | Language | Projects |
 |----------|----------|
-| TypeScript/JavaScript | crego-web |
+| TypeScript/JavaScript | crego-web, crego-app |
 | Python 3.13 | crego-flow, crego-omni |
 | YAML | crego-infra |
 | Bash | crego-infra |
 
-### Web Frameworks
+### Mobile / Web Frameworks
 
 | Framework | Project |
 |-----------|---------|
 | React 19 | crego-web |
+| React Native 0.81 + Expo 54 | crego-app |
 | FastAPI | crego-flow |
 | Django 5.2+ | crego-omni |
 
@@ -331,7 +442,7 @@ This document provides an overview of the technologies used across all Crego pro
 |----------|---------|---------|
 | PostgreSQL | crego-omni, crego-infra (dev) | Relational data |
 | MongoDB | crego-flow | Document storage |
-| Redis | All | Caching |
+| Redis | All backend services | Caching |
 
 ### Message Queues
 
@@ -357,3 +468,14 @@ This document provides an overview of the technologies used across all Crego pro
 | Grafana | crego-infra |
 | OpenTelemetry | crego-infra |
 | Flower | crego-flow, crego-omni |
+
+### Mobile-Specific
+
+| Technology | Project | Purpose |
+|------------|---------|---------|
+| Expo SDK 54 | crego-app | Managed native workflow |
+| Expo Router v6 | crego-app | File-based navigation |
+| EAS Build | crego-app | CI/CD for native builds |
+| expo-notifications | crego-app | Push notifications (FCM/APNs) |
+| react-native-vision-camera | crego-app | Camera and face detection |
+| i18next | crego-app | Internationalization |

@@ -45,6 +45,24 @@
 | PDF Generation | WeasyPrint, ReportLab |
 | Monitoring | Sentry |
 
+## crego-app
+
+| Category | Technology |
+|----------|------------|
+| Language | TypeScript |
+| Framework | React Native 0.81 + React 19 |
+| Platform | Expo SDK 54 (New Architecture) |
+| Routing | Expo Router v6 |
+| Package Manager | pnpm |
+| Styling | Tailwind CSS v4 via Uniwind |
+| UI Components | RN Primitives / RN Reusables (shadcn-ui port) |
+| State Management | TanStack Query |
+| Forms | AJV (JSON Schema validation) + Zod |
+| Internationalization | i18next + react-i18next |
+| Camera / Vision | react-native-vision-camera |
+| Notifications | expo-notifications (FCM/APNs) |
+| Auth Storage | expo-secure-store |
+
 ## crego-infra
 
 | Category | Technology |
