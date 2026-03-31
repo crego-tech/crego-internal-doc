@@ -202,6 +202,60 @@
       color: var(--pink);
     }
 
+    .role-selector {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .role-selector-label {
+      font-size: 13px;
+      color: var(--text-dim);
+      font-weight: 500;
+      margin-right: 4px;
+    }
+
+    .role-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: "Inter", sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      cursor: pointer;
+      border-radius: 20px;
+      transition: all 0.15s ease;
+    }
+
+    .role-btn:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+      border-color: var(--border-light);
+    }
+
+    .role-btn.active {
+      background: var(--blue-dim);
+      color: var(--blue);
+      border-color: rgba(94, 106, 210, 0.3);
+    }
+
+    .role-btn-dev.active { background: var(--blue-dim); color: var(--blue); border-color: rgba(94, 106, 210, 0.3); }
+    .role-btn-qa.active { background: var(--cyan-dim); color: var(--cyan); border-color: rgba(86, 182, 194, 0.3); }
+    .role-btn-tl.active { background: var(--purple-dim); color: var(--purple); border-color: rgba(176, 122, 236, 0.3); }
+    .role-btn-devops.active { background: var(--green-dim); color: var(--green); border-color: rgba(72, 199, 142, 0.3); }
+    .role-btn-pm.active { background: var(--pink-dim); color: var(--pink); border-color: rgba(229, 115, 155, 0.3); }
+
+    .tab.hidden {
+      display: none;
+    }
+
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -583,28 +637,30 @@
     <header>
       <h1>Crego Development Process</h1>
       <div class="subtitle">Complete guide for Linear, Git, CI/CD, deployment, and Kubernetes operations</div>
-      <div style="display:flex;gap:14px;margin-top:14px;justify-content:center;flex-wrap:wrap;font-size:13px;color:var(--text-dim);">
-        <span><span class="role-badge role-dev">DEV</span> Developer</span>
-        <span><span class="role-badge role-qa">QA</span> Quality Analyst</span>
-        <span><span class="role-badge role-rm">RM</span> Release Manager</span>
-        <span><span class="role-badge role-devops">DEVOPS</span> DevOps Engineer</span>
-        <span><span class="role-badge role-pm">PM</span> Product Manager</span>
-        <span><span class="role-badge role-tl">TL</span> Team Lead</span>
+      <div class="role-selector">
+        <span class="role-selector-label">View as:</span>
+        <button class="role-btn active" onclick="filterByRole('all')">All</button>
+        <button class="role-btn role-btn-dev" onclick="filterByRole('dev')"><span class="role-badge role-dev">DEV</span> Developer</button>
+        <button class="role-btn role-btn-qa" onclick="filterByRole('qa')"><span class="role-badge role-qa">QA</span> Quality Analyst</button>
+        <button class="role-btn role-btn-tl" onclick="filterByRole('tl')"><span class="role-badge role-tl">TL</span> Team Lead</button>
+        <button class="role-btn role-btn-devops" onclick="filterByRole('devops')"><span class="role-badge role-devops">DEVOPS</span> DevOps Engineer</button>
+        <button class="role-btn role-btn-pm" onclick="filterByRole('pm')"><span class="role-badge role-pm">PM</span> Product Manager</button>
       </div>
     </header>
 
     <div class="tabs">
-      <button class="tab active" onclick="showPanel('linear')">Linear Flow<div class="role-badges"><span class="role-badge role-dev">DEV</span><span class="role-badge role-qa">QA</span><span class="role-badge role-rm">RM</span><span class="role-badge role-devops">DEVOPS</span></div></button>
-      <button class="tab" onclick="showPanel('branching')">Git Branching<div class="role-badges"><span class="role-badge role-dev">DEV</span><span class="role-badge role-rm">RM</span></div></button>
-      <button class="tab" onclick="showPanel('cicd')">CI/CD<div class="role-badges"><span class="role-badge role-devops">DEVOPS</span><span class="role-badge role-rm">RM</span></div></button>
-      <button class="tab" onclick="showPanel('versioning')">Versioning<div class="role-badges"><span class="role-badge role-dev">DEV</span><span class="role-badge role-qa">QA</span><span class="role-badge role-rm">RM</span><span class="role-badge role-devops">DEVOPS</span></div></button>
-      <button class="tab" onclick="showPanel('hotfix')">Hotfix<div class="role-badges"><span class="role-badge role-dev">DEV</span><span class="role-badge role-rm">RM</span></div></button>
-      <button class="tab" onclick="showPanel('commands')">Commands<div class="role-badges"><span class="role-badge role-dev">DEV</span><span class="role-badge role-rm">RM</span></div></button>
-      <button class="tab" onclick="showPanel('orchestrator')">Orchestrator<div class="role-badges"><span class="role-badge role-rm">RM</span></div></button>
-      <button class="tab" onclick="showPanel('k8s')">K8s & Tools<div class="role-badges"><span class="role-badge role-devops">DEVOPS</span><span class="role-badge role-dev">DEV</span></div></button>
-      <button class="tab" onclick="showPanel('sentry')">Sentry<div class="role-badges"><span class="role-badge role-devops">DEVOPS</span><span class="role-badge role-dev">DEV</span></div></button>
-      <button class="tab" onclick="showPanel('clients')">Clients & Config<div class="role-badges"><span class="role-badge role-rm">RM</span><span class="role-badge role-devops">DEVOPS</span></div></button>
-      <button class="tab" onclick="showPanel('constraints')">Rules<div class="role-badges"><span class="role-badge role-dev">DEV</span><span class="role-badge role-qa">QA</span><span class="role-badge role-rm">RM</span><span class="role-badge role-devops">DEVOPS</span></div></button>
+      <button class="tab active" data-roles="dev,qa,tl,pm,devops" onclick="showPanel('linear')">Linear Flow</button>
+      <button class="tab" data-roles="qa" onclick="showPanel('qa-process')">QA Process</button>
+      <button class="tab" data-roles="dev,tl" onclick="showPanel('branching')">Git Branching</button>
+      <button class="tab" data-roles="devops,tl" onclick="showPanel('cicd')">CI/CD</button>
+      <button class="tab" data-roles="dev,qa,tl,devops" onclick="showPanel('versioning')">Versioning</button>
+      <button class="tab" data-roles="dev,tl" onclick="showPanel('hotfix')">Hotfix</button>
+      <button class="tab" data-roles="dev,tl" onclick="showPanel('commands')">Commands</button>
+      <button class="tab" data-roles="tl" onclick="showPanel('orchestrator')">Orchestrator</button>
+      <button class="tab" data-roles="devops,dev" onclick="showPanel('k8s')">K8s & Tools</button>
+      <button class="tab" data-roles="devops,dev" onclick="showPanel('sentry')">Sentry</button>
+      <button class="tab" data-roles="tl,devops" onclick="showPanel('clients')">Clients & Config</button>
+      <button class="tab" data-roles="dev,qa,tl,devops" onclick="showPanel('constraints')">Rules</button>
     </div>
 
     <!-- LINEAR FLOW TAB -->
@@ -618,16 +674,16 @@
         <div class="card-title">Issue States & Ownership</div>
         <table>
           <tr><th>State</th><th>Owner</th><th>Actions</th><th>Next State</th></tr>
-          <tr><td><span class="tag tag-blue">Triage</span></td><td><span class="role-badge role-qa">QA</span> <span class="role-badge role-pm">PM</span></td><td>Prioritize, clarify scope</td><td>Backlog</td></tr>
-          <tr><td><span class="tag tag-blue">Backlog</span></td><td><span class="role-badge role-pm">PM</span></td><td>Planning, prioritization</td><td>Requirement</td></tr>
+          <tr><td><span class="tag tag-blue">Triage</span></td><td><span class="role-badge role-pm">PM</span> <span class="role-badge role-tl">TL</span></td><td>Prioritize, clarify scope</td><td>Backlog</td></tr>
+          <tr><td><span class="tag tag-blue">Backlog</span></td><td><span class="role-badge role-pm">PM</span> <span class="role-badge role-tl">TL</span></td><td>Planning, prioritization</td><td>Requirement</td></tr>
           <tr><td><span class="tag tag-blue">Requirement</span></td><td><span class="role-badge role-pm">PM</span> <span class="role-badge role-tl">TL</span></td><td>Define specs, acceptance criteria</td><td>Todo</td></tr>
           <tr><td><span class="tag tag-orange">Todo</span></td><td><span class="role-badge role-dev">DEV</span></td><td>Ready for work (assign yourself)</td><td>Development</td></tr>
           <tr><td><span class="tag tag-orange">Development</span></td><td><span class="role-badge role-dev">DEV</span></td><td>Build feature, push to feature branch</td><td>PR Review</td></tr>
           <tr><td><span class="tag tag-orange">PR Review</span></td><td><span class="role-badge role-dev">DEV</span> <span style="color:var(--text-faint);font-size:10px;">(peer)</span></td><td>Code review, approval</td><td>QA</td></tr>
-          <tr><td><span class="tag tag-cyan">QA</span></td><td><span class="role-badge role-qa">QA</span></td><td>Test on feature branch, sign off</td><td>Document</td></tr>
+          <tr><td><span class="tag tag-cyan">QA</span></td><td><span class="role-badge role-qa">QA</span></td><td>Deploy to QA env, write all test cases in tracker, test, then take action</td><td>Document</td></tr>
           <tr><td><span class="tag tag-green">Document</span></td><td><span class="role-badge role-pm">PM</span></td><td>Add changelog, docs (auto-transitioned)</td><td>UAT</td></tr>
           <tr><td><span class="tag tag-purple">UAT</span></td><td><span class="role-badge role-qa">QA</span> <span style="color:var(--text-faint);font-size:10px;">(+ client)</span></td><td>User acceptance testing</td><td>Pending Release</td></tr>
-          <tr><td><span class="tag tag-pink">Pending Release</span></td><td><span class="role-badge role-rm">RM</span></td><td>Merged to main, waiting for tag</td><td>Released</td></tr>
+          <tr><td><span class="tag tag-pink">Pending Release</span></td><td><span class="role-badge role-tl">TL</span></td><td>Merged to main, waiting for tag</td><td>Released</td></tr>
           <tr><td><span class="tag tag-green">Released</span></td><td>—</td><td>Live in production</td><td>—</td></tr>
         </table>
         <div class="note"><strong>Key change:</strong> PR merges to develop AFTER QA passes (QA tests on feature branch). Merge auto-transitions issue to Document.</div>
@@ -648,12 +704,12 @@
         <div class="card-title">Labels & Metadata</div>
         <table>
           <tr><th>Category</th><th>Values</th><th>When to Add</th><th>Added By</th></tr>
-          <tr><td><span class="mono">type/*</span></td><td>feature, bug, improvement, chore, hotfix, tech-debt, operational</td><td>At issue creation</td><td><span class="role-badge role-dev" style="font-size:10px;">DEV</span> <span class="role-badge role-qa" style="font-size:10px;">QA</span> <span class="role-badge role-rm" style="font-size:10px;">RM</span></td></tr>
+          <tr><td><span class="mono">type/*</span></td><td>feature, bug, improvement, chore, hotfix, tech-debt, operational</td><td>At issue creation</td><td><span class="role-badge role-dev" style="font-size:10px;">DEV</span> <span class="role-badge role-qa" style="font-size:10px;">QA</span> <span class="role-badge role-tl" style="font-size:10px;">TL</span></td></tr>
           <tr><td><span class="mono">found-in/*</span></td><td>dev, preprod, prod</td><td>When bug is reported</td><td><span class="role-badge role-qa" style="font-size:10px;">QA</span></td></tr>
-          <tr><td><span class="mono">client/*</span></td><td>shared, flexiloans, dehaat, indifi, solfin, aspire, aerem, vayana, tyger, bcpl, ucic, switchmyloan, wogom, nexo</td><td>At issue creation or triage</td><td><span class="role-badge role-rm" style="font-size:10px;">RM</span> <span class="role-badge role-qa" style="font-size:10px;">QA</span></td></tr>
+          <tr><td><span class="mono">client/*</span></td><td>shared, flexiloans, dehaat, indifi, solfin, aspire, aerem, vayana, tyger, bcpl, ucic, switchmyloan, wogom, nexo</td><td>At issue creation or triage</td><td><span class="role-badge role-tl" style="font-size:10px;">TL</span> <span class="role-badge role-qa" style="font-size:10px;">QA</span></td></tr>
           <tr><td><span class="mono">repo/*</span></td><td>crego-omni, crego-flow, crego-web, crego-infra, crego-app</td><td>At development start</td><td><span class="role-badge role-dev" style="font-size:10px;">DEV</span></td></tr>
-          <tr><td><span class="mono">release/*</span></td><td>v2.2.0, v2.3.0, v2.4.0, v2.5.0, v2.6.0 …</td><td>When issue is planned for a release</td><td><span class="role-badge role-rm" style="font-size:10px;">RM</span></td></tr>
-          <tr><td>Flags</td><td>release-blocker, needs-backport, needs-cherry-pick, breaking-change, feature-flag, long-running, custom-request</td><td>Anytime during lifecycle</td><td><span class="role-badge role-dev" style="font-size:10px;">DEV</span> <span class="role-badge role-qa" style="font-size:10px;">QA</span> <span class="role-badge role-rm" style="font-size:10px;">RM</span></td></tr>
+          <tr><td><span class="mono">release/*</span></td><td>v2.2.0, v2.3.0, v2.4.0, v2.5.0, v2.6.0 …</td><td>When issue is planned for a release</td><td><span class="role-badge role-tl" style="font-size:10px;">TL</span></td></tr>
+          <tr><td>Flags</td><td>release-blocker, needs-backport, needs-cherry-pick, breaking-change, feature-flag, long-running, custom-request</td><td>Anytime during lifecycle</td><td><span class="role-badge role-dev" style="font-size:10px;">DEV</span> <span class="role-badge role-qa" style="font-size:10px;">QA</span> <span class="role-badge role-tl" style="font-size:10px;">TL</span></td></tr>
         </table>
       </div>
 
@@ -666,6 +722,68 @@
           <tr><td><span class="tag tag-blue">Medium (P2)</span></td><td>4 hours</td><td>1 week</td></tr>
           <tr><td><span class="tag tag-cyan">Low (P3)</span></td><td>1 day</td><td>Backlog</td></tr>
         </table>
+      </div>
+    </div>
+
+    <!-- QA PROCESS TAB -->
+    <div id="qa-process" class="panel">
+      <div class="section-title">
+        <span class="icon" style="background:var(--cyan-dim);color:var(--cyan);">Q</span>
+        QA Testing Process
+      </div>
+
+      <div class="card">
+        <div class="card-title">QA Workflow Overview</div>
+        <p>When an issue moves to <span class="tag tag-cyan">QA</span> state in Linear, QA picks it up and follows this process end-to-end before taking action on the Linear issue.</p>
+        <div class="note"><strong>Key rule:</strong> QA must complete ALL test cases and document results in the test tracker before updating the Linear issue. Do not discuss individual test cases separately — evaluate the change as a whole.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Step 1: Pick Issue & Deploy to QA Environment</div>
+        <ol style="margin:0;padding-left:20px;line-height:2;">
+          <li>Pick the issue from Linear (<span class="tag tag-cyan">QA</span> state) and assign yourself</li>
+          <li>Choose an available QA environment: <span class="mono">qa1</span>, <span class="mono">qa2</span>, etc.</li>
+          <li>Deploy the feature branch to the chosen QA environment</li>
+          <li>Select the appropriate database to copy for testing (match the client/data context of the change)</li>
+        </ol>
+        <div class="note" style="margin-top:8px;"><strong>Environment selection:</strong> Coordinate with other QA team members to avoid environment conflicts. Use <span class="mono">qa1</span>/<span class="mono">qa2</span> based on availability.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Step 2: Write & Execute Test Cases</div>
+        <ol style="margin:0;padding-left:20px;line-height:2;">
+          <li>Write comprehensive (360°) test cases covering all aspects of the change — positive flows, negative flows, edge cases, regression scenarios</li>
+          <li>Document all test cases in the <strong>QA Test Tracker</strong> spreadsheet</li>
+          <li>Execute each test case on the deployed QA environment</li>
+          <li>Record pass/fail status and notes for every test case in the tracker</li>
+        </ol>
+        <div class="cmd-group" style="margin-top:10px;">
+          <div class="cmd-label">QA Test Tracker (Google Sheet)</div>
+          <div class="cmd"><code>https://docs.google.com/spreadsheets/d/15hKG5-S4knNQ_f4mm8GD2TUil6tVIS8zxbfX6dm80xg/edit?gid=948003831#gid=948003831</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Step 3: Take Action on Linear</div>
+        <p>Once <strong>all</strong> test cases have been executed and documented in the tracker:</p>
+        <table>
+          <tr><th>Outcome</th><th>Action</th></tr>
+          <tr><td><span class="tag tag-green">All tests pass</span></td><td>Move issue to <span class="tag tag-green">Document</span> state in Linear → triggers merge to develop</td></tr>
+          <tr><td><span class="tag tag-red" style="background:var(--red-dim);color:var(--red);">Any test fails</span></td><td>Move issue back to <span class="tag tag-orange">Development</span> state with a comment summarizing all failures (link to tracker row). Do not create separate issues for each failing test case.</td></tr>
+        </table>
+        <div class="note" style="margin-top:8px;"><strong>Important:</strong> Do not discuss or flag individual test case results one by one. Complete the full test pass, then take a single action on the Linear issue with a consolidated summary.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">QA Checklist</div>
+        <ul>
+          <li>☐ Issue assigned to you in Linear</li>
+          <li>☐ QA environment selected (<span class="mono">qa1</span>/<span class="mono">qa2</span>) and DB copied</li>
+          <li>☐ Feature branch deployed to QA env</li>
+          <li>☐ All test cases written in the <a href="https://docs.google.com/spreadsheets/d/15hKG5-S4knNQ_f4mm8GD2TUil6tVIS8zxbfX6dm80xg/edit?gid=948003831#gid=948003831" style="color:var(--cyan);">QA Test Tracker</a></li>
+          <li>☐ All test cases executed and results recorded</li>
+          <li>☐ Linear issue updated with final verdict (pass → Document / fail → Development)</li>
+        </ul>
       </div>
     </div>
 
@@ -719,8 +837,8 @@
           <div class="cmd"><code># QA tests on feature branch, then approves</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
         </div>
         <div class="cmd-group">
-          <div class="cmd-label">5. Merge to develop (GitHub UI or CLI)</div>
-          <div class="cmd"><code>git checkout develop && git pull && git merge --squash feature/cre-123-my-feature && git push</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+          <div class="cmd-label">5. Merge to develop (GitHub PR only)</div>
+          <div class="cmd"><code># Merge via GitHub Pull Request — do not merge locally via CLI</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
         </div>
       </div>
 
@@ -961,7 +1079,7 @@
       </div>
 
       <div class="card">
-        <div class="card-title">Release Manager: Cut Release (Prepare Preprod)</div>
+        <div class="card-title">TL: Cut Release (Prepare Preprod)</div>
         <div class="cmd-group">
           <div class="cmd-label">Decide next version (e.g., v2.1.0)</div>
           <div class="cmd"><code>git log develop --oneline -10  # Review commits</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
@@ -981,7 +1099,7 @@
       </div>
 
       <div class="card">
-        <div class="card-title">Release Manager: Ship to Prod (After QA Sign-Off)</div>
+        <div class="card-title">TL: Ship to Prod (After QA Sign-Off)</div>
         <div class="cmd-group">
           <div class="cmd-label">Merge release branch to master/main</div>
           <div class="cmd"><code>git checkout master && git pull && git merge --no-ff release/v2.1.0</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
@@ -1078,7 +1196,7 @@
       </div>
 
       <div class="card">
-        <div class="card-title">Release Manager Workflow</div>
+        <div class="card-title">TL Workflow</div>
         <div class="box">
           <div class="box-title">Phase 1: Planning (Daily during dev cycle)</div>
           <ul>
@@ -1530,6 +1648,37 @@
   </div>
 
   <script>
+    let currentRole = 'all';
+
+    function filterByRole(role) {
+      currentRole = role;
+
+      // Update role selector buttons
+      document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.closest('.role-btn').classList.add('active');
+
+      // Show/hide tabs based on role
+      const tabs = document.querySelectorAll('.tab');
+      let firstVisibleTab = null;
+      let activeTabVisible = false;
+
+      tabs.forEach(tab => {
+        const tabRoles = tab.getAttribute('data-roles').split(',');
+        if (role === 'all' || tabRoles.includes(role)) {
+          tab.classList.remove('hidden');
+          if (!firstVisibleTab) firstVisibleTab = tab;
+          if (tab.classList.contains('active')) activeTabVisible = true;
+        } else {
+          tab.classList.add('hidden');
+        }
+      });
+
+      // If the currently active tab is now hidden, switch to the first visible one
+      if (!activeTabVisible && firstVisibleTab) {
+        firstVisibleTab.click();
+      }
+    }
+
     function showPanel(panelId) {
       // Hide all panels
       const panels = document.querySelectorAll('.panel');
