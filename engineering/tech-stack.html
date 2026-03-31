@@ -1,0 +1,1979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crego Platform Tech Stack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0f0f11;
+      --surface: #191a1f;
+      --surface-hover: #22232a;
+      --border: #2e2f38;
+      --border-light: #3a3b45;
+      --text: #f0f0f4;
+      --text-dim: #b0b0be;
+      --text-faint: #6e6e80;
+      --blue: #7b83eb;
+      --blue-dim: rgba(94, 106, 210, 0.15);
+      --green: #5ec99b;
+      --green-dim: rgba(76, 183, 130, 0.15);
+      --orange: #f5a862;
+      --orange-dim: rgba(242, 153, 74, 0.15);
+      --red: #f06b6b;
+      --red-dim: rgba(235, 87, 87, 0.15);
+      --purple: #c89afc;
+      --purple-dim: rgba(187, 135, 252, 0.15);
+      --cyan: #69b8fc;
+      --cyan-dim: rgba(78, 167, 252, 0.15);
+      --pink: #f598c6;
+      --pink-dim: rgba(242, 126, 182, 0.15);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 40px;
+    }
+
+    header {
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .subtitle {
+      color: var(--text-dim);
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 28px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: "Inter", sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 18px 12px;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .tab:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+      border-color: var(--border-light);
+    }
+
+    .tab.active {
+      background: var(--blue-dim);
+      color: var(--blue);
+      border-color: rgba(94, 106, 210, 0.3);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+      animation: fadeIn 0.15s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(2px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 28px;
+      margin-bottom: 18px;
+      letter-spacing: -0.2px;
+    }
+
+    .section-title:first-child {
+      margin-top: 0;
+    }
+
+    .section-title .icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .section-title .icon-core {
+      background: var(--blue-dim);
+      color: var(--blue);
+    }
+
+    .section-title .icon-styling {
+      background: var(--cyan-dim);
+      color: var(--cyan);
+    }
+
+    .section-title .icon-state {
+      background: var(--purple-dim);
+      color: var(--purple);
+    }
+
+    .section-title .icon-specialized {
+      background: var(--pink-dim);
+      color: var(--pink);
+    }
+
+    .section-title .icon-dx {
+      background: var(--orange-dim);
+      color: var(--orange);
+    }
+
+    .section-title .icon-database {
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    .section-title .icon-infra {
+      background: var(--red-dim);
+      color: var(--red);
+    }
+
+    .section-title .icon-mobile {
+      background: var(--cyan-dim);
+      color: var(--cyan);
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 6px;
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .tag-blue {
+      background: var(--blue-dim);
+      color: var(--blue);
+    }
+
+    .tag-green {
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    .tag-orange {
+      background: var(--orange-dim);
+      color: var(--orange);
+    }
+
+    .tag-red {
+      background: var(--red-dim);
+      color: var(--red);
+    }
+
+    .tag-purple {
+      background: var(--purple-dim);
+      color: var(--purple);
+    }
+
+    .tag-cyan {
+      background: var(--cyan-dim);
+      color: var(--cyan);
+    }
+
+    .tag-pink {
+      background: var(--pink-dim);
+      color: var(--pink);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 12px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--surface-hover);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    th + th {
+      border-left: 1px solid var(--border);
+    }
+
+    td {
+      border-bottom: 1px solid var(--border);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    td + td {
+      border-left: 1px solid var(--border);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--bg);
+    }
+
+    .mono {
+      font-family: "SF Mono", "Menlo", "Monaco", monospace;
+      background: rgba(94, 106, 210, 0.08);
+      padding: 2px 7px;
+      border-radius: 5px;
+      color: var(--blue);
+      font-size: 12.5px;
+    }
+
+    strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    ul, ol {
+      margin-left: 16px;
+      margin-bottom: 8px;
+    }
+
+    li {
+      margin-bottom: 6px;
+      color: var(--text-dim);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .tech-summary-table table {
+      margin: 16px 0;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 24px 20px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .tabs {
+        gap: 4px;
+      }
+
+      .tab {
+        padding: 8px 14px 10px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Crego Platform Tech Stack</h1>
+      <p class="subtitle">Complete technology overview across all Crego services</p>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showPanel('summary')">Summary</button>
+      <button class="tab" onclick="showPanel('web')">crego-web</button>
+      <button class="tab" onclick="showPanel('app')">crego-app</button>
+      <button class="tab" onclick="showPanel('flow')">crego-flow</button>
+      <button class="tab" onclick="showPanel('omni')">crego-omni</button>
+      <button class="tab" onclick="showPanel('infra')">crego-infra</button>
+    </div>
+
+    <!-- Summary Panel -->
+    <div id="summary" class="panel active">
+      <div class="section-title">
+        <span class="icon icon-blue">📊</span>
+        Languages
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Language</th>
+            <th>Projects</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-cyan">TypeScript/JavaScript</span></td>
+            <td>crego-web, crego-app</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Python 3.13</span></td>
+            <td>crego-flow, crego-omni</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">YAML</span></td>
+            <td>crego-infra</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Bash</span></td>
+            <td>crego-infra</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-blue">🏗️</span>
+        Frameworks &amp; Platforms
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Framework</th>
+            <th>Project</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-cyan">React 19</span></td>
+            <td>crego-web</td>
+            <td>Web UI framework</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">React Native 0.81 + Expo 54</span></td>
+            <td>crego-app</td>
+            <td>Cross-platform mobile (iOS, Android)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">FastAPI</span></td>
+            <td>crego-flow</td>
+            <td>Async workflow engine</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Django 5.2 + DRF</span></td>
+            <td>crego-omni</td>
+            <td>Core platform API</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">Kubernetes + ArgoCD</span></td>
+            <td>crego-infra</td>
+            <td>Container orchestration & GitOps</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-database">🗄️</span>
+        Databases
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Database</th>
+            <th>Project</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">PostgreSQL</span></td>
+            <td>crego-omni, crego-infra (dev)</td>
+            <td>Relational data storage</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">MongoDB</span></td>
+            <td>crego-flow</td>
+            <td>Document storage</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">Redis</span></td>
+            <td>All backend services</td>
+            <td>Caching, session store</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-specialized">📨</span>
+        Message Queues
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Project</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-orange">RabbitMQ</span></td>
+            <td>crego-flow, crego-omni</td>
+            <td>Message broker</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Celery</span></td>
+            <td>crego-flow, crego-omni</td>
+            <td>Distributed task queue</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-green">☁️</span>
+        Cloud Providers
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Provider</th>
+            <th>Services Used</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">Google Cloud Platform (GCP)</span></td>
+            <td>GKE, Secret Manager, Cloud Storage</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">Amazon Web Services (AWS)</span></td>
+            <td>EKS, Secrets Manager, S3</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">Azure</span></td>
+            <td>Blob Storage</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-dx">📊</span>
+        Monitoring &amp; Observability
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Project</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-red">Sentry</span></td>
+            <td>crego-web, crego-omni</td>
+            <td>Error tracking & monitoring</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Prometheus</span></td>
+            <td>crego-infra</td>
+            <td>Metrics collection</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">Grafana</span></td>
+            <td>crego-infra</td>
+            <td>Dashboards & visualization</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">OpenTelemetry</span></td>
+            <td>crego-infra</td>
+            <td>Distributed tracing</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Flower</span></td>
+            <td>crego-flow, crego-omni</td>
+            <td>Celery monitoring</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-mobile">📱</span>
+        Mobile-Specific Technologies
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Project</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-cyan">Expo SDK 54</span></td>
+            <td>crego-app</td>
+            <td>Managed native workflow with New Architecture</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">Expo Router v6</span></td>
+            <td>crego-app</td>
+            <td>File-based routing for React Native</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">EAS Build</span></td>
+            <td>crego-app</td>
+            <td>CI/CD for native builds (iOS/Android)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">expo-notifications</span></td>
+            <td>crego-app</td>
+            <td>Push notifications (FCM/APNs)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">react-native-vision-camera</span></td>
+            <td>crego-app</td>
+            <td>Camera & face detection</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">i18next</span></td>
+            <td>crego-app</td>
+            <td>Internationalization framework</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- crego-web Panel -->
+    <div id="web" class="panel">
+      <div class="section-title">
+        <span class="icon icon-core">⚛️</span>
+        Core Framework
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Version</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-cyan">React</span></td>
+            <td>19.2.3</td>
+            <td>UI Framework</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">TypeScript</span></td>
+            <td>^5.5.3</td>
+            <td>Type-safe JavaScript</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Vite</span></td>
+            <td>-</td>
+            <td>Build tool</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">pnpm</span></td>
+            <td>-</td>
+            <td>Package manager with workspaces</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-styling">🎨</span>
+        Styling &amp; UI
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-cyan">Tailwind CSS v4</span></td>
+            <td>Utility-first CSS framework</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Radix UI</span></td>
+            <td>Headless UI primitives (20+ components)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">shadcn/ui</span></td>
+            <td>Component library built on Radix</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Class Variance Authority</span></td>
+            <td>Component variant management</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">Lucide React</span></td>
+            <td>Icon library</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">tailwind-merge</span></td>
+            <td>Tailwind class merging</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">tailwindcss-animate</span></td>
+            <td>Animation utilities</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-state">🔄</span>
+        State &amp; Data Management
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">TanStack Query (React Query)</span></td>
+            <td>Server state management</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">React Hook Form</span></td>
+            <td>Form state management</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">Zod</span></td>
+            <td>Schema validation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">Axios</span></td>
+            <td>HTTP client</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-specialized">🛠️</span>
+        Specialized Libraries
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-pink">@xyflow/react</span></td>
+            <td>Flow/node-based diagrams</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">Monaco Editor</span></td>
+            <td>Code editor</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Recharts</span></td>
+            <td>Charts and data visualization</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">RJSF (React JSON Schema Form)</span></td>
+            <td>Dynamic form generation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">React Router v7</span></td>
+            <td>Client-side routing</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">dnd-kit</span></td>
+            <td>Drag and drop</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">date-fns</span></td>
+            <td>Date utilities</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">mathjs</span></td>
+            <td>Math operations</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-dx">👨‍💻</span>
+        Developer Experience
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">Husky</span></td>
+            <td>Git hooks</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">lint-staged</span></td>
+            <td>Pre-commit linting</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Prettier</span></td>
+            <td>Code formatting</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">Sentry</span></td>
+            <td>Error monitoring</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- crego-app Panel -->
+    <div id="app" class="panel">
+      <div class="section-title">
+        <span class="icon icon-core">⚛️</span>
+        Core Framework
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Version</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-cyan">React Native</span></td>
+            <td>0.81.5</td>
+            <td>Cross-platform mobile framework</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">React</span></td>
+            <td>19.1.0</td>
+            <td>UI framework</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">Expo</span></td>
+            <td>~54.0.29</td>
+            <td>Managed workflow with New Architecture</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">Expo Router</span></td>
+            <td>~6.0.19</td>
+            <td>File-based routing</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">TypeScript</span></td>
+            <td>~5.9.2</td>
+            <td>Type-safe JavaScript</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">pnpm</span></td>
+            <td>-</td>
+            <td>Package manager</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-styling">🎨</span>
+        Styling &amp; UI
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-cyan">Tailwind CSS v4</span></td>
+            <td>Utility-first CSS framework (via Uniwind)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Uniwind</span></td>
+            <td>Tailwind CSS adapter for React Native</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">RN Primitives (@rn-primitives)</span></td>
+            <td>Headless UI primitives (20+ components)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">React Native Reusables</span></td>
+            <td>shadcn-ui style component library for RN</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Class Variance Authority</span></td>
+            <td>Component variant management</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">Lucide React Native</span></td>
+            <td>Icon library</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">tailwind-merge</span></td>
+            <td>Tailwind class merging</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">tw-animate-css</span></td>
+            <td>Animation utilities</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-state">🔄</span>
+        State &amp; Data Management
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">TanStack Query (React Query)</span></td>
+            <td>Server state management and caching</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">AJV</span></td>
+            <td>JSON Schema-based form validation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">Zod</span></td>
+            <td>Schema validation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">Axios</span></td>
+            <td>HTTP client</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-mobile">🧭</span>
+        Navigation &amp; Gestures
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-pink">Expo Router v6</span></td>
+            <td>File-based navigation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">@react-navigation/native</span></td>
+            <td>Navigation primitives</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">react-native-gesture-handler</span></td>
+            <td>Touch and gesture handling</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">react-native-screens</span></td>
+            <td>Native screen components</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">react-native-reanimated</span></td>
+            <td>Performant animations</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">react-native-keyboard-controller</span></td>
+            <td>Keyboard interaction management</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-specialized">📱</span>
+        Device &amp; Platform APIs
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-pink">expo-camera</span></td>
+            <td>Camera access</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">react-native-vision-camera</span></td>
+            <td>Advanced camera with face detection</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">expo-location</span></td>
+            <td>GPS and geolocation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">expo-contacts</span></td>
+            <td>Contact book access</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">expo-notifications</span></td>
+            <td>Push notifications (FCM/APNs)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">expo-document-picker</span></td>
+            <td>File selection</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">expo-image-picker</span></td>
+            <td>Image selection from gallery</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">expo-file-system</span></td>
+            <td>Local file system access</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">expo-secure-store</span></td>
+            <td>Encrypted credential storage</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">expo-haptics</span></td>
+            <td>Haptic feedback</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">expo-device</span></td>
+            <td>Device information</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-dx">🌐</span>
+        Multi-Tenant Support &amp; Internationalization
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">Tenant config system</span></td>
+            <td>Per-tenant branding, bundle IDs, and API URLs</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">set-tenant.js</span></td>
+            <td>CLI script for switching tenant context</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">EAS Build</span></td>
+            <td>Expo Application Services for CI/CD</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">expo-updates</span></td>
+            <td>OTA updates</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">i18next</span></td>
+            <td>Internationalization framework</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">react-i18next</span></td>
+            <td>React bindings for i18next</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">expo-localization</span></td>
+            <td>Device locale detection</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-specialized">🔗</span>
+        Third-Party SDKs &amp; Utilities
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-red">@digiotech/react-native</span></td>
+            <td>Digio eSign/eKYC SDK</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">react-native-webview</span></td>
+            <td>Embedded web views</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">piexifjs</span></td>
+            <td>EXIF metadata handling</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">date-fns</span></td>
+            <td>Date manipulation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">date-fns-tz</span></td>
+            <td>Timezone support</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">clsx</span></td>
+            <td>Conditional class names</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">@react-native-async-storage/async-storage</span></td>
+            <td>Persistent key-value storage</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-dx">👨‍💻</span>
+        Developer Experience
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-orange">Prettier</span></td>
+            <td>Code formatting</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">prettier-plugin-tailwindcss</span></td>
+            <td>Tailwind class sorting</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">Babel</span></td>
+            <td>JavaScript compilation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Metro</span></td>
+            <td>JavaScript bundler</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">dotenv</span></td>
+            <td>Environment variable management</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- crego-flow Panel -->
+    <div id="flow" class="panel">
+      <div class="section-title">
+        <span class="icon icon-core">🚀</span>
+        Core Framework
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Version</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-orange">Python</span></td>
+            <td>3.13</td>
+            <td>Runtime</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">FastAPI</span></td>
+            <td>Latest</td>
+            <td>Async web framework</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">Uvicorn</span></td>
+            <td>Latest</td>
+            <td>ASGI server</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">Gunicorn</span></td>
+            <td>Latest</td>
+            <td>Production server</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-database">🗄️</span>
+        Database &amp; Storage
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">MongoDB</span></td>
+            <td>Document database</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">MongoEngine</span></td>
+            <td>MongoDB ODM</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">Redis</span></td>
+            <td>Caching and session storage</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">boto3 (S3)</span></td>
+            <td>Cloud file storage</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">Google Cloud Storage</span></td>
+            <td>Document storage</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-specialized">⚙️</span>
+        Background Processing
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-pink">Celery</span></td>
+            <td>Distributed task queue</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">RabbitMQ</span></td>
+            <td>Message broker</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Flower</span></td>
+            <td>Celery monitoring</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-state">🔐</span>
+        Authentication &amp; Security
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">PyJWT</span></td>
+            <td>JWT token handling</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">jwcrypto</span></td>
+            <td>JWT cryptographic operations</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">google-auth</span></td>
+            <td>Google OAuth integration</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-specialized">📄</span>
+        Document Processing
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-red">WeasyPrint</span></td>
+            <td>PDF generation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">PyMuPDF (fitz)</span></td>
+            <td>PDF manipulation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">python-docx</span></td>
+            <td>Word document generation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">pdfkit</span></td>
+            <td>HTML to PDF conversion</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Mako</span></td>
+            <td>Template engine</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-state">📊</span>
+        Data Processing
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-cyan">pandas</span></td>
+            <td>Data manipulation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">openpyxl</span></td>
+            <td>Excel file handling</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">jsonschema</span></td>
+            <td>JSON validation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Jinja2</span></td>
+            <td>Template rendering</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">jsonpath-ng</span></td>
+            <td>JSON path queries</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-dx">🛠️</span>
+        Utilities
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">Hashids</span></td>
+            <td>ID obfuscation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">num2words</span></td>
+            <td>Number to word conversion</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">humanize</span></td>
+            <td>Human-readable formatting</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">xmltodict</span></td>
+            <td>XML parsing</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">python-json-logger</span></td>
+            <td>Structured logging</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- crego-omni Panel -->
+    <div id="omni" class="panel">
+      <div class="section-title">
+        <span class="icon icon-core">🎯</span>
+        Core Framework
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Version</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-orange">Python</span></td>
+            <td>3.13</td>
+            <td>Runtime</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Django</span></td>
+            <td>>=5.2.8</td>
+            <td>Web framework</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Django REST Framework</span></td>
+            <td>Latest</td>
+            <td>REST API toolkit</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">Gunicorn</span></td>
+            <td>Latest</td>
+            <td>Production server</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-database">🗄️</span>
+        Database &amp; Storage
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">PostgreSQL</span></td>
+            <td>Primary relational database</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">psycopg</span></td>
+            <td>PostgreSQL adapter</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">django-redis</span></td>
+            <td>Redis cache backend</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">django-storages</span></td>
+            <td>Multi-cloud storage abstraction</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">boto3</span></td>
+            <td>AWS S3 storage</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">azure-storage-blob</span></td>
+            <td>Azure Blob storage</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">google-cloud-storage</span></td>
+            <td>GCP Cloud Storage</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-specialized">⚙️</span>
+        Background Processing
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-pink">Celery</span></td>
+            <td>Distributed task queue</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">django-celery-beat</span></td>
+            <td>Periodic task scheduler</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">django-celery-results</span></td>
+            <td>Task result backend</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Flower</span></td>
+            <td>Celery monitoring</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-state">🔐</span>
+        Authentication &amp; Security
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">djangorestframework-simplejwt</span></td>
+            <td>JWT authentication</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">mozilla-django-oidc</span></td>
+            <td>OpenID Connect integration</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">python-jose</span></td>
+            <td>JWT/JWS/JWE handling</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">PyNaCl</span></td>
+            <td>Cryptographic operations</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">cryptography</span></td>
+            <td>Cryptographic recipes</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-specialized">🔗</span>
+        API Extensions
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">django-filter</span></td>
+            <td>Queryset filtering</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">drf-flex-fields</span></td>
+            <td>Dynamic field expansion</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">drf-nested-routers</span></td>
+            <td>Nested API routes</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">drf-extensions</span></td>
+            <td>Additional DRF utilities</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">django-cors-headers</span></td>
+            <td>CORS handling</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">django-allow-cidr</span></td>
+            <td>CIDR-based access control</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-specialized">📄</span>
+        Document Processing
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-red">WeasyPrint</span></td>
+            <td>PDF generation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">ReportLab</span></td>
+            <td>PDF creation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Mako</span></td>
+            <td>Template engine</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Jinja2</span></td>
+            <td>Template rendering</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">pdfkit</span></td>
+            <td>HTML to PDF</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">openpyxl</span></td>
+            <td>Excel handling</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-state">📊</span>
+        Data Processing
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-cyan">pandas</span></td>
+            <td>Data manipulation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">numpy-financial</span></td>
+            <td>Financial calculations</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">jsonschema</span></td>
+            <td>JSON validation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">pydantic</span></td>
+            <td>Data validation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">python-dateutil</span></td>
+            <td>Date parsing</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-dx">📊</span>
+        Monitoring &amp; Logging
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-red">Sentry SDK</span></td>
+            <td>Error tracking</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">python-json-logger</span></td>
+            <td>Structured logging</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">whitenoise</span></td>
+            <td>Static file serving</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-dx">🧪</span>
+        Development Tools
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">pytest</span></td>
+            <td>Testing framework</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">pytest-django</span></td>
+            <td>Django test integration</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">coverage</span></td>
+            <td>Code coverage</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">black</span></td>
+            <td>Code formatting</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">flake8</span></td>
+            <td>Linting</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">isort</span></td>
+            <td>Import sorting</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">pylint-django</span></td>
+            <td>Django-specific linting</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">pre-commit</span></td>
+            <td>Git hooks</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">ipython</span></td>
+            <td>Enhanced REPL</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-specialized">🛠️</span>
+        Utilities
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">Hashids</span></td>
+            <td>ID obfuscation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">ulid-py</span></td>
+            <td>ULID generation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">cachetools</span></td>
+            <td>Caching utilities</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">django-user-agents</span></td>
+            <td>User agent parsing</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">django-extensions</span></td>
+            <td>Django utilities</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- crego-infra Panel -->
+    <div id="infra" class="panel">
+      <div class="section-title">
+        <span class="icon icon-infra">☸️</span>
+        Core Technologies
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">Kubernetes</span></td>
+            <td>Container orchestration</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">ArgoCD</span></td>
+            <td>GitOps CD (App-of-Apps pattern)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Kustomize</span></td>
+            <td>Kubernetes configuration management</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-green">☁️</span>
+        Cloud Platforms
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Platform</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">Google Cloud Platform (GCP)</span></td>
+            <td>Primary cloud (GKE, Secret Manager)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">Amazon Web Services (AWS)</span></td>
+            <td>Secondary cloud (EKS, Secrets Manager)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-specialized">🔌</span>
+        Infrastructure Services
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-cyan">NGINX Ingress</span></td>
+            <td>Ingress controller (GCP)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">AWS Load Balancer Controller</span></td>
+            <td>Ingress controller (AWS)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">External Secrets Operator</span></td>
+            <td>Cloud secret synchronization</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">cert-manager</span></td>
+            <td>TLS certificate management</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">External DNS</span></td>
+            <td>Automated DNS management</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-state">📈</span>
+        Autoscaling &amp; Processing
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-red">KEDA</span></td>
+            <td>Event-driven autoscaling (Celery workers)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">HPA</span></td>
+            <td>Horizontal Pod Autoscaler (APIs)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-dx">📊</span>
+        Monitoring &amp; Observability
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-orange">Prometheus</span></td>
+            <td>Metrics collection</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-pink">Grafana</span></td>
+            <td>Dashboards and visualization</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">OpenTelemetry</span></td>
+            <td>Distributed tracing</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-database">🛢️</span>
+        Development Services (Dev Environment)
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-blue">PostgreSQL</span></td>
+            <td>Primary database</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">Redis</span></td>
+            <td>Cache and session store</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">RabbitMQ</span></td>
+            <td>Message broker</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title">
+        <span class="icon icon-dx">✓</span>
+        Configuration &amp; Validation
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-green">yamllint</span></td>
+            <td>YAML validation</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">shellcheck</span></td>
+            <td>Shell script linting</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-cyan">cspell</span></td>
+            <td>Spell checking</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-purple">Make</span></td>
+            <td>Build automation</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function showPanel(panelId) {
+      // Hide all panels
+      document.querySelectorAll('.panel').forEach(panel => {
+        panel.classList.remove('active');
+      });
+
+      // Deactivate all tabs
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+
+      // Show selected panel
+      document.getElementById(panelId).classList.add('active');
+
+      // Activate corresponding tab
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>

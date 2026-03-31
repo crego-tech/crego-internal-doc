@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crego Development Process</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0f0f11;
+      --surface: #191a1f;
+      --surface-hover: #22232a;
+      --border: #2e2f38;
+      --border-light: #3a3b45;
+      --text: #f0f0f4;
+      --text-dim: #b0b0be;
+      --text-faint: #6e6e80;
+      --blue: #7b83eb;
+      --blue-dim: rgba(94, 106, 210, 0.15);
+      --green: #5ec99b;
+      --green-dim: rgba(76, 183, 130, 0.15);
+      --orange: #f5a862;
+      --orange-dim: rgba(242, 153, 74, 0.15);
+      --red: #f06b6b;
+      --red-dim: rgba(235, 87, 87, 0.15);
+      --purple: #c89afc;
+      --purple-dim: rgba(187, 135, 252, 0.15);
+      --cyan: #69b8fc;
+      --cyan-dim: rgba(78, 167, 252, 0.15);
+      --pink: #f598c6;
+      --pink-dim: rgba(242, 126, 182, 0.15);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 40px;
+    }
+
+    header {
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .subtitle {
+      color: var(--text-dim);
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 28px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 10px;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: "Inter", sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 18px 12px;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .tab:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+      border-color: var(--border-light);
+    }
+
+    .tab.active {
+      background: var(--blue-dim);
+      color: var(--blue);
+      border-color: rgba(94, 106, 210, 0.3);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+      animation: fadeIn 0.15s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(2px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 24px;
+      letter-spacing: -0.2px;
+    }
+
+    .section-title .icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .role-badges {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+      justify-content: center;
+    }
+
+    .role-badge {
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .role-dev {
+      background: var(--blue-dim);
+      color: var(--blue);
+    }
+
+    .role-qa {
+      background: var(--cyan-dim);
+      color: var(--cyan);
+    }
+
+    .role-rm {
+      background: var(--orange-dim);
+      color: var(--orange);
+    }
+
+    .role-devops {
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    .role-tl {
+      background: var(--purple-dim);
+      color: var(--purple);
+    }
+
+    .role-pm {
+      background: var(--pink-dim);
+      color: var(--pink);
+    }
+
+    .role-selector {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .role-selector-label {
+      font-size: 13px;
+      color: var(--text-dim);
+      font-weight: 500;
+      margin-right: 4px;
+    }
+
+    .role-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: "Inter", sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      cursor: pointer;
+      border-radius: 20px;
+      transition: all 0.15s ease;
+    }
+
+    .role-btn:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+      border-color: var(--border-light);
+    }
+
+    .role-btn.active {
+      background: var(--blue-dim);
+      color: var(--blue);
+      border-color: rgba(94, 106, 210, 0.3);
+    }
+
+    .role-btn-dev.active { background: var(--blue-dim); color: var(--blue); border-color: rgba(94, 106, 210, 0.3); }
+    .role-btn-qa.active { background: var(--cyan-dim); color: var(--cyan); border-color: rgba(86, 182, 194, 0.3); }
+    .role-btn-tl.active { background: var(--purple-dim); color: var(--purple); border-color: rgba(176, 122, 236, 0.3); }
+    .role-btn-devops.active { background: var(--green-dim); color: var(--green); border-color: rgba(72, 199, 142, 0.3); }
+    .role-btn-pm.active { background: var(--pink-dim); color: var(--pink); border-color: rgba(229, 115, 155, 0.3); }
+
+    .tab.hidden {
+      display: none;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      letter-spacing: -0.1px;
+    }
+
+    .card p {
+      margin-bottom: 8px;
+      color: var(--text-dim);
+    }
+
+    .card p:last-child {
+      margin-bottom: 0;
+    }
+
+    .flow-horizontal {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 16px 0;
+      gap: 8px;
+    }
+
+    .flow-item {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .flow-item.active {
+      background: var(--blue-dim);
+      border-color: rgba(94, 106, 210, 0.3);
+      color: var(--blue);
+    }
+
+    .flow-arrow {
+      color: var(--text-faint);
+      font-size: 14px;
+      margin: 0 -4px;
+    }
+
+    .pipeline {
+      display: flex;
+      gap: 6px;
+      margin: 12px 0;
+      flex-wrap: wrap;
+    }
+
+    .stage {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dim);
+    }
+
+    .stage.success {
+      background: var(--green-dim);
+      border-color: rgba(76, 183, 130, 0.25);
+      color: var(--green);
+    }
+
+    .stage.active {
+      background: var(--blue-dim);
+      border-color: rgba(94, 106, 210, 0.25);
+      color: var(--blue);
+    }
+
+    .stage.pending {
+      background: var(--orange-dim);
+      border-color: rgba(242, 153, 74, 0.25);
+      color: var(--orange);
+    }
+
+    .cmd-group {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+    }
+
+    .cmd-label {
+      font-size: 12px;
+      color: var(--text-faint);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    .cmd {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: "SF Mono", "Menlo", "Monaco", "Cascadia Code", monospace;
+      font-size: 12.5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .cmd code {
+      color: var(--text);
+      word-break: break-all;
+      font-family: inherit;
+    }
+
+    .cmd-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 16px;
+      margin-bottom: 10px;
+      letter-spacing: -0.1px;
+    }
+
+    .copy-btn {
+      background: var(--surface-hover);
+      border: 1px solid var(--border-light);
+      color: var(--text-dim);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      font-family: "Inter", sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    .copy-btn:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .copy-btn.copied {
+      background: var(--green-dim);
+      color: var(--green);
+      border-color: rgba(76, 183, 130, 0.3);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-right: 4px;
+    }
+
+    .tag-blue {
+      background: var(--blue-dim);
+      color: var(--blue);
+    }
+
+    .tag-green {
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    .tag-orange {
+      background: var(--orange-dim);
+      color: var(--orange);
+    }
+
+    .tag-red {
+      background: var(--red-dim);
+      color: var(--red);
+    }
+
+    .tag-purple {
+      background: var(--purple-dim);
+      color: var(--purple);
+    }
+
+    .tag-cyan {
+      background: var(--cyan-dim);
+      color: var(--cyan);
+    }
+
+    .tag-pink {
+      background: var(--pink-dim);
+      color: var(--pink);
+    }
+
+    .note {
+      background: var(--surface);
+      border-left: 2px solid var(--blue);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      font-size: 13px;
+      margin: 14px 0;
+      color: var(--text-dim);
+    }
+
+    .note.warn {
+      border-left-color: var(--orange);
+      background: var(--orange-dim);
+      color: var(--orange);
+    }
+
+    .note.danger {
+      border-left-color: var(--red);
+      background: var(--red-dim);
+      color: var(--red);
+    }
+
+    .note.success {
+      border-left-color: var(--green);
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 12px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    th + th {
+      border-left: 1px solid var(--border);
+    }
+
+    td {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    td + td {
+      border-left: 1px solid var(--border);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--surface-hover);
+    }
+
+    .mono {
+      font-family: "SF Mono", "Menlo", "Monaco", monospace;
+      background: rgba(94, 106, 210, 0.08);
+      padding: 2px 7px;
+      border-radius: 5px;
+      color: var(--blue);
+      font-size: 12.5px;
+    }
+
+    strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    ul, ol {
+      margin-left: 16px;
+      margin-bottom: 8px;
+    }
+
+    li {
+      margin-bottom: 6px;
+      color: var(--text-dim);
+    }
+
+    .box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 14px 0;
+    }
+
+    .box-title {
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+      font-size: 14px;
+      letter-spacing: -0.1px;
+    }
+
+    .state-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .state {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .state.done {
+      background: var(--green-dim);
+      border-color: rgba(76, 183, 130, 0.25);
+      color: var(--green);
+    }
+
+    .state.active {
+      background: var(--blue-dim);
+      border-color: rgba(94, 106, 210, 0.25);
+      color: var(--blue);
+    }
+
+    .state.pending {
+      background: var(--orange-dim);
+      border-color: rgba(242, 153, 74, 0.25);
+      color: var(--orange);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-horizontal {
+        flex-direction: column;
+      }
+
+      .container {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Crego Development Process</h1>
+      <div class="subtitle">Complete guide for Linear, Git, CI/CD, deployment, and Kubernetes operations</div>
+      <div class="role-selector">
+        <span class="role-selector-label">View as:</span>
+        <button class="role-btn active" onclick="filterByRole('all')">All</button>
+        <button class="role-btn role-btn-dev" onclick="filterByRole('dev')"><span class="role-badge role-dev">DEV</span> Developer</button>
+        <button class="role-btn role-btn-qa" onclick="filterByRole('qa')"><span class="role-badge role-qa">QA</span> Quality Analyst</button>
+        <button class="role-btn role-btn-tl" onclick="filterByRole('tl')"><span class="role-badge role-tl">TL</span> Team Lead</button>
+        <button class="role-btn role-btn-devops" onclick="filterByRole('devops')"><span class="role-badge role-devops">DEVOPS</span> DevOps Engineer</button>
+        <button class="role-btn role-btn-pm" onclick="filterByRole('pm')"><span class="role-badge role-pm">PM</span> Product Manager</button>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" data-roles="dev,qa,tl,pm,devops" onclick="showPanel('linear')">Linear Flow</button>
+      <button class="tab" data-roles="qa" onclick="showPanel('qa-process')">QA Process</button>
+      <button class="tab" data-roles="dev,tl" onclick="showPanel('branching')">Git Branching</button>
+      <button class="tab" data-roles="devops,tl" onclick="showPanel('cicd')">CI/CD</button>
+      <button class="tab" data-roles="dev,qa,tl,devops" onclick="showPanel('versioning')">Versioning</button>
+      <button class="tab" data-roles="dev,tl" onclick="showPanel('hotfix')">Hotfix</button>
+      <button class="tab" data-roles="dev,tl" onclick="showPanel('commands')">Commands</button>
+      <button class="tab" data-roles="tl" onclick="showPanel('orchestrator')">Orchestrator</button>
+      <button class="tab" data-roles="devops,dev" onclick="showPanel('k8s')">K8s & Tools</button>
+      <button class="tab" data-roles="devops,dev" onclick="showPanel('sentry')">Sentry</button>
+      <button class="tab" data-roles="tl,devops" onclick="showPanel('clients')">Clients & Config</button>
+      <button class="tab" data-roles="dev,qa,tl,devops" onclick="showPanel('constraints')">Rules</button>
+    </div>
+
+    <!-- LINEAR FLOW TAB -->
+    <div id="linear" class="panel active">
+      <div class="section-title">
+        <span class="icon" style="background:var(--blue-dim);color:var(--blue);">L</span>
+        Linear Issue Lifecycle
+      </div>
+
+      <div class="card">
+        <div class="card-title">Issue States & Ownership</div>
+        <table>
+          <tr><th>State</th><th>Owner</th><th>Actions</th><th>Next State</th></tr>
+          <tr><td><span class="tag tag-blue">Triage</span></td><td><span class="role-badge role-pm">PM</span> <span class="role-badge role-tl">TL</span></td><td>Prioritize, clarify scope</td><td>Backlog</td></tr>
+          <tr><td><span class="tag tag-blue">Backlog</span></td><td><span class="role-badge role-pm">PM</span> <span class="role-badge role-tl">TL</span></td><td>Planning, prioritization</td><td>Requirement</td></tr>
+          <tr><td><span class="tag tag-blue">Requirement</span></td><td><span class="role-badge role-pm">PM</span> <span class="role-badge role-tl">TL</span></td><td>Define specs, acceptance criteria</td><td>Todo</td></tr>
+          <tr><td><span class="tag tag-orange">Todo</span></td><td><span class="role-badge role-dev">DEV</span></td><td>Ready for work (assign yourself)</td><td>Development</td></tr>
+          <tr><td><span class="tag tag-orange">Development</span></td><td><span class="role-badge role-dev">DEV</span></td><td>Build feature, push to feature branch</td><td>PR Review</td></tr>
+          <tr><td><span class="tag tag-orange">PR Review</span></td><td><span class="role-badge role-dev">DEV</span> <span style="color:var(--text-faint);font-size:10px;">(peer)</span></td><td>Code review, approval</td><td>QA</td></tr>
+          <tr><td><span class="tag tag-cyan">QA</span></td><td><span class="role-badge role-qa">QA</span></td><td>Deploy to QA env, write all test cases in tracker, test, then take action</td><td>Document</td></tr>
+          <tr><td><span class="tag tag-green">Document</span></td><td><span class="role-badge role-pm">PM</span></td><td>Add changelog, docs (auto-transitioned)</td><td>UAT</td></tr>
+          <tr><td><span class="tag tag-purple">UAT</span></td><td><span class="role-badge role-qa">QA</span> <span style="color:var(--text-faint);font-size:10px;">(+ client)</span></td><td>User acceptance testing</td><td>Pending Release</td></tr>
+          <tr><td><span class="tag tag-pink">Pending Release</span></td><td><span class="role-badge role-tl">TL</span></td><td>Merged to main, waiting for tag</td><td>Released</td></tr>
+          <tr><td><span class="tag tag-green">Released</span></td><td>—</td><td>Live in production</td><td>—</td></tr>
+        </table>
+        <div class="note"><strong>Key change:</strong> PR merges to develop AFTER QA passes (QA tests on feature branch). Merge auto-transitions issue to Document.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Linear Issue ID Format</div>
+        <p><span class="mono">CRE-123</span> (prefix: CRE, number auto-assigned)</p>
+        <p>Use issue ID in:</p>
+        <ul>
+          <li>Git branch names: <span class="mono">feature/cre-123-description</span></li>
+          <li>Commit messages: <span class="mono">[CRE-123] Fix bug in auth</span></li>
+          <li>PR titles: <span class="mono">CRE-123: Feature description</span></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Labels & Metadata</div>
+        <table>
+          <tr><th>Category</th><th>Values</th><th>When to Add</th><th>Added By</th></tr>
+          <tr><td><span class="mono">type/*</span></td><td>feature, bug, improvement, chore, hotfix, tech-debt, operational</td><td>At issue creation</td><td><span class="role-badge role-dev" style="font-size:10px;">DEV</span> <span class="role-badge role-qa" style="font-size:10px;">QA</span> <span class="role-badge role-tl" style="font-size:10px;">TL</span></td></tr>
+          <tr><td><span class="mono">found-in/*</span></td><td>dev, preprod, prod</td><td>When bug is reported</td><td><span class="role-badge role-qa" style="font-size:10px;">QA</span></td></tr>
+          <tr><td><span class="mono">client/*</span></td><td>shared, flexiloans, dehaat, indifi, solfin, aspire, aerem, vayana, tyger, bcpl, ucic, switchmyloan, wogom, nexo</td><td>At issue creation or triage</td><td><span class="role-badge role-tl" style="font-size:10px;">TL</span> <span class="role-badge role-qa" style="font-size:10px;">QA</span></td></tr>
+          <tr><td><span class="mono">repo/*</span></td><td>crego-omni, crego-flow, crego-web, crego-infra, crego-app</td><td>At development start</td><td><span class="role-badge role-dev" style="font-size:10px;">DEV</span></td></tr>
+          <tr><td><span class="mono">release/*</span></td><td>v2.2.0, v2.3.0, v2.4.0, v2.5.0, v2.6.0 …</td><td>When issue is planned for a release</td><td><span class="role-badge role-tl" style="font-size:10px;">TL</span></td></tr>
+          <tr><td>Flags</td><td>release-blocker, needs-backport, needs-cherry-pick, breaking-change, feature-flag, long-running, custom-request</td><td>Anytime during lifecycle</td><td><span class="role-badge role-dev" style="font-size:10px;">DEV</span> <span class="role-badge role-qa" style="font-size:10px;">QA</span> <span class="role-badge role-tl" style="font-size:10px;">TL</span></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">SLAs & Response Times</div>
+        <table>
+          <tr><th>Priority</th><th>Response</th><th>Resolution</th></tr>
+          <tr><td><span class="tag tag-red">Urgent (P0)</span></td><td>15 min</td><td>4 hours</td></tr>
+          <tr><td><span class="tag tag-orange">High (P1)</span></td><td>1 hour</td><td>24 hours</td></tr>
+          <tr><td><span class="tag tag-blue">Medium (P2)</span></td><td>4 hours</td><td>1 week</td></tr>
+          <tr><td><span class="tag tag-cyan">Low (P3)</span></td><td>1 day</td><td>Backlog</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- QA PROCESS TAB -->
+    <div id="qa-process" class="panel">
+      <div class="section-title">
+        <span class="icon" style="background:var(--cyan-dim);color:var(--cyan);">Q</span>
+        QA Testing Process
+      </div>
+
+      <div class="card">
+        <div class="card-title">QA Workflow Overview</div>
+        <p>When an issue moves to <span class="tag tag-cyan">QA</span> state in Linear, QA picks it up and follows this process end-to-end before taking action on the Linear issue.</p>
+        <div class="note"><strong>Key rule:</strong> QA must complete ALL test cases and document results in the test tracker before updating the Linear issue. Do not discuss individual test cases separately — evaluate the change as a whole.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Step 1: Pick Issue & Deploy to QA Environment</div>
+        <ol style="margin:0;padding-left:20px;line-height:2;">
+          <li>Pick the issue from Linear (<span class="tag tag-cyan">QA</span> state) and assign yourself</li>
+          <li>Choose an available QA environment: <span class="mono">qa1</span>, <span class="mono">qa2</span>, etc.</li>
+          <li>Deploy the feature branch to the chosen QA environment</li>
+          <li>Select the appropriate database to copy for testing (match the client/data context of the change)</li>
+        </ol>
+        <div class="note" style="margin-top:8px;"><strong>Environment selection:</strong> Coordinate with other QA team members to avoid environment conflicts. Use <span class="mono">qa1</span>/<span class="mono">qa2</span> based on availability.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Step 2: Write & Execute Test Cases</div>
+        <ol style="margin:0;padding-left:20px;line-height:2;">
+          <li>Write comprehensive (360°) test cases covering all aspects of the change — positive flows, negative flows, edge cases, regression scenarios</li>
+          <li>Document all test cases in the <strong>QA Test Tracker</strong> spreadsheet</li>
+          <li>Execute each test case on the deployed QA environment</li>
+          <li>Record pass/fail status and notes for every test case in the tracker</li>
+        </ol>
+        <div class="cmd-group" style="margin-top:10px;">
+          <div class="cmd-label">QA Test Tracker (Google Sheet)</div>
+          <div class="cmd"><code>https://docs.google.com/spreadsheets/d/15hKG5-S4knNQ_f4mm8GD2TUil6tVIS8zxbfX6dm80xg/edit?gid=948003831#gid=948003831</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Step 3: Take Action on Linear</div>
+        <p>Once <strong>all</strong> test cases have been executed and documented in the tracker:</p>
+        <table>
+          <tr><th>Outcome</th><th>Action</th></tr>
+          <tr><td><span class="tag tag-green">All tests pass</span></td><td>Move issue to <span class="tag tag-green">Document</span> state in Linear → triggers merge to develop</td></tr>
+          <tr><td><span class="tag tag-red" style="background:var(--red-dim);color:var(--red);">Any test fails</span></td><td>Move issue back to <span class="tag tag-orange">Development</span> state with a comment summarizing all failures (link to tracker row). Do not create separate issues for each failing test case.</td></tr>
+        </table>
+        <div class="note" style="margin-top:8px;"><strong>Important:</strong> Do not discuss or flag individual test case results one by one. Complete the full test pass, then take a single action on the Linear issue with a consolidated summary.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">QA Checklist</div>
+        <ul>
+          <li>☐ Issue assigned to you in Linear</li>
+          <li>☐ QA environment selected (<span class="mono">qa1</span>/<span class="mono">qa2</span>) and DB copied</li>
+          <li>☐ Feature branch deployed to QA env</li>
+          <li>☐ All test cases written in the <a href="https://docs.google.com/spreadsheets/d/15hKG5-S4knNQ_f4mm8GD2TUil6tVIS8zxbfX6dm80xg/edit?gid=948003831#gid=948003831" style="color:var(--cyan);">QA Test Tracker</a></li>
+          <li>☐ All test cases executed and results recorded</li>
+          <li>☐ Linear issue updated with final verdict (pass → Document / fail → Development)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- GIT BRANCHING TAB -->
+    <div id="branching" class="panel">
+      <div class="section-title">
+        <span class="icon" style="background:var(--orange-dim);color:var(--orange);">G</span>
+        Git Branching Model
+      </div>
+
+      <div class="card">
+        <div class="card-title">Production & Integration Branches</div>
+        <table>
+          <tr><th>Branch</th><th>Purpose</th><th>Repo Notes</th><th>Auto-Deploy</th></tr>
+          <tr><td class="mono">master / main</td><td>Production</td><td>master: flow, omni | main: web, infra</td><td class="tag tag-green">Prod</td></tr>
+          <tr><td class="mono">develop</td><td>Integration (staging) — <strong>default branch</strong></td><td>All repos</td><td class="tag tag-blue">Dev environment</td></tr>
+          <tr><td class="mono">release/vX.Y.Z</td><td>Release candidate</td><td>Cut from develop</td><td class="tag tag-orange">Preprod</td></tr>
+          <tr><td class="mono">release/vX.Y.Z-clientname</td><td>Client-specific release</td><td>Cut from develop</td><td class="tag tag-orange">Preprod</td></tr>
+        </table>
+        <div class="note"><strong>Remember:</strong> Every merge to production must be merged back to develop (sync branches).</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Feature & Fix Branches</div>
+        <table>
+          <tr><th>Type</th><th>Naming</th><th>Source</th><th>Merge Target</th></tr>
+          <tr><td><span class="tag tag-blue">Feature</span></td><td><span class="mono">feature/cre-123-description</span></td><td>develop</td><td>develop (after PR approved + QA passes)</td></tr>
+          <tr><td><span class="tag tag-orange">Bugfix</span></td><td><span class="mono">bugfix/cre-456-description</span></td><td>develop</td><td>develop (after PR approved + QA passes)</td></tr>
+          <tr><td><span class="tag tag-orange">Preprod Fix</span></td><td><span class="mono">bugfix/cre-555-description</span></td><td>release/vX.Y.Z</td><td>Commit directly on release branch (or PR into it). CI auto-builds new RC. After QA re-test, RM merges release → master.</td></tr>
+          <tr><td><span class="tag tag-red">Hotfix</span></td><td><span class="mono">hotfix/cre-789-description</span></td><td>master/main</td><td>master/main, then merge-commit back to develop</td></tr>
+        </table>
+        <div class="note" style="margin-top:8px;"><strong>Preprod Fix flow:</strong> When QA/UAT finds an issue on the release branch deployed to pre-prod — fix it on the release branch (not develop). Push triggers a new RC build (e.g. <span class="mono">v2.1.0-rc.2</span>). QA re-tests. Once green, RM merges release → master and tags. Always backport the fix to develop afterwards (<span class="mono">needs-backport</span> label).</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Typical Feature Workflow</div>
+        <div class="cmd-group">
+          <div class="cmd-label">1. Create feature branch</div>
+          <div class="cmd"><code>git checkout develop && git pull && git checkout -b feature/cre-123-my-feature</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">2. Commit and push</div>
+          <div class="cmd"><code>git commit -m "[CRE-123] Add authentication flow" && git push -u origin feature/cre-123-my-feature</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">3. Open PR (GitHub/GitLab) with title format:</div>
+          <div class="cmd"><code>CRE-123: Add authentication flow</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">4. After peer review approval, notify QA</div>
+          <div class="cmd"><code># QA tests on feature branch, then approves</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">5. Merge to develop (GitHub PR only)</div>
+          <div class="cmd"><code># Merge via GitHub Pull Request — do not merge locally via CLI</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Branch Protection Rules</div>
+        <ul>
+          <li><span class="mono">master/main</span>: Require PR, at least 1 approval, dismiss stale reviews on push</li>
+          <li><span class="mono">develop</span>: Require PR, at least 1 approval, CI must pass</li>
+          <li><span class="mono">release/*</span>: Restrict to RM + DevOps, require CI to pass</li>
+          <li>Delete head branch after merge (enabled)</li>
+          <li>Require branches to be up to date before merge</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Merge Strategy</div>
+        <ul>
+          <li><strong>Feature/Bugfix:</strong> Squash merge (clean history, 1 commit per issue)</li>
+          <li><strong>Release to Main:</strong> Merge commit (preserve release history, create annotated tag after)</li>
+          <li><strong>Hotfix back to Develop:</strong> Merge commit (preserve emergency context)</li>
+        </ul>
+        <div class="note">Merge commits on production maintain clear release history in git log.</div>
+      </div>
+    </div>
+
+    <!-- CI/CD TAB -->
+    <div id="cicd" class="panel">
+      <div class="section-title">
+        <span class="icon" style="background:var(--green-dim);color:var(--green);">C</span>
+        CI/CD Pipeline
+      </div>
+
+      <div class="card">
+        <div class="card-title">Pipeline Stages</div>
+        <div class="pipeline">
+          <div class="stage success">✓ Checkout</div>
+          <div class="stage success">✓ Lint</div>
+          <div class="stage success">✓ Build</div>
+          <div class="stage success">✓ Test</div>
+          <div class="stage success">✓ Image</div>
+          <div class="stage active">→ Registry</div>
+          <div class="stage pending">○ Deploy</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Docker Image Tagging</div>
+        <p><strong>Format:</strong> <span class="mono">asia-south1-docker.pkg.dev/{gcp-project}/services/{service}:{tag}</span></p>
+        <table>
+          <tr><th>Trigger</th><th>Image Tag</th><th>Example</th><th>Registry Pushed</th></tr>
+          <tr><td>Feature branch push</td><td><span class="mono">{sha8}</span></td><td><span class="mono">a1b2c3d4</span></td><td>Dev only</td></tr>
+          <tr><td>Merge to develop</td><td><span class="mono">develop-{sha8}</span></td><td><span class="mono">develop-a1b2c3d4</span></td><td class="mono">asia-south1-docker.pkg.dev/crego-app-dev/...</td></tr>
+          <tr><td>Release branch cut</td><td><span class="mono">vX.Y.Z-rc{num}</span></td><td><span class="mono">v2.1.0-rc1</span></td><td class="mono">asia-south1-docker.pkg.dev/crego-app-dev/...</td></tr>
+          <tr><td>Merge to master/main</td><td><span class="mono">vX.Y.Z</span></td><td><span class="mono">v2.1.0</span></td><td class="mono">asia-south1-docker.pkg.dev/crego-app-prod/...</td></tr>
+          <tr><td>Client release tag</td><td><span class="mono">vX.Y.Z-clientname</span></td><td><span class="mono">v2.1.0-acme</span></td><td class="mono">asia-south1-docker.pkg.dev/crego-app-prod/...</td></tr>
+        </table>
+        <div class="note"><strong>Format detail:</strong> All images include git SHA (8 chars) appended after dash for traceability. Example: <span class="mono">v2.1.0-a1b2c3d4</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Environment-Specific Deployments</div>
+        <table>
+          <tr><th>Environment</th><th>Deploy Trigger</th><th>Image Source</th><th>Rollout</th></tr>
+          <tr><td><span class="tag tag-blue">Dev</span></td><td>Merge to develop or tag push</td><td><span class="mono">asia-south1-docker.pkg.dev/crego-app-dev/services</span></td><td>ArgoCD (auto-sync)</td></tr>
+          <tr><td><span class="tag tag-orange">Preprod</span></td><td>Release branch cut or tag <span class="mono">vX.Y.Z-rc*</span></td><td><span class="mono">asia-south1-docker.pkg.dev/crego-app-dev/services</span></td><td>ArgoCD (manual sync)</td></tr>
+          <tr><td><span class="tag tag-green">Prod</span></td><td>Tag vX.Y.Z pushed to master/main</td><td><span class="mono">asia-south1-docker.pkg.dev/crego-app-prod/services</span></td><td>ArgoCD (manual sync)</td></tr>
+        </table>
+        <div class="note">Prod images are in a separate GCP project (<span class="mono">crego-app-prod</span>) for security.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Multi-Service Repos</div>
+        <p><strong>Backend services build separate images:</strong></p>
+        <ul>
+          <li><span class="mono">crego-omni</span> → builds <span class="mono">omni-api</span>, <span class="mono">omni-celery-worker</span>, <span class="mono">omni-flower</span></li>
+          <li><span class="mono">crego-flow</span> → builds <span class="mono">flow-api</span>, optional <span class="mono">flow-worker</span></li>
+          <li><span class="mono">crego-web</span> → builds single <span class="mono">web</span> image (all apps bundled)</li>
+        </ul>
+        <div class="note">Each service image is tagged separately and deployed independently to K8s.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">CI/CD Tool Stack</div>
+        <ul>
+          <li><strong>Git</strong>: GitHub or GitLab (depending on repo)</li>
+          <li><strong>CI:</strong> GitHub Actions or GitLab CI (branch triggers, auto-tag)</li>
+          <li><strong>Registry:</strong> Google Artifact Registry (<span class="mono">asia-south1-docker.pkg.dev</span>)</li>
+          <li><strong>Deploy:</strong> ArgoCD (GitOps, K8s manifests in <span class="mono">crego-infra</span>)</li>
+          <li><strong>Registry Cleanup:</strong> GCP Artifact Registry policies (delete old images, keep last 20)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- VERSIONING TAB -->
+    <div id="versioning" class="panel">
+      <div class="section-title">
+        <span class="icon" style="background:var(--purple-dim);color:var(--purple);">V</span>
+        Semantic Versioning
+      </div>
+
+      <div class="card">
+        <div class="card-title">Version Format</div>
+        <p><strong>Semantic Versioning:</strong> <span class="mono">vMAJOR.MINOR.PATCH[-PRERELEASE][-SHASHA]</span></p>
+        <table>
+          <tr><th>Component</th><th>Meaning</th><th>When to Bump</th><th>Example</th></tr>
+          <tr><td>MAJOR</td><td>Breaking changes</td><td>Schema migrations, API changes incompatible with old clients</td><td><span class="mono">v3.0.0</span></td></tr>
+          <tr><td>MINOR</td><td>New features, backward-compatible</td><td>New endpoints, UI components, features</td><td><span class="mono">v2.1.0</span></td></tr>
+          <tr><td>PATCH</td><td>Bug fixes, security patches</td><td>Critical bugs, performance fixes, security</td><td><span class="mono">v2.0.5</span></td></tr>
+          <tr><td>-rc (prerelease)</td><td>Release candidate</td><td>Testing on preprod before prod release</td><td><span class="mono">v2.1.0-rc1</span></td></tr>
+          <tr><td>-SHA</td><td>Git commit SHA (8 chars)</td><td>Auto-appended by CI for traceability</td><td><span class="mono">v2.1.0-a1b2c3d4</span></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Release Versioning</div>
+        <table>
+          <tr><th>Stage</th><th>Tag Format</th><th>Branch</th><th>Example</th></tr>
+          <tr><td>Development</td><td><span class="mono">develop-{sha8}</span></td><td>develop</td><td><span class="mono">develop-a1b2c3d4</span></td></tr>
+          <tr><td>Release Candidate</td><td><span class="mono">vX.Y.Z-rc{num}-{sha8}</span></td><td><span class="mono">release/vX.Y.Z</span></td><td><span class="mono">v2.1.0-rc1-a1b2c3d4</span></td></tr>
+          <tr><td>Production</td><td><span class="mono">vX.Y.Z-{sha8}</span></td><td>master/main</td><td><span class="mono">v2.1.0-a1b2c3d4</span></td></tr>
+          <tr><td>Client-Specific</td><td><span class="mono">vX.Y.Z-clientname-{sha8}</span></td><td><span class="mono">release/vX.Y.Z-clientname</span></td><td><span class="mono">v2.1.0-acme-a1b2c3d4</span></td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Version Consistency Across Services</div>
+        <p><strong>All services deployed in the same release must use the same major.minor version.</strong></p>
+        <ul>
+          <li>PATCH can differ (e.g., v2.1.0 for omni, v2.1.3 for ai)</li>
+          <li>Example coordinated release: omni-api v2.1.0, ai-api v2.1.0, flow-api v2.1.0, web v2.1.0</li>
+          <li>Use <span class="mono">crego-internal-docs/release-management/release-notes/v2.1.0</span> to document coordinated changes</li>
+        </ul>
+        <div class="note">This ensures clients receive compatible service APIs in the same release cycle.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Web App Version Exposure</div>
+        <p><strong>Frontend:</strong> Build step injects <span class="mono">__APP_VERSION__</span> global variable (clean semver, no SHA)</p>
+        <p>Example: In browser console: <span class="mono">__APP_VERSION__ === "2.1.0"</span> (not "2.1.0-a1b2c3d4")</p>
+        <div class="note">Users and support can query app version from browser console for debugging.</div>
+      </div>
+    </div>
+
+    <!-- HOTFIX TAB -->
+    <div id="hotfix" class="panel">
+      <div class="section-title">
+        <span class="icon" style="background:var(--red-dim);color:var(--red);">H</span>
+        Hotfix Process
+      </div>
+
+      <div class="card">
+        <div class="card-title">When to Hotfix</div>
+        <ul>
+          <li><span class="tag tag-red">Critical security vulnerability</span> — applies to production data or auth</li>
+          <li><span class="tag tag-red">Production downtime</span> — service unavailable, errors on core path</li>
+          <li><span class="tag tag-red">Data loss / corruption</span> — database or file system integrity</li>
+          <li><span class="tag tag-orange">Critical business impact</span> — revenue-blocking or customer-facing (use judgment)</li>
+        </ul>
+        <div class="note warn">Regular bugs, even high-priority, should use normal feature/develop/release flow. Do NOT use hotfix for convenience.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Hotfix Workflow</div>
+        <div class="state-flow">
+          <div class="state">1. Create hotfix branch from <span class="mono">master/main</span></div>
+          <div class="state" style="margin-left:20px;"><code style="color:var(--cyan);">git checkout master && git pull && git checkout -b hotfix/cre-999-critical-fix</code></div>
+          <div class="state">2. Fix the bug, commit, push</div>
+          <div class="state" style="margin-left:20px;"><code style="color:var(--cyan);">git commit -m "[CRE-999] Fix critical auth bug" && git push -u origin hotfix/cre-999-critical-fix</code></div>
+          <div class="state">3. Code review + testing (same as feature, on hotfix branch)</div>
+          <div class="state">4. Merge to <span class="mono">master/main</span> with <strong>merge commit</strong></div>
+          <div class="state" style="margin-left:20px;"><code style="color:var(--cyan);">git checkout master && git pull && git merge --no-ff hotfix/cre-999-critical-fix</code></div>
+          <div class="state">5. Create annotated tag on master/main</div>
+          <div class="state" style="margin-left:20px;"><code style="color:var(--cyan);">git tag -a vX.Y.(Z+1) -m "Hotfix: CRE-999" && git push origin master --tags</code></div>
+          <div class="state active">6. CI builds image <span class="mono">vX.Y.(Z+1)-{sha8}</span>, pushes to Prod registry</div>
+          <div class="state">7. RM syncs ArgoCD → pod restarts → hotfix live</div>
+          <div class="state">8. Merge hotfix back to <span class="mono">develop</span> with <strong>merge commit</strong></div>
+          <div class="state" style="margin-left:20px;"><code style="color:var(--cyan);">git checkout develop && git pull && git merge --no-ff master</code></div>
+          <div class="state done">✓ Hotfix complete, develop synced with production</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Hotfix SLA</div>
+        <table>
+          <tr><th>Severity</th><th>Response</th><th>Fix Target</th><th>Communication</th></tr>
+          <tr><td><span class="tag tag-red">P0 (Critical)</span></td><td>5 min</td><td>30 min to production</td><td>Slack #incident, then email/SMS</td></tr>
+          <tr><td><span class="tag tag-orange">P1 (Major)</span></td><td>15 min</td><td>2 hours to production</td><td>Slack #incidents</td></tr>
+        </table>
+        <div class="note warn">Hotfixes bypass the normal release cycle. Page on-call and notify stakeholders immediately.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Post-Hotfix Checklist</div>
+        <ul>
+          <li>Run post-deploy verification (see K8s & Tools tab)</li>
+          <li>Monitor Sentry for 1 hour (no new related errors)</li>
+          <li>Confirm develop is synced with master/main</li>
+          <li>Update Linear issue to Released state</li>
+          <li>Document in release notes</li>
+          <li>Schedule postmortem (if P0)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- COMMANDS TAB -->
+    <div id="commands" class="panel">
+      <div class="section-title">
+        <span class="icon" style="background:var(--cyan-dim);color:var(--cyan);">C</span>
+        Git & Release Commands
+      </div>
+
+      <div class="card">
+        <div class="card-title">Developer: Starting Work</div>
+        <div class="cmd-group">
+          <div class="cmd-label">Sync develop</div>
+          <div class="cmd"><code>git fetch && git checkout develop && git pull</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Create feature branch (from Linear issue CRE-123)</div>
+          <div class="cmd"><code>git checkout -b feature/cre-123-my-feature</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Push to remote and create PR</div>
+          <div class="cmd"><code>git push -u origin feature/cre-123-my-feature</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Developer: After QA Approves (Merge to Develop)</div>
+        <div class="cmd-group">
+          <div class="cmd-label">Sync and merge feature into develop (squash)</div>
+          <div class="cmd"><code>git checkout develop && git pull && git merge --squash feature/cre-123-my-feature && git commit -m "CRE-123: Feature description"</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Push to develop (auto-deploy to dev)</div>
+          <div class="cmd"><code>git push origin develop</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">TL: Cut Release (Prepare Preprod)</div>
+        <div class="cmd-group">
+          <div class="cmd-label">Decide next version (e.g., v2.1.0)</div>
+          <div class="cmd"><code>git log develop --oneline -10  # Review commits</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Create release branch</div>
+          <div class="cmd"><code>git checkout develop && git pull && git checkout -b release/v2.1.0</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Bump versions in files (if needed) and create changelog</div>
+          <div class="cmd"><code># Edit VERSION, package.json, pyproject.toml as needed, commit, push</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Push release branch (CI builds rc image)</div>
+          <div class="cmd"><code>git push -u origin release/v2.1.0</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">TL: Ship to Prod (After QA Sign-Off)</div>
+        <div class="cmd-group">
+          <div class="cmd-label">Merge release branch to master/main</div>
+          <div class="cmd"><code>git checkout master && git pull && git merge --no-ff release/v2.1.0</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Create annotated tag (CI builds prod image)</div>
+          <div class="cmd"><code>git tag -a v2.1.0 -m "Release v2.1.0: summary of changes" && git push origin master --tags</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Merge master back to develop (keep branches in sync)</div>
+          <div class="cmd"><code>git checkout develop && git pull && git merge master && git push origin develop</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Client Release (Multi-Tenant)</div>
+        <div class="cmd-group">
+          <div class="cmd-label">Cut client-specific release branch from develop</div>
+          <div class="cmd"><code>git checkout develop && git pull && git checkout -b release/v2.1.0-acme</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Make client-specific changes (config, features, etc.)</div>
+          <div class="cmd"><code>git commit -m "[CRE-888] Client ACME config" && git push -u origin release/v2.1.0-acme</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Tag and push to production</div>
+          <div class="cmd"><code>git tag -a v2.1.0-acme -m "Release v2.1.0-acme for ACME Corp" && git push origin release/v2.1.0-acme --tags</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="note">Client release images go to Prod registry. Namespace routing or cluster routing determines which tenant sees which image.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Hotfix: Emergency Fix</div>
+        <div class="cmd-group">
+          <div class="cmd-label">Create hotfix from master/main</div>
+          <div class="cmd"><code>git checkout master && git pull && git checkout -b hotfix/cre-999-critical-auth-bug</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Fix, commit, push</div>
+          <div class="cmd"><code>git commit -m "[CRE-999] Fix critical auth bug" && git push -u origin hotfix/cre-999-critical-auth-bug</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">After review, merge to master with merge commit</div>
+          <div class="cmd"><code>git checkout master && git pull && git merge --no-ff hotfix/cre-999-critical-auth-bug</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Create patch tag (bump PATCH version, e.g., v2.0.5 if last was v2.0.4)</div>
+          <div class="cmd"><code>git tag -a v2.0.5 -m "Hotfix CRE-999: Critical auth bug" && git push origin master --tags</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Merge hotfix back to develop to keep in sync</div>
+          <div class="cmd"><code>git checkout develop && git pull && git merge --no-ff master && git push origin develop</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Preprod Fix (Issue Found During QA)</div>
+        <div class="cmd-group">
+          <div class="cmd-label">Fix directly on release branch</div>
+          <div class="cmd"><code>git checkout release/v2.1.0 && git pull && git commit -m "[CRE-888] Fix preprod test failure"</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Push (new RC image tagged vX.Y.Z-rc2 auto-built by CI)</div>
+          <div class="cmd"><code>git push origin release/v2.1.0</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">QA re-tests, then RM merges to master when ready</div>
+          <div class="cmd"><code>git checkout master && git pull && git merge --no-ff release/v2.1.0 && git tag -a v2.1.0 -m "..." && git push origin master --tags</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Check Tags and History</div>
+        <div class="cmd-group">
+          <div class="cmd-label">List tags in version order (newest first)</div>
+          <div class="cmd"><code>git tag -l 'v*' --sort=-version:refname | head -10</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Show commits since last release</div>
+          <div class="cmd"><code>git log v2.0.0..develop --oneline</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">View tag details</div>
+          <div class="cmd"><code>git show v2.1.0</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORCHESTRATOR TAB -->
+    <div id="orchestrator" class="panel">
+      <div class="section-title">
+        <span class="icon" style="background:var(--pink-dim);color:var(--pink);">O</span>
+        Orchestration & Promotion
+      </div>
+
+      <div class="card">
+        <div class="card-title">TL Workflow</div>
+        <div class="box">
+          <div class="box-title">Phase 1: Planning (Daily during dev cycle)</div>
+          <ul>
+            <li>Monitor Linear for completed features merged to develop</li>
+            <li>Track version roadmap (e.g., v2.1.0 target date)</li>
+            <li>Identify blocking issues, coordinate with team</li>
+          </ul>
+        </div>
+        <div class="box">
+          <div class="box-title">Phase 2: Cut Release (T-2 days before prod target)</div>
+          <ul>
+            <li>Create <span class="mono">release/vX.Y.Z</span> branch from develop</li>
+            <li>Update changelog, version files</li>
+            <li>Push branch → CI builds RC image → deploys to Preprod</li>
+            <li>Notify QA: "Release ready for testing on preprod"</li>
+          </ul>
+        </div>
+        <div class="box">
+          <div class="box-title">Phase 3: QA & Fixes (T-1 to T-0.5 days)</div>
+          <ul>
+            <li>Monitor QA progress in Linear (issues, blockers)</li>
+            <li>Apply preprod fixes directly to release branch</li>
+            <li>New RC images auto-built on each push</li>
+            <li>Track preprod verification checklist</li>
+          </ul>
+        </div>
+        <div class="box">
+          <div class="box-title">Phase 4: Ship (T-0, prod deploy time)</div>
+          <ul>
+            <li>Confirm QA sign-off (Linear issue → QA state approved)</li>
+            <li>Merge release branch to master with <span class="mono">--no-ff</span></li>
+            <li>Create annotated tag <span class="mono">vX.Y.Z</span> (auto-triggers prod build + deploy)</li>
+            <li>Sync master back to develop</li>
+            <li>Monitor Sentry, Grafana during initial rollout (first 30 min critical)</li>
+          </ul>
+        </div>
+        <div class="box">
+          <div class="box-title">Phase 5: Post-Release</div>
+          <ul>
+            <li>Run post-deploy verification checklist (see K8s & Tools tab)</li>
+            <li>Confirm all services healthy in prod</li>
+            <li>Release Linear issue to Released state</li>
+            <li>Communicate release summary to stakeholders</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Multi-Service Coordination</div>
+        <p><strong>Typical coordinated release (all in v2.1.0):</strong></p>
+        <ul>
+          <li><span class="mono">crego-omni</span> → v2.1.0-{sha}</li>
+          <li><span class="mono">crego-flow</span> → v2.1.0-{sha}</li>
+          <li><span class="mono">crego-web</span> → v2.1.0-{sha}</li>
+        </ul>
+        <p>All ship within the same release window. If one service has a bug after QA, apply fix to that repo's release branch, rebuild RC image, re-test, then all images ship together.</p>
+        <div class="note">Coordinated versioning ensures API compatibility between services in a release.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Release Notes & Changelog</div>
+        <p>Location: <span class="mono">crego-internal-docs/release-management/release-notes/v2.1.0/</span></p>
+        <ul>
+          <li><span class="mono">CHANGELOG.md</span> — Summary of features, fixes, breaking changes</li>
+          <li><span class="mono">MIGRATION.md</span> — Database migrations, config changes, deployment notes</li>
+          <li><span class="mono">KNOWN_ISSUES.md</span> — Known bugs, workarounds, deprecations</li>
+          <li><span class="mono">RELEASE_SUMMARY.txt</span> — One-liner for announcements</li>
+        </ul>
+        <div class="note">RM drafts during release cycle; developers fill in during development (auto-transition to Document state).</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Release Tracking Dashboard</div>
+        <p><strong>Use:</strong> Linear → Filters → <span class="mono">release/v2.1.0</span> label → see all CRE issues in release</p>
+        <table>
+          <tr><th>State</th><th>Count</th><th>Action</th></tr>
+          <tr><td>Pending Release</td><td>3</td><td>All merged, waiting for tag → ship now</td></tr>
+          <tr><td>UAT</td><td>1</td><td>Client testing still in progress → hold ship</td></tr>
+          <tr><td>QA</td><td>0</td><td>All QA passed</td></tr>
+        </table>
+        <div class="note">Filter by release version label to see what's queued for next release.</div>
+      </div>
+    </div>
+
+    <!-- K8s & TOOLS TAB (NEW) -->
+    <div id="k8s" class="panel">
+      <div class="section-title">
+        <span class="icon" style="background:var(--green-dim);color:var(--green);">K</span>
+        K8s & Tools
+      </div>
+
+      <div class="card">
+        <div class="card-title">Cluster Access</div>
+        <table>
+          <tr><th>Environment</th><th>GCP Project</th><th>Cluster</th><th>Region</th><th>Namespace</th></tr>
+          <tr><td><span class="tag tag-blue">Dev</span></td><td class="mono">crego-app-dev</td><td class="mono">crego-app-dev-cluster</td><td class="mono">asia-south1-a</td><td class="mono">dev</td></tr>
+          <tr><td><span class="tag tag-orange">Preprod</span></td><td class="mono">gold-blueprint-451210-q1</td><td class="mono">crego-app-preprod</td><td class="mono">asia-south1-a</td><td class="mono">preprod</td></tr>
+          <tr><td><span class="tag tag-green">Prod</span></td><td class="mono">crego-app-prod</td><td class="mono">—</td><td class="mono">—</td><td class="mono">prod</td></tr>
+        </table>
+        <div class="note" style="margin-top:8px;"><strong>Prod cluster details:</strong> Namespace is <span class="mono">prod</span>. Check with DevOps for exact cluster name if needed.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Kubeconfig Setup</div>
+        <div class="cmd-group">
+          <div class="cmd-label">Dev cluster</div>
+          <div class="cmd"><code>gcloud container clusters get-credentials crego-app-dev-cluster --region asia-south1-a --project crego-app-dev</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Preprod cluster</div>
+          <div class="cmd"><code>gcloud container clusters get-credentials crego-app-preprod --region asia-south1-a --project gold-blueprint-451210-q1</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="note" style="margin-top:8px;">Prerequisites: <span class="mono">gcloud</span> CLI installed, authenticated (<span class="mono">gcloud auth login</span>), and IAM role <strong>Kubernetes Engine Developer</strong> or higher.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Common kubectl Commands</div>
+        <div class="cmd-section-title">Check deployed image tag</div>
+        <div class="cmd-group">
+          <div class="cmd-label">Dev</div>
+          <div class="cmd"><code>kubectl get deployment omni-api -n dev -o jsonpath='{.spec.template.spec.containers[0].image}'</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Preprod</div>
+          <div class="cmd"><code>kubectl get deployment omni-api -n preprod -o jsonpath='{.spec.template.spec.containers[0].image}'</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Prod</div>
+          <div class="cmd"><code>kubectl get deployment omni-api -n prod -o jsonpath='{.spec.template.spec.containers[0].image}'</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+
+        <div class="cmd-section-title" style="margin-top:16px;">Check SENTRY_RELEASE env var</div>
+        <div class="cmd-group">
+          <div class="cmd-label">Any environment (replace namespace)</div>
+          <div class="cmd"><code>kubectl get deployment omni-api -n {ns} -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name=="SENTRY_RELEASE")].value}'</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd"><code>kubectl exec -it deployment/omni-api -n {ns} -- env | grep SENTRY_RELEASE</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+
+        <div class="cmd-section-title" style="margin-top:16px;">View pod logs</div>
+        <div class="cmd-group">
+          <div class="cmd"><code>kubectl logs deployment/omni-api -n {ns} --tail=100</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd"><code>kubectl logs deployment/flow-api -n {ns} --tail=100</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+
+        <div class="cmd-section-title" style="margin-top:16px;">Restart deployment (rolling)</div>
+        <div class="cmd-group">
+          <div class="cmd"><code>kubectl rollout restart deployment/omni-api -n {ns}</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd"><code>kubectl rollout status deployment/omni-api -n {ns}</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+
+        <div class="cmd-section-title" style="margin-top:16px;">List all pods in namespace</div>
+        <div class="cmd-group">
+          <div class="cmd"><code>kubectl get pods -n {ns} -o wide</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="note" style="margin-top:8px;">Replace <span class="mono">{ns}</span> with <span class="mono">dev</span>, <span class="mono">preprod</span>, or <span class="mono">prod</span>. Standard port is <strong>8000</strong> for all services, except Flower which uses <strong>5555</strong>.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Port Forwarding (Dev)</div>
+        <div class="cmd-group">
+          <div class="cmd-label">PostgreSQL</div>
+          <div class="cmd"><code>kubectl port-forward -n dev svc/postgresql 15432:5432</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">RabbitMQ Management UI</div>
+          <div class="cmd"><code>kubectl port-forward -n dev svc/rabbitmq 15672:15672</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-label">Redis</div>
+          <div class="cmd"><code>kubectl port-forward -n dev svc/redis 16379:6379</code><button class="copy-btn" onclick="cp(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">ArgoCD</div>
+        <table>
+          <tr><th>Environment</th><th>URL</th><th>Credentials</th></tr>
+          <tr><td><span class="tag tag-blue">Dev</span></td><td class="mono">https://argocd.dev.crego.io</td><td>admin / Vault: <span class="mono">secrets/crego/dev/argocd/admin-password</span></td></tr>
+          <tr><td><span class="tag tag-orange">Preprod</span></td><td class="mono">https://argocd.preprod.crego.io</td><td>admin / Vault: <span class="mono">secrets/crego/preprod/argocd/admin-password</span></td></tr>
+        </table>
+        <div class="note" style="margin-top:8px;"><strong>Key apps:</strong> <span class="mono">dev-gcp-environment</span>, <span class="mono">prod-gcp-environment</span>, and addon apps (external-secrets, cert-manager, nginx-ingress, prometheus, grafana, keda, opentelemetry).</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Grafana</div>
+        <table>
+          <tr><th>Environment</th><th>URL</th><th>Credentials</th></tr>
+          <tr><td><span class="tag tag-blue">Dev</span></td><td class="mono">https://grafana.dev.crego.ai</td><td>admin / Vault: <span class="mono">secrets/crego/dev/grafana/admin-password</span></td></tr>
+          <tr><td><span class="tag tag-orange">Preprod</span></td><td class="mono">https://grafana.preprod.crego.ai</td><td>admin / Vault: <span class="mono">secrets/crego/preprod/grafana/admin-password</span></td></tr>
+        </table>
+        <div class="note" style="margin-top:8px;">Password rotation: every 90 days. Grafana is deployed as an ArgoCD addon via <span class="mono">monitoring-addons.yaml</span>.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Lens Desktop</div>
+        <div style="font-size:12px;">
+          <p style="margin-bottom:8px;">Download from <span class="mono">https://k8slens.dev/</span>. Clusters auto-discovered from kubeconfig after running the <strong>gcloud get-credentials</strong> commands above.</p>
+          <p style="margin-bottom:8px;"><strong>Prerequisites:</strong> GCP project access with IAM permissions (Kubernetes Engine Developer or higher).</p>
+          <p><strong>Tip:</strong> Use Lens for visual pod management, log streaming, and resource monitoring. It reads the same kubeconfig as kubectl.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Network IPs</div>
+        <table>
+          <tr><th>Environment</th><th>Egress (NAT IP)</th><th>Ingress (Load Balancer)</th></tr>
+          <tr><td><span class="tag tag-blue">Dev</span></td><td class="mono">34.93.169.151</td><td class="mono">34.111.207.61</td></tr>
+          <tr><td><span class="tag tag-orange">Preprod</span></td><td class="mono">34.47.153.186</td><td class="mono">35.190.126.196</td></tr>
+        </table>
+        <div class="note" style="margin-top:8px;">Architecture: Private GKE nodes with Cloud NAT gateway for outbound traffic.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Infra Scripts (crego-infra/scripts/)</div>
+        <table>
+          <tr><th>Script</th><th>Purpose</th></tr>
+          <tr><td class="mono">deploy-services.sh -e {env} -c {cloud}</td><td>Deploy environment overlays via Kustomize</td></tr>
+          <tr><td class="mono">bootstrap-cluster.sh</td><td>Bootstrap ArgoCD and deploy root application</td></tr>
+          <tr><td class="mono">bump-image.sh</td><td>Update service image tags in K8s manifests</td></tr>
+          <tr><td class="mono">promote-services.sh</td><td>Promote services between environments</td></tr>
+          <tr><td class="mono">create-secret-json.sh</td><td>Create and apply K8s secrets</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Post-Deploy Verification Checklist</div>
+        <table>
+          <tr><th>Check</th><th>Command / Method</th><th>Expected</th></tr>
+          <tr><td>Docker image</td><td class="mono" style="font-size:10px;">kubectl get deploy {svc} -n {ns} -o jsonpath='{.spec...image}'</td><td>Correct semver-sha tag</td></tr>
+          <tr><td>Sentry release</td><td class="mono" style="font-size:10px;">kubectl exec deploy/{svc} -n {ns} -- env | grep SENTRY_RELEASE</td><td>Matches Docker tag</td></tr>
+          <tr><td>Web version</td><td>Browser console: <span class="mono">__APP_VERSION__</span></td><td>Clean semver (no sha)</td></tr>
+          <tr><td>Git tags</td><td class="mono" style="font-size:10px;">git tag -l 'v*' --sort=-version:refname | head -3</td><td>Tag matches release version</td></tr>
+          <tr><td>Sentry health</td><td>Sentry UI → Releases → Crash Free Sessions</td><td>&gt;99%, no new issue spike</td></tr>
+          <tr><td>GCR images</td><td class="mono" style="font-size:10px;">gcloud container images list-tags asia-south1-docker.pkg.dev/crego-app-prod/services/omni-api</td><td>Latest tag present</td></tr>
+        </table>
+        <div class="note warn" style="margin-top:8px;"><strong>Run after every deploy</strong> (prod or preprod, internal or client). This checklist is the single source of truth for post-deploy verification.</div>
+      </div>
+    </div>
+
+    <!-- SENTRY TAB -->
+    <div id="sentry" class="panel">
+      <div class="section-title">
+        <span class="icon" style="background:var(--red-dim);color:var(--red);">S</span>
+        Sentry Error Tracking
+      </div>
+
+      <div class="card">
+        <div class="card-title">Sentry Setup & Configuration</div>
+        <table>
+          <tr><th>Environment</th><th>Organization</th><th>Project</th><th>DSN</th></tr>
+          <tr><td><span class="tag tag-blue">Dev</span></td><td class="mono">crego-io</td><td class="mono">crego-dev</td><td>Vault: <span class="mono">secrets/crego/dev/sentry-dsn</span></td></tr>
+          <tr><td><span class="tag tag-orange">Preprod</span></td><td class="mono">crego-io</td><td class="mono">crego-preprod</td><td>Vault: <span class="mono">secrets/crego/preprod/sentry-dsn</span></td></tr>
+          <tr><td><span class="tag tag-green">Prod</span></td><td class="mono">crego-io</td><td class="mono">crego-prod</span></td><td>Vault: <span class="mono">secrets/crego/prod/sentry-dsn</span></td></tr>
+        </table>
+        <div class="note" style="margin-top:8px;">All services initialized with SENTRY_DSN env var and SENTRY_RELEASE set to Docker tag at deployment.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Releases & Error Tracking</div>
+        <p><strong>SENTRY_RELEASE env var:</strong> Must match Docker image tag for proper release grouping.</p>
+        <p><strong>Typical flow:</strong></p>
+        <ol>
+          <li>Docker image tagged <span class="mono">v2.1.0-a1b2c3d4</span></li>
+          <li>K8s deployment injected with <span class="mono">SENTRY_RELEASE=v2.1.0-a1b2c3d4</span></li>
+          <li>Service initializes Sentry: <span class="mono">sentry_sdk.init(..., release=os.getenv("SENTRY_RELEASE"))</span></li>
+          <li>All errors tagged with release, Sentry groups by release</li>
+          <li>Sentry UI shows "Crash Free Sessions" per release</li>
+        </ol>
+        <div class="note">For kubectl verification of SENTRY_RELEASE, see K8s & Tools tab.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Troubleshooting Common Sentry Issues</div>
+        <table>
+          <tr><th>Issue</th><th>Cause</th><th>Fix</th></tr>
+          <tr><td>Release mismatch (Sentry shows no release tag)</td><td>SENTRY_RELEASE env not set or mismatched</td><td>Check K8s manifest SENTRY_RELEASE value matches Docker tag</td></tr>
+          <tr><td>Old errors still appearing after deploy</td><td>Cache or stale pod instance</td><td>Rollout restart deployment, wait 5 min, check pods</td></tr>
+          <tr><td>New error spike post-deploy</td><td>Regression in release</td><td>Trigger rollback (previous stable tag) or hotfix</td></tr>
+          <tr><td>Crash-free percentage drops unexpectedly</td><td>New errors or integration issue</td><td>Check Sentry release page, investigate error traces, link to Linear issue</td></tr>
+          <tr><td>Sentry DSN shows 401 Unauthorized</td><td>Invalid DSN or wrong project</td><td>Verify Vault secret exists, re-fetch from Vault, restart pod</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Frontend vs Backend Verification</div>
+        <p><strong>Backend:</strong> Errors auto-captured by Python SDK. Check Sentry UI → Issues tab → filter by release.</p>
+        <p><strong>Frontend (Web):</strong> Browser console shows <span class="mono">__APP_VERSION__ = "2.1.0"</span>. Sentry DSN for web in <span class="mono">crego-web/.env.{env}</span>. Errors appear in Sentry → Issues, tagged with app version from JS SDK.</p>
+        <p><strong>Post-release verification:</strong> Monitor Sentry for 30 minutes after deploy. Expected: &gt;99% crash-free sessions, no new critical issues, error rate stable or decreasing.</p>
+        <div class="note">Web and backend errors go to same Sentry project but identified by platform (environment tag or SDK type).</div>
+      </div>
+    </div>
+
+    <!-- CLIENTS & CONFIG TAB -->
+    <div id="clients" class="panel">
+      <div class="section-title">
+        <span class="icon" style="background:var(--purple-dim);color:var(--purple);">C</span>
+        Clients & Configuration
+      </div>
+
+      <div class="card">
+        <div class="card-title">Multi-Tenant Release Strategy</div>
+        <p><strong>Standard:</strong> Internal release (v2.1.0) deployed to all environments simultaneously.</p>
+        <p><strong>Client-specific:</strong> If a client needs custom features or config not in standard release:</p>
+        <ul>
+          <li>Cut <span class="mono">release/v2.1.0-acme</span> from develop with client-specific changes</li>
+          <li>Tag <span class="mono">v2.1.0-acme</span> when ready</li>
+          <li>Route via K8s namespace or cluster to tenant's namespace</li>
+          <li>Update Linear label: <span class="mono">client/acme</span>, <span class="mono">release/v2.1.0-acme</span></li>
+        </ul>
+        <div class="note">Coordinate with DevOps for routing (namespace isolation, DNS, RBAC).</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Configuration Per Environment</div>
+        <p><strong>Dev:</strong> Loose restrictions, feature flags ON, logging DEBUG</p>
+        <p><strong>Preprod:</strong> Production-like config, feature flags match prod target, logging INFO</p>
+        <p><strong>Prod:</strong> Strict validation, feature flags via Vault/K8s ConfigMap, logging WARN</p>
+        <p><strong>Client-Specific Overrides:</strong> Stored in <span class="mono">crego-infra/overlays/{env}/client-{name}/</span>, patched via Kustomize</p>
+        <div class="note warn">Never hardcode secrets. Always use Vault or K8s Secrets. ArgoCD syncs external-secrets operator to Vault → K8s Secret.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Feature Flags & A/B Testing</div>
+        <p><strong>Storage:</strong> Redis cache + Vault source of truth</p>
+        <p><strong>Typical flags:</strong></p>
+        <ul>
+          <li><span class="mono">enable-new-ui</span> → gradual rollout</li>
+          <li><span class="mono">enable-payment-v2</span> → canary in preprod first</li>
+          <li><span class="mono">client-acme-custom-branding</span> → tenant-specific</li>
+        </ul>
+        <p>Admin UI at <span class="mono">https://admin.crego.io/feature-flags</span> (DevOps only). Changes sync to all services within 1 minute via cache invalidation.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Client Secrets & Credentials</div>
+        <table>
+          <tr><th>Secret Type</th><th>Storage</th><th>Rotation</th><th>Access</th></tr>
+          <tr><td>API Keys (3rd party)</td><td>Vault → K8s Secret</td><td>90 days or alert</td><td>DevOps, Service Accounts</td></tr>
+          <tr><td>DB credentials</td><td>Vault → K8s Secret</td><td>180 days</td><td>Only service pod</td></tr>
+          <tr><td>TLS certs</td><td>cert-manager → K8s Secret</td><td>Auto (90 days)</td><td>Ingress controller</td></tr>
+          <tr><td>Client JWT signing keys</td><td>Vault + customer's key escrow</td><td>Per contract</td><td>Strictly governed</td></tr>
+        </table>
+        <div class="note danger">Never commit secrets to git. Never print secrets in logs. Use Vault audit logs.</div>
+      </div>
+    </div>
+
+    <!-- RULES & CONSTRAINTS TAB -->
+    <div id="constraints" class="panel">
+      <div class="section-title">
+        <span class="icon" style="background:var(--orange-dim);color:var(--orange);">R</span>
+        Rules & Constraints
+      </div>
+
+      <div class="card">
+        <div class="card-title">MUST DO</div>
+        <ul>
+          <li><strong>Always include Linear issue ID (CRE-xxx) in branch names and PR titles.</strong> Prevents orphaned code.</li>
+          <li><strong>Write clear commit messages.</strong> Format: <span class="mono">[CRE-123] Brief description of change</span></li>
+          <li><strong>Get peer code review before merging to develop.</strong> At least 1 approval required.</li>
+          <li><strong>QA must test on feature branch before approving merge.</strong> Only then does it merge to develop.</li>
+          <li><strong>Update Linear issue through entire workflow.</strong> Don't manually advance states; let auto-transitions work (set labels, link PRs).</li>
+          <li><strong>Sync master/main back to develop after every release.</strong> Prevents divergence.</li>
+          <li><strong>Tag every release with annotated git tag.</strong> Tag format: <span class="mono">vX.Y.Z[-prerelease]</span> for production, <span class="mono">develop-{sha}</span> for dev builds.</li>
+          <li><strong>Run post-deploy verification checklist after every prod/preprod deploy.</strong> See K8s & Tools tab.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">NEVER DO</div>
+        <ul>
+          <li><span class="tag tag-red">Never force-push</span> to develop, master, or release branches. Use regular push.</li>
+          <li><span class="tag tag-red">Never merge feature directly to master/main</span> (except hotfix). Always go through develop → release → master.</li>
+          <li><span class="tag tag-red">Never skip CI/CD</span> for a deploy. Always let CI build and tag images.</li>
+          <li><span class="tag tag-red">Never deploy from a local machine</span> to production. Always trigger via git tag.</li>
+          <li><span class="tag tag-red">Never commit secrets</span> (API keys, DB passwords, JWT keys). Use Vault or K8s Secrets.</li>
+          <li><span class="tag tag-red">Never manually update production K8s manifests.</span> All changes via git → ArgoCD sync.</li>
+          <li><span class="tag tag-red">Never create a release branch with uncommitted changes.</span> Always commit and push first.</li>
+          <li><span class="tag tag-red">Never mix version bumps with feature commits.</span> Separate commit: "Bump version to v2.1.0".</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Branch Protection Rules (Enforced by GitHub/GitLab)</div>
+        <ul>
+          <li><span class="mono">master/main</span>: Require PR approval, at least 1 approver, CI pass, no force-push</li>
+          <li><span class="mono">develop</span>: Require PR approval, CI pass, up-to-date before merge</li>
+          <li><span class="mono">release/*</span>: Require CI pass, restrict pushes to RM + DevOps roles</li>
+          <li>Feature/bugfix branches: No protection (developers can force-push)</li>
+          <li>Hotfix branches: Restrict to DevOps after creation</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Merge Strategy & Commit Hygiene</div>
+        <table>
+          <tr><th>Scenario</th><th>Merge Type</th><th>Result</th><th>Why</th></tr>
+          <tr><td>Feature to develop</td><td>Squash</td><td>1 commit per issue, clean history</td><td>Easy to revert, clean blame</td></tr>
+          <tr><td>Release to master</td><td>Merge commit (--no-ff)</td><td>Merge bubble shows release time</td><td>Clear release boundaries in log</td></tr>
+          <tr><td>Hotfix back to develop</td><td>Merge commit (--no-ff)</td><td>Emergency fix marked in log</td><td>Traceability for audits</td></tr>
+          <tr><td>Sync master → develop</td><td>Merge commit (--no-ff)</td><td>Explicit sync point</td><td>Prevents merge conflicts</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Common Mistakes to Avoid</div>
+        <table>
+          <tr><th>Mistake</th><th>Impact</th><th>Prevention</th></tr>
+          <tr><td>Merging feature branch without QA sign-off</td><td>Untested code in production, critical bugs</td><td>Branch protection: require QA state in Linear before merging</td></tr>
+          <tr><td>Forgetting to sync master back to develop after release</td><td>Next release includes old code, hotfixes lost</td><td>Add to RM release checklist, automation in CI</td></tr>
+          <tr><td>Creating release branch from wrong point (not develop)</td><td>Missing features in release, broken integrations</td><td>Branch protection limits who can create release branches</td></tr>
+          <tr><td>Tagging before code is actually deployed</td><td>Release tag doesn't match live code</td><td>Tag only after ArgoCD shows deployment healthy</td></tr>
+          <tr><td>Inconsistent version bumps across repos</td><td>Services incompatible in production</td><td>Coordinate releases via Linear label release/vX.Y.Z, version lock file</td></tr>
+          <tr><td>Skipping changelog/release notes</td><td>Unclear what changed, hard to debug issues</td><td>Auto-transition to Document state, PR template requires checklist</td></tr>
+          <tr><td>Deploying to prod without testing preprod first</td><td>Regressions, downtime, customer impact</td><td>Release branch → preprod, mandatory QA sign-off</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Release Validation Rules</div>
+        <ul>
+          <li><strong>Linear issue must be in QA state</strong> (or Pending Release for pre-approved releases) before RM cuts release branch.</li>
+          <li><strong>Release branch tests on preprod</strong> for at least 24 hours (or until QA sign-off). No emergency ship unless critical hotfix.</li>
+          <li><strong>Changelog and release notes must exist</strong> before merge to master. Auto-checked via PR template.</li>
+          <li><strong>All services in coordinated release must have matching MAJOR.MINOR.</strong> PATCH can differ.</li>
+          <li><strong>Post-deploy verification checklist must pass</strong> within 30 minutes of prod deploy. If any check fails, trigger rollback.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Rollback Procedures</div>
+        <p><strong>If critical issue detected in prod:</strong></p>
+        <ol>
+          <li>RM reverts ArgoCD image tag to previous stable version (e.g., v2.0.5 if v2.1.0 is broken)</li>
+          <li>kubectl triggers rolling restart → pods pull old image</li>
+          <li>Monitor Sentry (error rate should drop), Grafana (latency normalize)</li>
+          <li>Once stable, create hotfix branch to address root cause</li>
+          <li>Do NOT re-promote same tag; create new patch tag after fix</li>
+        </ol>
+        <p>Rollback time: &lt;5 minutes. Always have previous stable tag available.</p>
+      </div>
+    </div>
+
+    <!-- ALL DOCS LINK -->
+    <div style="margin-top:40px;padding-top:28px;border-top:1px solid var(--border);text-align:center;">
+      <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 28px;transition:all 0.15s ease;color:var(--text);"
+         onmouseover="this.style.borderColor='var(--border-light)';this.style.background='var(--surface-hover)';this.style.transform='translateY(-1px)'"
+         onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface)';this.style.transform='none'">
+        <span class="icon" style="background:var(--blue-dim);color:var(--blue);width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;">D</span>
+        <span style="font-weight:600;">All Engineering Docs</span>
+        <span style="color:var(--text-dim);font-size:12px;">— Tech Stack, Infra Setup, Remote Access, Platform Modules, Release Notes &amp; more</span>
+      </a>
+    </div>
+
+  </div>
+
+  <script>
+    let currentRole = 'all';
+
+    function filterByRole(role) {
+      currentRole = role;
+
+      // Update role selector buttons
+      document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.closest('.role-btn').classList.add('active');
+
+      // Show/hide tabs based on role
+      const tabs = document.querySelectorAll('.tab');
+      let firstVisibleTab = null;
+      let activeTabVisible = false;
+
+      tabs.forEach(tab => {
+        const tabRoles = tab.getAttribute('data-roles').split(',');
+        if (role === 'all' || tabRoles.includes(role)) {
+          tab.classList.remove('hidden');
+          if (!firstVisibleTab) firstVisibleTab = tab;
+          if (tab.classList.contains('active')) activeTabVisible = true;
+        } else {
+          tab.classList.add('hidden');
+        }
+      });
+
+      // If the currently active tab is now hidden, switch to the first visible one
+      if (!activeTabVisible && firstVisibleTab) {
+        firstVisibleTab.click();
+      }
+    }
+
+    function showPanel(panelId) {
+      // Hide all panels
+      const panels = document.querySelectorAll('.panel');
+      panels.forEach(panel => panel.classList.remove('active'));
+
+      // Remove active class from all tabs
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(tab => tab.classList.remove('active'));
+
+      // Show selected panel
+      document.getElementById(panelId).classList.add('active');
+
+      // Add active class to clicked tab (use closest in case a child element was clicked)
+      event.target.closest('.tab').classList.add('active');
+    }
+
+    function cp(btn) {
+      const code = btn.parentElement.querySelector('code');
+      const text = code.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = 'copied!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
