@@ -322,21 +322,6 @@
       color: var(--text-dim);
     }
 
-    .back-link {
-      display: inline-block;
-      margin-top: 32px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
-      color: var(--text-dim);
-      text-decoration: none;
-      font-size: 13px;
-      transition: color 0.15s ease;
-    }
-
-    .back-link:hover {
-      color: var(--text);
-    }
-
     @media (max-width: 768px) {
       .container {
         padding: 24px 20px;
@@ -1318,7 +1303,14 @@
       </table>
     </div>
 
-    <a href="../index.html" class="back-link">← Back to Engineering Docs</a>
+    <!-- ALL DOCS LINK -->
+    <div style="margin-top:40px;padding-top:28px;border-top:1px solid var(--border);text-align:center;">
+      <a href="../index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 28px;transition:all 0.15s ease;color:var(--text);"
+         onmouseover="this.style.borderColor='var(--border-light)';this.style.background='var(--surface-hover)';this.style.transform='translateY(-1px)'"
+         onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface)';this.style.transform='none'">
+        <span style="font-weight:600;">&#8592; All Engineering Docs</span>
+      </a>
+    </div>
   </div>
 
   <script>
