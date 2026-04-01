@@ -455,12 +455,11 @@
         <ul>
           <li><span class="tag tag-purple">flow-api</span> - FastAPI Workflow Engine (Port 8000)</li>
           <li><span class="tag tag-purple">flow-worker</span> - Background Workflow Task Processor</li>
-          <li><span class="tag tag-purple">flow-web</span> - React SPA (Static files)</li>
         </ul>
-        <p style="margin-top: 12px;"><strong>Frontend Applications:</strong></p>
+        <p style="margin-top: 12px;"><strong>Frontend Applications (Containerized — Nginx):</strong></p>
         <ul>
-          <li><span class="tag tag-cyan">omni-web</span> - React SPA (Static files)</li>
-          <li><span class="tag tag-cyan">flow-web</span> - React SPA for workflow management (Static files)</li>
+          <li><span class="tag tag-cyan">omni-web</span> - React SPA served via Nginx container (Port 8000)</li>
+          <li><span class="tag tag-cyan">flow-web</span> - React SPA for workflow management served via Nginx container (Port 8000)</li>
         </ul>
       </div>
 
@@ -471,42 +470,36 @@
 │    (Web Browsers, Mobile Apps, API Clients)                                 │
 │                                                                             │
 │   Single Domain: crego[-preprod].yourdomain.com                             │
-│   CloudFront Distribution + Multiple S3 Origins                             │
+│   GCP Load Balancer (SSL Termination) / K8s Ingress                        │
 │   Path-based Routing:                                                       │
-│   • /           → omni-web (S3 Origin A)                                    │
-│   • /flow       → flow-web (S3 Origin B)                                    │
-│   • /api        → omni-api (via ALB)                                        │
-│   • /flow/api   → flow-api (via ALB)                                        │
+│   • /           → omni-web (Nginx Pod, Port 8000)                          │
+│   • /flow       → flow-web (Nginx Pod, Port 8000)                          │
+│   • /api        → omni-api (Gunicorn Pod, Port 8000)                       │
+│   • /flow/api   → flow-api (Uvicorn Pod, Port 8000)                        │
 └─────────────────────────────┬───────────────────────────────────────────────┘
-                              │ HTTPS (Single TLS Certificate)
+                              │ HTTPS (GCP-managed Certificate)
                               ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    CLOUDFRONT DISTRIBUTION                                  │
-│              (Cache Behaviors + Path-based Routing)                         │
-└─────────────────────────────┬───────────────────────────────────────────────┘
-                              │ HTTP/HTTPS
-                              ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    APPLICATION LOAD BALANCER (ALB)                          │
-│                     (Target Groups + Health Checks)                         │
+│               KUBERNETES INGRESS / GKE GATEWAY API                         │
+│            (Path-based routing to ClusterIP Services)                       │
 └─────────────────────────────┬───────────────────────────────────────────────┘
                               │ HTTP
                               ▼
-              ┌───────────────────────────────┬───────────────────────────────┐
-              │                               │                               │
-              ▼                               ▼                               │
-┌─────────────────────────────────┐   ┌─────────────────────────────────┐     │
-│       OMNI-API (Port 8000)      │   │       FLOW-API (Port 8000)      │     │
-│     Replicas: 2+ instances      │   │     Replicas: 2+ instances      │     │
-│                                 │   │                                 │     │
-│ Target Group: /api/*            │   │ Target Group: /flow/api/*       │     │
-│ • /api/health/                  │   │ • /flow/api/health/             │     │
-│ • /api/admin/                   │   │ • /flow/api/health/detailed/    │     │
-│ • /api/health/detailed/         │   │                                 │     │
-│ • Authentication Provider       │◄──┤ • Uses Omni for JWT Auth        │     │
-│ • Django REST API               │   │ • FastAPI Workflow Engine       │     │
-│ • Resources: 1 vCPU, 2 GB RAM   │   │ • Resources: 1 vCPU, 2 GB RAM   │     │
-└─────────┬───────────┬───────────┘   └─────────────┬───────────────────┘     │
+    ┌──────────────┬──────────────┬──────────────┬──────────────┐
+    │              │              │              │              │
+    ▼              ▼              ▼              ▼              │
+┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │
+│ OMNI-WEB │ │ FLOW-WEB │ │ OMNI-API │ │ FLOW-API │          │
+│ (Nginx)  │ │ (Nginx)  │ │ (Django) │ │ (FastAPI)│          │
+│ Port 8000│ │ Port 8000│ │ Port 8000│ │ Port 8000│          │
+│          │ │          │ │          │ │          │          │
+│ Path: /  │ │ Path:    │ │ Path:    │ │ Path:    │          │
+│ Static   │ │ /flow    │ │ /api/*   │ │/flow/api │          │
+│ React SPA│ │ Static   │ │ REST API │ │ Async    │          │
+│          │ │ React SPA│ │ Auth     │ │ Workflow │          │
+│ try_files│ │ try_files│ │ Provider │◄┤ JWT via  │          │
+│ → SPA    │ │ → SPA    │ │          │ │ Omni JWKS│          │
+└──────────┘ └──────────┘ └────┬──┬──┘ └────┬─────┘          │
           │           │                             │                         │
           │   ┌───────▼─────────┐           ┌───────▼─────────┐               │
           │   │  POSTGRESQL     │           │   MONGODB v8    │               │
@@ -563,28 +556,28 @@ External Services (Optional):
 
       <div class="card">
         <div class="card-title">Single Domain Architecture</div>
-        <p>The entire Crego Platform (frontend applications AND backend APIs) is deployed using a single domain architecture (<span class="mono">crego[-preprod].yourdomain.com</span>) through CloudFront distribution with path-based routing.</p>
-        <p><strong>Complete Application Routing:</strong></p>
+        <p>The entire Crego Platform (frontend and backend) is deployed using a single domain architecture (<span class="mono">crego[-preprod].yourdomain.com</span>) through Kubernetes Ingress / GKE Gateway API with path-based routing. All services — including frontends — run as containerized workloads on GKE (GCP) or EKS (AWS).</p>
+        <p><strong>Ingress Path-based Routing:</strong></p>
         <ul>
-          <li><strong>Frontend Applications:</strong></li>
+          <li><strong>Frontend Containers (Nginx serving static React builds):</strong></li>
           <ul>
-            <li><span class="mono">/</span> → omni-web (React SPA)</li>
-            <li><span class="mono">/flow/*</span> → flow-web (React SPA for workflow management)</li>
+            <li><span class="mono">/</span> → omni-web Service (ClusterIP:8000)</li>
+            <li><span class="mono">/flow/*</span> → flow-web Service (ClusterIP:8000)</li>
           </ul>
           <li style="margin-top: 8px;"><strong>Backend APIs:</strong></li>
           <ul>
-            <li><span class="mono">/api/*</span> → omni-api (Django REST API)</li>
-            <li><span class="mono">/flow/api/*</span> → flow-api (FastAPI Workflow Engine)</li>
+            <li><span class="mono">/api/*</span> → omni-api Service (ClusterIP:8000)</li>
+            <li><span class="mono">/flow/api/*</span> → flow-api Service (ClusterIP:8000)</li>
           </ul>
         </ul>
         <p style="margin-top: 12px;"><strong>Architecture Benefits:</strong></p>
         <ol>
-          <li>Unified Access - Single domain for all application components</li>
-          <li>Single TLS Certificate - One SSL certificate covers entire application</li>
-          <li>Simplified CORS - No cross-origin issues between frontend and backend</li>
-          <li>Centralized CDN - Global performance for both static assets and API responses</li>
-          <li>Single DNS Management - Simplified domain and routing configuration</li>
-          <li>Cost Optimization - Shared CloudFront distribution and load balancer</li>
+          <li>Unified Access — Single domain for all application components</li>
+          <li>GCP-managed TLS Certificate — Automatic certificate provisioning and renewal</li>
+          <li>Simplified CORS — No cross-origin issues between frontend and backend</li>
+          <li>Consistent Deployment — All services (frontend + backend) use the same K8s deployment model</li>
+          <li>Single DNS Management — Simplified domain and routing configuration</li>
+          <li>Environment Parity — Same architecture across dev, QA, preprod, and prod</li>
         </ol>
       </div>
     </div>
@@ -658,11 +651,29 @@ External Services (Optional):
       </div>
 
       <div class="card">
+        <div class="card-title">Omni Web Service</div>
+        <ul>
+          <li><strong>Purpose:</strong> React SPA served via Nginx container for the main platform UI</li>
+          <li><strong>Image:</strong> Multi-stage Docker build — Node.js (build) → <span class="mono">nginx:alpine</span> (runtime)</li>
+          <li><strong>Dockerfile:</strong> <span class="mono">crego-web/packages/omni-web/Dockerfile.web</span></li>
+          <li><strong>Port:</strong> 8000 (Nginx)</li>
+          <li><strong>Path:</strong> <span class="mono">/</span> (root, catch-all)</li>
+          <li><strong>SPA Routing:</strong> <span class="mono">try_files $uri $uri/ /index.html</span></li>
+          <li><strong>Security Context:</strong> Runs as user 101 (nginx)</li>
+          <li><strong>Dependencies:</strong> Omni API for backend communication</li>
+        </ul>
+      </div>
+
+      <div class="card">
         <div class="card-title">Flow Web Service</div>
         <ul>
-          <li><strong>Purpose:</strong> React SPA for workflow management interface</li>
-          <li><strong>Deployment:</strong> Static file hosting (web server, CDN, or cloud storage)</li>
-          <li><strong>Resources:</strong> Minimal (static files only)</li>
+          <li><strong>Purpose:</strong> React SPA served via Nginx container for workflow management</li>
+          <li><strong>Image:</strong> Multi-stage Docker build — Node.js (build) → <span class="mono">nginx:alpine</span> (runtime)</li>
+          <li><strong>Dockerfile:</strong> <span class="mono">crego-web/packages/flow-web/Dockerfile.web</span></li>
+          <li><strong>Port:</strong> 8000 (Nginx)</li>
+          <li><strong>Path:</strong> <span class="mono">/flow</span></li>
+          <li><strong>SPA Routing:</strong> <span class="mono">try_files $uri $uri/ ${endpoint_prefix}index.html</span></li>
+          <li><strong>Security Context:</strong> Runs as user 101 (nginx)</li>
           <li><strong>Dependencies:</strong> Flow API for backend communication</li>
         </ul>
       </div>
@@ -675,8 +686,8 @@ External Services (Optional):
           <tr><td><span class="tag tag-purple">flow-api</span></td><td><span class="mono">8000</span></td><td><span class="mono">80/443</span></td><td>HTTP/HTTPS</td><td>FastAPI Workflow Engine</td></tr>
           <tr><td><span class="tag tag-orange">omni-worker</span></td><td>N/A</td><td>N/A</td><td>N/A</td><td>Background processing</td></tr>
           <tr><td><span class="tag tag-orange">flow-worker</span></td><td>N/A</td><td>N/A</td><td>N/A</td><td>Background processing</td></tr>
-          <tr><td><span class="tag tag-cyan">omni-web</span></td><td>N/A</td><td><span class="mono">80/443</span></td><td>HTTP/HTTPS</td><td>Static files via CloudFront</td></tr>
-          <tr><td><span class="tag tag-cyan">flow-web</span></td><td>N/A</td><td><span class="mono">80/443</span></td><td>HTTP/HTTPS</td><td>Static files via CloudFront</td></tr>
+          <tr><td><span class="tag tag-cyan">omni-web</span></td><td><span class="mono">8000</span></td><td><span class="mono">80/443</span></td><td>HTTP/HTTPS</td><td>Nginx container serving React SPA</td></tr>
+          <tr><td><span class="tag tag-cyan">flow-web</span></td><td><span class="mono">8000</span></td><td><span class="mono">80/443</span></td><td>HTTP/HTTPS</td><td>Nginx container serving React SPA</td></tr>
         </table>
       </div>
     </div>
@@ -689,124 +700,146 @@ External Services (Optional):
       </div>
 
       <div class="card">
+        <div class="card-title">Containerized Frontend Architecture</div>
+        <div class="note info"><strong>Key:</strong> Frontend apps are <strong>not</strong> deployed to S3. They run as containerized Nginx pods on Kubernetes, just like the backend services.</div>
+        <p>Both <span class="tag tag-cyan">omni-web</span> and <span class="tag tag-cyan">flow-web</span> use a multi-stage Docker build: Node.js builds the React SPA via Vite, then the static output is copied into an <span class="mono">nginx:alpine</span> image for serving.</p>
+      </div>
+
+      <div class="card">
         <div class="card-title">Omni Web Application</div>
         <ul>
           <li><strong>Type:</strong> React Single Page Application (SPA)</li>
-          <li><strong>Path:</strong> <span class="mono">/</span> (root path)</li>
-          <li><strong>Delivery:</strong> Pre-built production bundle (ZIP file provided by Crego)</li>
-          <li><strong>Deployment:</strong> S3 Origin A + CloudFront cache behavior</li>
-          <li><strong>Resources:</strong> Minimal (static files only)</li>
+          <li><strong>Ingress Path:</strong> <span class="mono">/</span> (root, catch-all)</li>
+          <li><strong>Container:</strong> Nginx Alpine serving static build from <span class="mono">/usr/share/nginx/html/</span></li>
+          <li><strong>Dockerfile:</strong> <span class="mono">crego-web/packages/omni-web/Dockerfile.web</span></li>
+          <li><strong>Port:</strong> 8000</li>
+          <li><strong>K8s Service:</strong> ClusterIP → port 8000</li>
+          <li><strong>SPA Routing:</strong> <span class="mono">try_files $uri $uri/ /index.html</span></li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-title">Flow Web Application</div>
         <ul>
-          <li><strong>Type:</strong> React Single Page Application (SPA) for workflow management</li>
-          <li><strong>Path:</strong> <span class="mono">/flow/*</span></li>
-          <li><strong>Delivery:</strong> Pre-built production bundle (ZIP file provided by Crego)</li>
-          <li><strong>Deployment:</strong> S3 Origin B + CloudFront cache behavior</li>
-          <li><strong>Resources:</strong> Minimal (static files only)</li>
-          <li><strong>API Integration:</strong> Connects to Flow API via <span class="mono">/flow/api/*</span> path</li>
+          <li><strong>Type:</strong> React SPA for workflow management</li>
+          <li><strong>Ingress Path:</strong> <span class="mono">/flow/*</span></li>
+          <li><strong>Container:</strong> Nginx Alpine serving static build from <span class="mono">/usr/share/nginx/html/</span></li>
+          <li><strong>Dockerfile:</strong> <span class="mono">crego-web/packages/flow-web/Dockerfile.web</span></li>
+          <li><strong>Port:</strong> 8000</li>
+          <li><strong>K8s Service:</strong> ClusterIP → port 8000</li>
+          <li><strong>SPA Routing:</strong> <span class="mono">try_files $uri $uri/ ${endpoint_prefix}index.html</span></li>
+          <li><strong>API Integration:</strong> Connects to Flow API via <span class="mono">/flow/api/*</span></li>
         </ul>
       </div>
 
       <div class="card">
-        <div class="card-title">CloudFront Distribution Setup</div>
+        <div class="card-title">Docker Build Process (Multi-stage)</div>
         <div class="box">
-          <div class="box-title">Step 1: Create S3 Buckets</div>
-          <pre><code># Create buckets for static assets
-aws s3 mb s3://omni-web-bucket --region us-east-1
-aws s3 mb s3://flow-web-bucket --region us-east-1
+          <div class="box-title">Stage 1: Build (Node.js 20 Alpine)</div>
+          <pre><code># Dockerfile.web — Build stage
+FROM node:20-alpine AS build
 
-# Configure bucket policies for CloudFront access
-aws s3api put-bucket-policy --bucket omni-web-bucket --policy file://omni-bucket-policy.json
-aws s3api put-bucket-policy --bucket flow-web-bucket --policy file://flow-bucket-policy.json</code></pre>
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable && pnpm install --frozen-lockfile
+
+COPY . .
+# VITE_* env vars must be available at build time
+RUN pnpm build   # Output → /app/dist</code></pre>
         </div>
 
         <div class="box">
-          <div class="box-title">Step 2: Deploy Static Assets</div>
-          <pre><code># Upload omni-web build
-aws s3 sync ./omni-web-build/ s3://omni-web-bucket --delete
+          <div class="box-title">Stage 2: Runtime (Nginx Alpine)</div>
+          <pre><code># Dockerfile.web — Runtime stage
+FROM nginx:alpine
 
-# Upload flow-web build
-aws s3 sync ./flow-web-build/ s3://flow-web-bucket --delete</code></pre>
+# Copy built static files
+COPY --from=build /app/dist /usr/share/nginx/html/
+
+# Copy Nginx config template + startup script
+COPY nginx/default.conf.template /etc/nginx/templates/
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY start-nginx.sh /start-nginx.sh
+
+EXPOSE 8000
+# envsubst replaces ${endpoint_prefix} at container start
+CMD ["/start-nginx.sh"]</code></pre>
         </div>
+      </div>
 
+      <div class="card">
+        <div class="card-title">Nginx Configuration</div>
         <div class="box">
-          <div class="box-title">Step 3: Create CloudFront Distribution</div>
-          <p><strong>Origins:</strong></p>
+          <div class="box-title">Key Features</div>
           <ul>
-            <li><strong>Origin A:</strong> S3 bucket for omni-web (<span class="mono">omni-web-bucket.s3.amazonaws.com</span>)</li>
-            <li><strong>Origin B:</strong> S3 bucket for flow-web (<span class="mono">flow-web-bucket.s3.amazonaws.com</span>)</li>
-            <li><strong>Origin C:</strong> Application Load Balancer for backend APIs (<span class="mono">your-alb.region.elb.amazonaws.com</span>)</li>
+            <li><strong>Runtime Config:</strong> <span class="mono">endpoint_prefix</span> env var is injected via <span class="mono">envsubst</span> at container start (e.g., <span class="mono">/flow/</span>)</li>
+            <li><strong>SPA Routing:</strong> <span class="mono">try_files $uri $uri/ ${endpoint_prefix}index.html</span> — client-side routing support</li>
+            <li><strong>Health Check:</strong> <span class="mono">/health</span> endpoint returns JSON (used by K8s liveness/readiness probes)</li>
+            <li><strong>Static Caching:</strong> 1-year expiry for <span class="mono">.js, .css, .png, .jpg, .svg, .woff2, .ttf</span> (hashed filenames from Vite)</li>
+            <li><strong>Security Headers:</strong> X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy</li>
+            <li><strong>Gzip:</strong> Disabled at Nginx level — compression handled by GCP Load Balancer post-TLS termination</li>
           </ul>
         </div>
+      </div>
 
+      <div class="card">
+        <div class="card-title">Kubernetes Resources</div>
+        <table>
+          <tr><th>Resource</th><th>omni-web</th><th>flow-web</th></tr>
+          <tr><td>Deployment</td><td><span class="mono">apps/{env}/omni-web/deployment.yaml</span></td><td><span class="mono">apps/{env}/flow-web/deployment.yaml</span></td></tr>
+          <tr><td>Service</td><td><span class="mono">apps/{env}/omni-web/service.yaml</span></td><td><span class="mono">apps/{env}/flow-web/service.yaml</span></td></tr>
+          <tr><td>Service Type</td><td>ClusterIP</td><td>ClusterIP</td></tr>
+          <tr><td>Port</td><td>8000 → 8000</td><td>8000 → 8000</td></tr>
+          <tr><td>Security Context</td><td>runAsUser: 101 (nginx)</td><td>runAsUser: 101 (nginx)</td></tr>
+          <tr><td>Replicas</td><td>1 (per env)</td><td>1 (per env)</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ingress / Gateway Routing</div>
         <div class="box">
-          <div class="box-title">Step 4: Configure Cache Behaviors</div>
-          <p><strong>Order is critical - first match wins</strong></p>
-
-          <p style="margin-top: 12px;"><strong>Behavior 1: Omni API</strong></p>
-          <table>
-            <tr><th>Setting</th><th>Value</th></tr>
-            <tr><td>Path Pattern</td><td><span class="mono">/api/*</span></td></tr>
-            <tr><td>Origin</td><td>Origin C (Load Balancer)</td></tr>
-            <tr><td>Viewer Protocol Policy</td><td>Redirect HTTP to HTTPS</td></tr>
-            <tr><td>Cache Policy</td><td>Caching Disabled</td></tr>
-            <tr><td>Origin Request Policy</td><td>CORS-S3Origin</td></tr>
-          </table>
-
-          <p style="margin-top: 12px;"><strong>Behavior 2: Flow API</strong></p>
-          <table>
-            <tr><th>Setting</th><th>Value</th></tr>
-            <tr><td>Path Pattern</td><td><span class="mono">/flow/api/*</span></td></tr>
-            <tr><td>Origin</td><td>Origin C (Load Balancer)</td></tr>
-            <tr><td>Viewer Protocol Policy</td><td>Redirect HTTP to HTTPS</td></tr>
-            <tr><td>Cache Policy</td><td>Caching Disabled</td></tr>
-            <tr><td>Origin Request Policy</td><td>CORS-S3Origin</td></tr>
-          </table>
-
-          <p style="margin-top: 12px;"><strong>Behavior 3: Flow Web Assets</strong></p>
-          <table>
-            <tr><th>Setting</th><th>Value</th></tr>
-            <tr><td>Path Pattern</td><td><span class="mono">/flow/*</span></td></tr>
-            <tr><td>Origin</td><td>Origin B (S3 flow-web)</td></tr>
-            <tr><td>Viewer Protocol Policy</td><td>Redirect HTTP to HTTPS</td></tr>
-            <tr><td>Cache Policy</td><td>Caching Optimized</td></tr>
-            <tr><td>Custom Error Pages</td><td>404 → /flow/index.html (200 response)</td></tr>
-          </table>
-
-          <p style="margin-top: 12px;"><strong>Behavior 4: Default (Omni Web Assets)</strong></p>
-          <table>
-            <tr><th>Setting</th><th>Value</th></tr>
-            <tr><td>Path Pattern</td><td>Default (*)</td></tr>
-            <tr><td>Origin</td><td>Origin A (S3 omni-web)</td></tr>
-            <tr><td>Viewer Protocol Policy</td><td>Redirect HTTP to HTTPS</td></tr>
-            <tr><td>Cache Policy</td><td>Caching Optimized</td></tr>
-            <tr><td>Custom Error Pages</td><td>404 → /index.html (200 response)</td></tr>
-          </table>
+          <div class="box-title">GCP Environments (dev, QA, preprod)</div>
+          <pre><code># Kubernetes Ingress (GCE ingress class)
+# base/{env}-gcp/ingress-common.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /flow
+        pathType: Prefix
+        backend:
+          service:
+            name: flow-web
+            port:
+              number: 8000
+      - path: /           # catch-all (last)
+        pathType: Prefix
+        backend:
+          service:
+            name: omni-web
+            port:
+              number: 8000</code></pre>
         </div>
-
         <div class="box">
-          <div class="box-title">Step 5: Configure Custom Error Pages</div>
-          <ul>
-            <li><strong>404 Errors for Omni:</strong> Return <span class="mono">/index.html</span> with 200 status (for React SPA routing)</li>
-            <li><strong>404 Errors for Flow:</strong> Return <span class="mono">/flow/index.html</span> with 200 status (for React SPA routing)</li>
-            <li><strong>403 Errors:</strong> Same as 404 errors (CloudFront may return 403 for missing S3 objects)</li>
-            <li><strong>Response Code:</strong> Always return 200 to allow client-side routing to handle the path</li>
-          </ul>
+          <div class="box-title">Production GCP (Gateway API)</div>
+          <pre><code># Uses gateway.networking.k8s.io/v1beta1
+# overlays/prod-gcp/gateway.yaml + httproute.yaml
+# Gateway: gke-l7-global-external-managed
+# Static IP: crego-prod-ip
+# GCP-managed certificates for HTTPS</code></pre>
         </div>
+      </div>
 
-        <div class="box">
-          <div class="box-title">Step 6: Benefits</div>
-          <ul>
-            <li>Single TLS certificate for entire domain</li>
-            <li>Single DNS name management</li>
-            <li>Centralized CDN distribution</li>
-            <li>Cost-effective routing solution</li>
-          </ul>
-        </div>
+      <div class="card">
+        <div class="card-title">Container Registry</div>
+        <ul>
+          <li><strong>GCP (all envs):</strong> <span class="mono">asia-south1-docker.pkg.dev/crego-app-prod/services/{omni,flow}-web</span></li>
+          <li><strong>AWS (client-specific):</strong> Client ECR repositories per <span class="mono">config/clients.yaml</span></li>
+          <li><strong>Tags:</strong> Version-based (e.g., <span class="mono">prod-0d264623</span>)</li>
+          <li><strong>CI/CD:</strong> GitHub Actions (<span class="mono">.github/workflows/unified-ci-cd.yaml</span>) builds per-service Dockerfiles</li>
+        </ul>
       </div>
     </div>
 
@@ -818,9 +851,9 @@ aws s3 sync ./flow-web-build/ s3://flow-web-bucket --delete</code></pre>
       </div>
 
       <div class="card">
-        <div class="card-title">Web Environment Variables (Build Time)</div>
-        <div class="note warn"><strong>Important:</strong> All environment variables must be provided during build time for web services, as they are compiled into the static bundles.</div>
-        <p><strong>Required during React build process:</strong></p>
+        <div class="card-title">Web Environment Variables (Docker Build Time)</div>
+        <div class="note warn"><strong>Important:</strong> All <span class="mono">VITE_*</span> environment variables must be available during the Docker image build (Stage 1), as Vite compiles them into the static bundles. They cannot be changed at runtime.</div>
+        <p><strong>Required during Docker build (passed as build args):</strong></p>
         <ul>
           <li><span class="mono">VITE_API_ROOT_FLOW=/flow/api</span></li>
           <li><span class="mono">VITE_API_ROOT_OMNI=/api</span></li>
