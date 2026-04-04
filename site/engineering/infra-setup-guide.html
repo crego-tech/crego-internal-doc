@@ -443,13 +443,28 @@
       </div>
 
       <div class="card">
+        <div class="card-title">Services Inventory (Quick Reference)</div>
+        <table>
+          <tr><th>Service</th><th>Type</th><th>Port</th><th>Ingress Path</th><th>Health Check</th><th>K8s Name</th></tr>
+          <tr><td><span class="tag tag-blue">omni-api</span></td><td>Backend API</td><td>8000</td><td><span class="mono">/api/*</span></td><td><span class="mono">/api/health/</span></td><td>omni-api</td></tr>
+          <tr><td><span class="tag tag-purple">flow-api</span></td><td>Backend API</td><td>8000</td><td><span class="mono">/flow/api/*</span></td><td><span class="mono">/flow/api/health/</span></td><td>flow-api</td></tr>
+          <tr><td><span class="tag tag-orange">omni-worker</span></td><td>Celery Worker</td><td>N/A</td><td>N/A</td><td><span class="mono">celery inspect ping</span></td><td>omni-celery-worker</td></tr>
+          <tr><td><span class="tag tag-orange">omni-celery-beat</span></td><td>Celery Beat</td><td>N/A</td><td>N/A</td><td><span class="mono">ps aux | grep celery</span></td><td>omni-celery-beat</td></tr>
+          <tr><td><span class="tag tag-purple">flow-worker</span></td><td>Celery Worker</td><td>N/A</td><td>N/A</td><td><span class="mono">ps aux | grep celery</span></td><td>flow-celery-worker</td></tr>
+          <tr><td><span class="tag tag-cyan">omni-web</span></td><td>Frontend (Nginx)</td><td>8000</td><td><span class="mono">/</span></td><td><span class="mono">/health</span></td><td>omni-web</td></tr>
+          <tr><td><span class="tag tag-cyan">flow-web</span></td><td>Frontend (Nginx)</td><td>8000</td><td><span class="mono">/flow/*</span></td><td><span class="mono">/flow/health</span></td><td>flow-web</td></tr>
+          <tr><td><span class="tag tag-green">flower</span></td><td>Monitoring UI</td><td>5555</td><td><span class="mono">/flower/*</span></td><td>TCP:5555</td><td>flower</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
         <div class="card-title">Platform Overview</div>
         <p>Crego Platform is a comprehensive financial platform consisting of backend services and frontend applications deployed with a single domain architecture.</p>
         <p><strong>Omni Backend Services (Containerized):</strong></p>
         <ul>
           <li><span class="tag tag-blue">omni-api</span> - REST API Service (Port 8000)</li>
           <li><span class="tag tag-blue">omni-worker</span> - Background Task Processor</li>
-          <li><span class="tag tag-blue">omni-scheduler</span> - Task Scheduler</li>
+          <li><span class="tag tag-blue">omni-celery-beat</span> - Task Scheduler</li>
         </ul>
         <p style="margin-top: 12px;"><strong>Flow Services (Containerized):</strong></p>
         <ul>
@@ -460,6 +475,10 @@
         <ul>
           <li><span class="tag tag-cyan">omni-web</span> - React SPA served via Nginx container (Port 8000)</li>
           <li><span class="tag tag-cyan">flow-web</span> - React SPA for workflow management served via Nginx container (Port 8000)</li>
+        </ul>
+        <p style="margin-top: 12px;"><strong>Monitoring Services (Containerized):</strong></p>
+        <ul>
+          <li><span class="tag tag-green">flower</span> - Celery Task Monitoring UI (Port 5555)</li>
         </ul>
       </div>
 
@@ -476,6 +495,7 @@
 │   • /flow       → flow-web (Nginx Pod, Port 8000)                          │
 │   • /api        → omni-api (Gunicorn Pod, Port 8000)                       │
 │   • /flow/api   → flow-api (Uvicorn Pod, Port 8000)                        │
+│   • /flower     → flower (Flower Pod, Port 5555)                           │
 └─────────────────────────────┬───────────────────────────────────────────────┘
                               │ HTTPS (GCP-managed Certificate)
                               ▼
@@ -534,12 +554,21 @@
           │   └─────────────────────────┘   └──────────────────────────┘      │
           │                                                                   │
           │   ┌─────────────────────────────┐                                 │
-          │   │      OMNI-SCHEDULER         │                                 │
+          │   │      OMNI-CELERY-BEAT         │                                 │
           │   │      Replica: 1 instance    │                                 │
           │   │                             │                                 │
           │   │ • Periodic Task Scheduling  │                                 │
           │   │ • Celery Beat               │                                 │
           │   │ • Resources: 0.5 vCPU, 1 GB │                                 │
+          │   └─────────────────────────────┘                                 │
+          │                                                                   │
+          │   ┌─────────────────────────────┐                                 │
+          │   │      FLOWER                 │                                 │
+          │   │      (Celery Monitor)       │                                 │
+          │   │      Port: 5555             │                                 │
+          │   │      Path: /flower          │                                 │
+          │   │ • Task Monitoring UI        │                                 │
+          │   │ • Basic Auth Protected      │                                 │
           │   └─────────────────────────────┘                                 │
           │───────────────────────────────────────────────────────────────────┘
           ▼
@@ -569,6 +598,10 @@ External Services (Optional):
             <li><span class="mono">/api/*</span> → omni-api Service (ClusterIP:8000)</li>
             <li><span class="mono">/flow/api/*</span> → flow-api Service (ClusterIP:8000)</li>
           </ul>
+          <li style="margin-top: 8px;"><strong>Monitoring:</strong></li>
+          <ul>
+            <li><span class="mono">/flower/*</span> → flower Service (ClusterIP:5555)</li>
+          </ul>
         </ul>
         <p style="margin-top: 12px;"><strong>Architecture Benefits:</strong></p>
         <ol>
@@ -579,6 +612,17 @@ External Services (Optional):
           <li>Single DNS Management — Simplified domain and routing configuration</li>
           <li>Environment Parity — Same architecture across dev, QA, preprod, and prod</li>
         </ol>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Network Policies</div>
+        <p>The Kubernetes cluster enforces a <strong>default-deny</strong> network policy. Only explicitly allowed traffic is permitted:</p>
+        <ul>
+          <li><strong>Ingress to API/Web services (port 8000):</strong> Allowed from kube-system, ingress controller, and GCP health check ranges (<span class="mono">35.191.0.0/16</span>, <span class="mono">130.211.0.0/22</span>)</li>
+          <li><strong>Ingress to Flower (port 5555):</strong> Allowed from kube-system and ingress controller only</li>
+          <li><strong>Database access (port 5432):</strong> Restricted to API, worker, beat, and flower pods</li>
+          <li><strong>Egress:</strong> Allowed to DNS (53), PostgreSQL (5432), RabbitMQ (5672), Redis (6379), and external services</li>
+        </ul>
       </div>
     </div>
 
@@ -594,8 +638,8 @@ External Services (Optional):
         <ul>
           <li><strong>Port:</strong> <span class="mono">8000</span></li>
           <li><strong>Health Check:</strong> <span class="mono">GET /api/health/</span> (lightweight) or <span class="mono">GET /api/health/detailed/</span> (comprehensive)</li>
-          <li><strong>Resources:</strong> 1 vCPU, 2 GB RAM</li>
-          <li><strong>Replicas:</strong> 2+ (scale based on traffic)</li>
+          <li><strong>Resources (Requests / Limits):</strong> CPU: 1000m / 2000m, Memory: 2Gi / 4Gi</li>
+          <li><strong>Replicas:</strong> 2–3 (HPA based on CPU 70% / Memory 80%)</li>
         </ul>
       </div>
 
@@ -604,17 +648,17 @@ External Services (Optional):
         <ul>
           <li><strong>Purpose:</strong> Background task processing</li>
           <li><strong>Health Check:</strong> Container-level ping check</li>
-          <li><strong>Resources:</strong> 1 vCPU, 2 GB RAM</li>
-          <li><strong>Replicas:</strong> 2+ (scale based on task volume)</li>
+          <li><strong>Resources (Requests / Limits):</strong> CPU: 500m / 2000m, Memory: 512Mi / 2Gi</li>
+          <li><strong>Replicas:</strong> 1 (default), auto-scaled via KEDA up to 3 based on RabbitMQ queue depth</li>
         </ul>
       </div>
 
       <div class="card">
-        <div class="card-title">Omni Scheduler Service</div>
+        <div class="card-title">Omni Celery Beat Service</div>
         <ul>
           <li><strong>Purpose:</strong> Periodic task scheduling</li>
           <li><strong>Health Check:</strong> Database connectivity check</li>
-          <li><strong>Resources:</strong> 0.5 vCPU, 1 GB RAM</li>
+          <li><strong>Resources (Requests / Limits):</strong> CPU: 200m / 500m, Memory: 256Mi / 1Gi</li>
           <li><strong>Replicas:</strong> 1 only (single scheduler instance required)</li>
         </ul>
       </div>
@@ -625,8 +669,8 @@ External Services (Optional):
           <li><strong>Port:</strong> <span class="mono">8000</span></li>
           <li><strong>Purpose:</strong> FastAPI-based workflow execution engine with MongoDB integration</li>
           <li><strong>Health Check:</strong> <span class="mono">GET /flow/api/health/</span> (lightweight) or <span class="mono">GET /flow/api/health/detailed/</span> (comprehensive)</li>
-          <li><strong>Resources:</strong> 1 vCPU, 2 GB RAM</li>
-          <li><strong>Replicas:</strong> 2+ (scale based on workflow volume)</li>
+          <li><strong>Resources (Requests / Limits):</strong> CPU: 1000m / 2000m, Memory: 1Gi / 2Gi</li>
+          <li><strong>Replicas:</strong> 1–3 (scale based on workflow volume)</li>
           <li><strong>Dependencies:</strong> MongoDB, RabbitMQ, Omni API (for JWT authentication)</li>
         </ul>
         <p style="margin-top: 12px;"><strong>Authentication:</strong></p>
@@ -643,8 +687,8 @@ External Services (Optional):
         <ul>
           <li><strong>Purpose:</strong> Background workflow task processing using Celery</li>
           <li><strong>Working Directory:</strong> <span class="mono">$PROJECT_DIR/project</span></li>
-          <li><strong>Health Check:</strong> <span class="mono">pipenv run celery -A celery_config:celery_app inspect ping</span></li>
-          <li><strong>Resources:</strong> 1 vCPU, 2 GB RAM</li>
+          <li><strong>Health Check:</strong> <span class="mono">ps aux | grep celery</span> (process check)</li>
+          <li><strong>Resources (Requests / Limits):</strong> CPU: 1000m / 2000m, Memory: 1Gi / 2Gi</li>
           <li><strong>Replicas:</strong> 1 (default instance)</li>
           <li><strong>Dependencies:</strong> MongoDB, RabbitMQ</li>
         </ul>
@@ -661,6 +705,9 @@ External Services (Optional):
           <li><strong>SPA Routing:</strong> <span class="mono">try_files $uri $uri/ /index.html</span></li>
           <li><strong>Security Context:</strong> Runs as user 101 (nginx)</li>
           <li><strong>Dependencies:</strong> Omni API for backend communication</li>
+          <li><strong>Health Check:</strong> <span class="mono">GET /health</span> (returns JSON <span class="mono">{"status":"healthy"}</span>)</li>
+          <li><strong>Resources (Requests / Limits):</strong> CPU: 50m / 200m, Memory: 64Mi / 256Mi</li>
+          <li><strong>Replicas:</strong> 1–2</li>
         </ul>
       </div>
 
@@ -679,15 +726,48 @@ External Services (Optional):
       </div>
 
       <div class="card">
+        <div class="card-title">Flower Service (Celery Monitoring)</div>
+        <ul>
+          <li><strong>Port:</strong> <span class="mono">5555</span></li>
+          <li><strong>Purpose:</strong> Celery task monitoring and management dashboard</li>
+          <li><strong>Health Check:</strong> TCP socket check on port 5555</li>
+          <li><strong>Resources (Requests / Limits):</strong> CPU: 100m / 500m, Memory: 128Mi / 512Mi</li>
+          <li><strong>Replicas:</strong> 1</li>
+          <li><strong>Ingress Path:</strong> <span class="mono">/flower</span></li>
+          <li><strong>Authentication:</strong> Basic Auth via <span class="mono">FLOWER_BASIC_AUTH</span> env var (format: <span class="mono">user:password</span>)</li>
+          <li><strong>Dependencies:</strong> RabbitMQ (broker connectivity)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Autoscaling Configuration</div>
+        <p><strong>API Services:</strong> Horizontal Pod Autoscaler (HPA) based on CPU utilization (70% target) and memory utilization (80% target).</p>
+        <p style="margin-top: 8px;"><strong>Celery Workers:</strong> KEDA ScaledObject with dual triggers:</p>
+        <ul>
+          <li><strong>RabbitMQ Queue Depth:</strong> Scales when queue length exceeds 50 messages</li>
+          <li><strong>CPU Utilization:</strong> Scales at 80% CPU usage</li>
+        </ul>
+        <p style="margin-top: 8px;"><strong>Scaling Parameters:</strong></p>
+        <ul>
+          <li>Polling interval: 30 seconds</li>
+          <li>Cooldown period: 300 seconds (5 minutes)</li>
+          <li>Min replicas: 1, Max replicas: 3</li>
+        </ul>
+        <div class="note info"><strong>Note:</strong> Frontend containers (omni-web, flow-web) and Flower do not autoscale — they run at fixed replica counts.</div>
+      </div>
+
+      <div class="card">
         <div class="card-title">Container Networking & Ports</div>
         <table>
           <tr><th>Service</th><th>Internal Port</th><th>Load Balancer Port</th><th>Protocol</th><th>Purpose</th></tr>
           <tr><td><span class="tag tag-blue">omni-api</span></td><td><span class="mono">8000</span></td><td><span class="mono">80/443</span></td><td>HTTP/HTTPS</td><td>Django REST API</td></tr>
           <tr><td><span class="tag tag-purple">flow-api</span></td><td><span class="mono">8000</span></td><td><span class="mono">80/443</span></td><td>HTTP/HTTPS</td><td>FastAPI Workflow Engine</td></tr>
           <tr><td><span class="tag tag-orange">omni-worker</span></td><td>N/A</td><td>N/A</td><td>N/A</td><td>Background processing</td></tr>
+          <tr><td><span class="tag tag-orange">omni-celery-beat</span></td><td>N/A</td><td>N/A</td><td>N/A</td><td>Periodic task scheduling</td></tr>
           <tr><td><span class="tag tag-orange">flow-worker</span></td><td>N/A</td><td>N/A</td><td>N/A</td><td>Background processing</td></tr>
           <tr><td><span class="tag tag-cyan">omni-web</span></td><td><span class="mono">8000</span></td><td><span class="mono">80/443</span></td><td>HTTP/HTTPS</td><td>Nginx container serving React SPA</td></tr>
           <tr><td><span class="tag tag-cyan">flow-web</span></td><td><span class="mono">8000</span></td><td><span class="mono">80/443</span></td><td>HTTP/HTTPS</td><td>Nginx container serving React SPA</td></tr>
+          <tr><td><span class="tag tag-green">flower</span></td><td><span class="mono">5555</span></td><td><span class="mono">80/443</span></td><td>HTTP/HTTPS</td><td>Celery task monitoring UI</td></tr>
         </table>
       </div>
     </div>
@@ -736,17 +816,24 @@ External Services (Optional):
         <div class="card-title">Docker Build Process (Multi-stage)</div>
         <div class="box">
           <div class="box-title">Stage 1: Build (Node.js 20 Alpine)</div>
-          <pre><code># Dockerfile.web — Build stage
+          <pre><code># Dockerfile.web — Build stage (monorepo-aware)
 FROM node:20-alpine AS build
 
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
+# Copy monorepo workspace files first
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY shared/ ./shared/
+COPY packages/{app-name}/ ./packages/{app-name}/
+
 RUN corepack enable && pnpm install --frozen-lockfile
 
-COPY . .
-# VITE_* env vars must be available at build time
-RUN pnpm build   # Output → /app/dist</code></pre>
+# VITE_* env vars must be available at build time (passed as --build-arg)
+ARG VITE_API_ROOT_OMNI VITE_API_ROOT_FLOW VITE_BASE_URL_OMNI
+ARG VITE_BASE_URL_FLOW VITE_SENTRY_DSN VITE_ENV SENTRY_AUTH_TOKEN
+RUN pnpm --filter ./packages/{app-name} build  # Output → dist/</code></pre>
         </div>
+
+        <div class="note warn"><strong>Note:</strong> The Flow-web build requires <span class="mono">NODE_OPTIONS="--max-old-space-size=4096"</span> due to large bundle sizes (~700KB+ across TipTap, Handsontable, RJSF chunks). Ensure CI/CD runners have at least 4 GB memory allocated for the Node.js build process.</div>
 
         <div class="box">
           <div class="box-title">Stage 2: Runtime (Nginx Alpine)</div>
@@ -775,6 +862,9 @@ CMD ["/start-nginx.sh"]</code></pre>
             <li><strong>Runtime Config:</strong> <span class="mono">endpoint_prefix</span> env var is injected via <span class="mono">envsubst</span> at container start (e.g., <span class="mono">/flow/</span>)</li>
             <li><strong>SPA Routing:</strong> <span class="mono">try_files $uri $uri/ ${endpoint_prefix}index.html</span> — client-side routing support</li>
             <li><strong>Health Check:</strong> <span class="mono">/health</span> endpoint returns JSON (used by K8s liveness/readiness probes)</li>
+          </ul>
+          <div class="note info"><strong>Note:</strong> The Nginx <span class="mono">/health</span> endpoint always responds at the root path. For K8s probes, flow-web uses <span class="mono">/flow/health</span> which Nginx maps correctly via the <span class="mono">endpoint_prefix</span> configuration.</div>
+          <ul>
             <li><strong>Static Caching:</strong> 1-year expiry for <span class="mono">.js, .css, .png, .jpg, .svg, .woff2, .ttf</span> (hashed filenames from Vite)</li>
             <li><strong>Security Headers:</strong> X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy</li>
             <li><strong>Gzip:</strong> Disabled at Nginx level — compression handled by GCP Load Balancer post-TLS termination</li>
@@ -860,6 +950,17 @@ spec:
           <li><span class="mono">VITE_BASE_URL_FLOW=/flow</span></li>
           <li><span class="mono">VITE_BASE_URL_OMNI=/</span></li>
           <li><span class="mono">VITE_SENTRY_DSN=sentry-dsn</span> (optional)</li>
+          <li><span class="mono">VITE_ENV=development</span> (environment identifier: development, preprod, production)</li>
+          <li><span class="mono">SENTRY_AUTH_TOKEN=token</span> (optional, for source map uploads to Sentry)</li>
+        </ul>
+        <p style="margin-top: 12px;"><strong>Optional (Flow-web Cognito integration):</strong></p>
+        <ul>
+          <li><span class="mono">VITE_COGNITO_USER_POOL_ID</span> - AWS Cognito User Pool ID</li>
+          <li><span class="mono">VITE_COGNITO_REGION</span> - AWS region for Cognito</li>
+          <li><span class="mono">VITE_COGNITO_DOMAIN</span> - Cognito hosted UI domain</li>
+          <li><span class="mono">VITE_COGNITO_CLIENT_ID</span> - Cognito app client ID</li>
+          <li><span class="mono">VITE_COGNITO_REDIRECT_SIGNIN_URL</span> - OAuth redirect URI after sign-in</li>
+          <li><span class="mono">VITE_COGNITO_REDIRECT_SIGNOUT_URL</span> - OAuth redirect URI after sign-out</li>
         </ul>
       </div>
 
@@ -881,22 +982,26 @@ spec:
           <tr><td><span class="mono">JWT_VERIFICATION_KEY</span></td><td>Yes</td><td>Generated</td><td>Base64-encoded JWT verification key for token validation</td><td><span class="mono">your_jwt_verification_key_here</span></td></tr>
           <tr><td><span class="mono">DEFAULT_POSTGRES_DB_HOST</span></td><td>Yes</td><td><span class="mono">localhost</span></td><td>PostgreSQL database host</td><td><span class="mono">your-db.rds.yourdomain.com</span></td></tr>
           <tr><td><span class="mono">DEFAULT_POSTGRES_DB_PORT</span></td><td>Yes</td><td><span class="mono">5432</span></td><td>PostgreSQL database port</td><td><span class="mono">5432</span></td></tr>
-          <tr><td><span class="mono">DEFAULT_POSTGRES_DB_NAME</span></td><td>Yes</td><td><span class="mono">omni_default_db</span></td><td>PostgreSQL database name</td><td><span class="mono">omni_production_db</span></td></tr>
+          <tr><td><span class="mono">DEFAULT_POSTGRES_DB_NAME</span></td><td>Yes</td><td><span class="mono">{SERVICE_NAME}-db</span></td><td>PostgreSQL database name</td><td><span class="mono">omni_production_db</span></td></tr>
           <tr><td><span class="mono">DEFAULT_POSTGRES_DB_USERNAME</span></td><td>Yes</td><td><span class="mono">postgres</span></td><td>PostgreSQL database username</td><td><span class="mono">omni_user</span></td></tr>
           <tr><td><span class="mono">DEFAULT_POSTGRES_DB_PASSWORD</span></td><td>Yes</td><td><span class="mono">postgres</span></td><td>PostgreSQL database password</td><td><span class="mono">secure_password</span></td></tr>
           <tr><td><span class="mono">DEFAULT_POSTGRES_DB_SSLMODE</span></td><td>Yes</td><td><span class="mono">disable</span></td><td>PostgreSQL SSL mode (use <span class="mono">require</span> for production)</td><td><span class="mono">require</span></td></tr>
-          <tr><td><span class="mono">DEFAULT_POSTGRES_DB_CONNECT_TIMEOUT</span></td><td>Yes</td><td><span class="mono">10</span></td><td>PostgreSQL connection timeout in seconds</td><td><span class="mono">30</span></td></tr>
+          <tr><td><span class="mono">DEFAULT_POSTGRES_DB_CONNECT_TIMEOUT</span></td><td>Yes</td><td><span class="mono">30</span></td><td>PostgreSQL connection timeout in seconds</td><td><span class="mono">30</span></td></tr>
           <tr><td><span class="mono">DEFAULT_POSTGRES_DB_CONN_MAX_AGE</span></td><td>No</td><td><span class="mono">120</span></td><td>PostgreSQL connection reuse duration in seconds</td><td><span class="mono">300</span></td></tr>
-          <tr><td><span class="mono">DEFAULT_MONGODB_URI</span></td><td>No</td><td><span class="mono">mongodb://localhost:27017</span></td><td>MongoDB connection URI (for future Flow services integration)</td><td><span class="mono">mongodb+srv://user:pass@cluster.mongodb.net</span></td></tr>
-          <tr><td><span class="mono">DEFAULT_MONGODB_NAME</span></td><td>No</td><td><span class="mono">default-flow-db</span></td><td>MongoDB database name (for future Flow services integration)</td><td><span class="mono">flow_production_db</span></td></tr>
+          <tr><td><span class="mono">DEFAULT_MONGODB_URI</span></td><td>Yes (Flow)</td><td><span class="mono">mongodb://localhost:27017</span></td><td>MongoDB connection URI for Flow service data storage</td><td><span class="mono">mongodb+srv://user:pass@cluster.mongodb.net</span></td></tr>
+                    <tr><td><span class="mono">DEFAULT_MONGODB_NAME</span></td><td>Yes (Flow)</td><td><span class="mono">default-flow-db</span></td><td>MongoDB database name for Flow service</td><td><span class="mono">flow_production_db</span></td></tr>
+          <tr><td><span class="mono">MONGO_SSL_CERT</span></td><td>No</td><td>—</td><td>Base64-encoded PEM certificate for MongoDB TLS connections</td><td><span class="mono">base64-encoded-cert</span></td></tr>
+          <tr><td><span class="mono">MONGO_SSL_REGION</span></td><td>No</td><td>—</td><td>AWS region for MongoDB SSL certificate (if using DocumentDB)</td><td><span class="mono">ap-south-1</span></td></tr>
           <tr><td><span class="mono">REDIS_HOST</span></td><td>Yes</td><td><span class="mono">localhost</span></td><td>Redis cache host (shared by all services)</td><td><span class="mono">your-redis.cache.yourdomain.com</span></td></tr>
           <tr><td><span class="mono">REDIS_PORT</span></td><td>Yes</td><td><span class="mono">6379</span></td><td>Redis cache port</td><td><span class="mono">6379</span></td></tr>
           <tr><td><span class="mono">RABBITMQ_URI</span></td><td>Yes</td><td><span class="mono">amqp://guest:*****@localhost:5672/</span></td><td>RabbitMQ connection URI for Celery task queue (shared by all services)</td><td><span class="mono">amqps://user:pass@your-rabbitmq:5671/</span></td></tr>
           <tr><td><span class="mono">CORS_ALLOWED_ORIGINS</span></td><td>Yes</td><td><span class="mono">http://localhost:8080,http://127.0.0.1:8080</span></td><td>Comma-separated list of allowed CORS origins</td><td><span class="mono">https://crego.yourdomain.com,https://app.yourdomain.com</span></td></tr>
           <tr><td><span class="mono">ALLOWED_HOSTS</span></td><td>Yes</td><td><span class="mono">localhost,127.0.0.1</span></td><td>Comma-separated list of allowed hosts for Django</td><td><span class="mono">crego.yourdomain.com,*.yourdomain.com</span></td></tr>
+          <tr><td><span class="mono">CSRF_TRUSTED_ORIGINS</span></td><td>Yes</td><td>—</td><td>Comma-separated list of trusted origins for CSRF protection</td><td><span class="mono">https://crego.yourdomain.com</span></td></tr>
+          <tr><td><span class="mono">COOKIE_SAMESITE</span></td><td>No</td><td><span class="mono">Lax</span> (dev) / <span class="mono">None</span> (prod)</td><td>SameSite attribute for session and CSRF cookies (Lax, None, Strict)</td><td><span class="mono">None</span></td></tr>
           <tr><td><span class="mono">ALLOWED_CIDR_NETS</span></td><td>No</td><td>—</td><td>Comma-separated list of CIDR networks for internal access (K8s/ECS health checks)</td><td><span class="mono">10.0.0.0/8,172.16.0.0/12</span></td></tr>
           <tr><td><span class="mono">ADMIN_USERNAME</span></td><td>Yes</td><td><span class="mono">admin</span></td><td>Default admin user username</td><td><span class="mono">admin</span></td></tr>
-          <tr><td><span class="mono">ADMIN_PASSWORD</span></td><td>Yes</td><td><span class="mono">admin123</span></td><td>Default admin user password</td><td><span class="mono">secure_admin_password</span></td></tr>
+          <tr><td><span class="mono">ADMIN_PASSWORD</span></td><td>Yes</td><td><span class="mono">(auto-generated)</span></td><td>Default admin user password (auto-generated if not provided)</td><td><span class="mono">secure_admin_password</span></td></tr>
           <tr><td><span class="mono">ADMIN_EMAIL</span></td><td>Yes</td><td><span class="mono">admin@localhost</span></td><td>Default admin user email</td><td><span class="mono">admin@yourdomain.com</span></td></tr>
           <tr><td><span class="mono">RATE_LIMIT_ENABLED</span></td><td>No</td><td>—</td><td>Enable API rate limiting (for future Flow services integration)</td><td><span class="mono">false</span></td></tr>
           <tr><td><span class="mono">RATE_LIMIT_REQUESTS</span></td><td>No</td><td>—</td><td>Rate limit requests per minute (for future Flow services integration)</td><td><span class="mono">500</span></td></tr>
@@ -905,6 +1010,13 @@ spec:
           <tr><td><span class="mono">LOG_BACKENDS</span></td><td>No</td><td><span class="mono">console</span></td><td>Comma-separated logging backends (console, rsys)</td><td><span class="mono">console,rsys</span></td></tr>
           <tr><td><span class="mono">RSYS_HOST</span></td><td>No</td><td>—</td><td>Remote syslog host for structured logging</td><td><span class="mono">rsyslog.yourdomain.com</span></td></tr>
           <tr><td><span class="mono">RSYS_PORT</span></td><td>No</td><td><span class="mono">514</span></td><td>Remote syslog port</td><td><span class="mono">514</span></td></tr>
+          <tr><td><span class="mono">LOG_FORMAT</span></td><td>No</td><td><span class="mono">text</span></td><td>Log output format (<span class="mono">text</span> for human-readable, <span class="mono">json</span> for structured logging)</td><td><span class="mono">json</span></td></tr>
+          <tr><td><span class="mono">SENTRY_RELEASE</span></td><td>No</td><td><span class="mono">dev</span></td><td>Release version identifier for Sentry error tracking (set automatically by CI/CD)</td><td><span class="mono">omni@v2.5.0-abc1234</span></td></tr>
+          <tr><td><span class="mono">FLOWER_BASIC_AUTH</span></td><td>Yes</td><td>—</td><td>Basic auth credentials for Flower dashboard (format: <span class="mono">user:password</span>)</td><td><span class="mono">admin:secure_flower_pass</span></td></tr>
+          <tr><td><span class="mono">LICENSE_ENDPOINT</span></td><td>No</td><td>—</td><td>Crego License Server endpoint for license verification</td><td><span class="mono">https://license.crego.io/api</span></td></tr>
+          <tr><td><span class="mono">LICENSE_SECRET</span></td><td>No</td><td>—</td><td>Secret key for authenticating with Crego License Server</td><td><span class="mono">license-secret-key</span></td></tr>
+          <tr><td><span class="mono">OMNI_ISSUER</span></td><td>No</td><td>—</td><td>JWT issuer identifier for Omni service tokens</td><td><span class="mono">https://crego.yourdomain.com</span></td></tr>
+          <tr><td><span class="mono">OMNI_AUDIENCE</span></td><td>No</td><td><span class="mono">omni</span></td><td>JWT audience claim for token validation across services</td><td><span class="mono">omni</span></td></tr>
         </table>
       </div>
     </div>
@@ -921,9 +1033,9 @@ spec:
         <ol>
           <li><strong>Infrastructure Services:</strong> PostgreSQL, MongoDB, Redis, RabbitMQ</li>
           <li><strong>Core API Services:</strong> omni-api (required for authentication across all services)</li>
-          <li><strong>Background Workers:</strong> omni-worker, omni-scheduler, flow-worker</li>
+          <li><strong>Background Workers:</strong> omni-worker, omni-celery-beat, flow-worker</li>
           <li><strong>API Services:</strong> flow-api (depends on omni-api for authentication)</li>
-          <li><strong>Frontend Applications:</strong> omni-web, flow-web (static file deployment)</li>
+          <li><strong>Frontend Containers:</strong> omni-web, flow-web (Nginx containers serving React SPAs)</li>
         </ol>
       </div>
 
@@ -932,7 +1044,7 @@ spec:
         <ul>
           <li><strong>flow-api:</strong> Requires omni-api for JWT token validation</li>
           <li><strong>flow-worker:</strong> Requires MongoDB and RabbitMQ for task processing</li>
-          <li><strong>omni-worker/omni-scheduler:</strong> Require PostgreSQL and RabbitMQ</li>
+          <li><strong>omni-worker/omni-celery-beat:</strong> Require PostgreSQL and RabbitMQ</li>
           <li><strong>All services:</strong> Share Redis for caching and session management</li>
         </ul>
       </div>
@@ -959,8 +1071,22 @@ spec:
       </div>
 
       <div class="card">
+        <div class="card-title">Secret Management</div>
+        <p>Secrets are managed via <strong>External Secrets Operator (ESO)</strong> which syncs secrets from cloud-native secret managers into Kubernetes Secrets.</p>
+        <ul>
+          <li><strong>GCP:</strong> Google Secret Manager (Workload Identity auth)</li>
+          <li><strong>AWS:</strong> AWS Secrets Manager (IAM role-based auth)</li>
+        </ul>
+        <p style="margin-top: 8px;">Secrets are stored as a single JSON document per environment (e.g., <span class="mono">app-dev</span>, <span class="mono">app-preprod</span>, <span class="mono">app-prod</span>) and auto-refreshed every 5 minutes.</p>
+        <div class="note warn"><strong>Important:</strong> Never hardcode secrets in deployment manifests or ConfigMaps. All sensitive values must go through the cloud secret manager → ExternalSecret → Kubernetes Secret pipeline.</div>
+      </div>
+
+      </div>
+
+      <div class="card">
         <div class="card-title">Step 2: Service Deployment</div>
         <p>Deploy all services with the shared environment configuration. All services are stateless and can be deployed using your preferred orchestration platform (Kubernetes, ECS, Docker Swarm).</p>
+        <div class="note info"><strong>Auto-Migration:</strong> The Omni API service automatically runs database migrations (<span class="mono">migrate</span>) and static file collection (<span class="mono">collectstatic</span>) during Gunicorn startup. It uses a PostgreSQL advisory lock (ID: 123456789) to prevent concurrent migrations across multiple replicas. No manual migration step is required during deployment.</div>
       </div>
 
       <div class="card">
@@ -998,6 +1124,29 @@ spec:
           <li><span class="mono">SIMPLE_JWT</span> settings must be identical across both services</li>
         </ul>
       </div>
+
+      <div class="card">
+        <div class="card-title">CI/CD Pipeline</div>
+        <p>All services are built, tested, and deployed via a unified GitHub Actions workflow (<span class="mono">crego-infra/.github/workflows/unified-ci-cd.yaml</span>).</p>
+        <p style="margin-top: 8px;"><strong>Deployment Triggers:</strong></p>
+        <ul>
+          <li><strong>develop branch:</strong> Auto-deploys to <span class="mono">dev</span> environment</li>
+          <li><strong>release/vX.Y.Z branch:</strong> Auto-deploys to <span class="mono">preprod</span> environment</li>
+          <li><strong>main/master branch + vX.Y.Z tag:</strong> Deploys to <span class="mono">production</span></li>
+        </ul>
+        <p style="margin-top: 8px;"><strong>Pipeline Steps:</strong></p>
+        <ol>
+          <li>Build Docker images with service-specific Dockerfiles</li>
+          <li>Push to container registry (GCP Artifact Registry or AWS ECR)</li>
+          <li>Update image tags in K8s manifests via <span class="mono">bump-image.sh</span></li>
+          <li>ArgoCD detects manifest changes and syncs to cluster</li>
+        </ol>
+        <p style="margin-top: 8px;"><strong>Container Registries:</strong></p>
+        <ul>
+          <li><strong>GCP:</strong> <span class="mono">asia-south1-docker.pkg.dev/crego-app-prod/services/{service-name}</span></li>
+          <li><strong>AWS (client-specific):</strong> <span class="mono">crego/{client}/{env}/{service}:{version}</span> in client ECR</li>
+        </ul>
+      </div>
     </div>
 
     <!-- MONITORING TAB -->
@@ -1017,7 +1166,16 @@ spec:
           <tr><td><span class="tag tag-purple">flow-api</span></td><td><span class="mono">GET /flow/api/health/detailed/</span></td><td>Comprehensive health</td><td>FastAPI + MongoDB + Redis + RabbitMQ</td></tr>
           <tr><td><span class="tag tag-orange">omni-worker</span></td><td><span class="mono">pipenv run celery -A project.celery_config:celery_app inspect ping</span></td><td>Worker status</td><td>Celery worker process</td></tr>
           <tr><td><span class="tag tag-orange">flow-worker</span></td><td><span class="mono">pipenv run celery -A celery_config:celery_app inspect ping</span></td><td>Worker status</td><td>Celery worker process</td></tr>
+          <tr><td><span class="tag tag-cyan">omni-web</span></td><td><span class="mono">GET /health</span></td><td>Container health</td><td>Nginx process status</td></tr>
+          <tr><td><span class="tag tag-cyan">flow-web</span></td><td><span class="mono">GET /flow/health</span></td><td>Container health</td><td>Nginx process status</td></tr>
+          <tr><td><span class="tag tag-green">flower</span></td><td>TCP socket check on port 5555</td><td>Dashboard health</td><td>Flower process status</td></tr>
         </table>
+      <div class="card">
+        <div class="card-title">Startup Health Validation</div>
+        <p>The Omni API service performs a comprehensive health check during application startup (in <span class="mono">wsgi.py</span>). This check validates connectivity to PostgreSQL, Redis, and RabbitMQ before the application begins accepting traffic.</p>
+        <div class="note danger"><strong>Critical:</strong> If any startup health check fails, the application process terminates itself via <span class="mono">SIGTERM</span>. This ensures unhealthy pods are immediately restarted by Kubernetes rather than serving requests with broken dependencies. Check container logs for detailed component status on startup failures.</div>
+      </div>
+
       </div>
 
       <div class="card">
@@ -1037,6 +1195,10 @@ spec:
         <ul>
           <li><strong>Omni Health Check:</strong> <span class="mono">https://crego.yourdomain.com/api/health/</span></li>
           <li><strong>Flow Health Check:</strong> <span class="mono">https://crego.yourdomain.com/flow/api/health/</span></li>
+        </ul>
+        <p><strong>Monitoring:</strong></p>
+        <ul>
+          <li><strong>Flower Dashboard:</strong> <span class="mono">https://crego.yourdomain.com/flower/</span> (Basic Auth protected)</li>
         </ul>
         <p><strong>Admin Interfaces:</strong></p>
         <ul>
@@ -1059,7 +1221,7 @@ spec:
         <ol>
           <li><strong>Database Connection Failed</strong>
             <ul>
-              <li>Check <span class="mono">POSTGRES_DB_*</span> environment variables</li>
+              <li>Check <span class="mono">DEFAULT_POSTGRES_DB_*</span> environment variables</li>
               <li>Verify database server accessibility</li>
               <li>Confirm SSL configuration</li>
             </ul>
@@ -1223,31 +1385,34 @@ spec:
 
       <div class="card">
         <div class="card-title">Minimum Production Deployment</div>
-        <p><strong>Total Monthly Cost: <span class="price-highlight">$427.39</span></strong></p>
+        <p><strong>Total Monthly Cost: <span class="price-highlight">$371.64</span></strong></p>
         <table>
           <tr><th>Service Category</th><th>Cost</th><th>Configuration</th></tr>
-          <tr><td>Compute (ECS Fargate)</td><td><strong>$198.22</strong></td><td>5 containers: 5.5 vCPUs, 11 GB RAM</td></tr>
+          <tr><td>Compute (ECS Fargate)</td><td><strong>$228.22</strong></td><td>7 containers (omni-api, omni-worker, omni-celery-beat, flow-api, flow-worker, omni-web, flow-web, flower): 6.4 vCPUs, 13.5 GB RAM</td></tr>
           <tr><td>RDS PostgreSQL</td><td><strong>$14.81</strong></td><td>db.t3.micro (1 vCPU, 1 GB RAM) + 20 GB storage</td></tr>
           <tr><td>MongoDB Atlas</td><td><strong>$57.00</strong></td><td>M10 cluster (2 vCPUs, 2 GB RAM)</td></tr>
           <tr><td>ElastiCache Redis</td><td><strong>$15.84</strong></td><td>cache.t3.micro (2 vCPUs, 0.5 GB RAM)</td></tr>
           <tr><td>Amazon MQ RabbitMQ</td><td><strong>$23.04</strong></td><td>mq.t3.micro (1 vCPU, 1 GB RAM)</td></tr>
           <tr><td>Application Load Balancer</td><td><strong>$21.20</strong></td><td>Standard ALB with basic LCU usage</td></tr>
-          <tr><td>CloudFront CDN</td><td><strong>$85.75</strong></td><td>1TB data transfer + 1M requests</td></tr>
           <tr><td>S3 Storage</td><td><strong>$0.63</strong></td><td>10 GB standard storage for static assets</td></tr>
           <tr><td>Route 53 DNS</td><td><strong>$0.90</strong></td><td>Hosted zone + 1M queries</td></tr>
           <tr><td>CloudWatch Monitoring</td><td><strong>$10.00</strong></td><td>Basic logs and metrics</td></tr>
         </table>
+        <div class="note info"><strong>Note:</strong> The cost estimates above are based on AWS pricing. For GCP deployments (GKE, Cloud SQL, Memorystore, Cloud AMQP), costs are comparable but may vary by 10–15%. Contact your cloud provider for exact pricing.</div>
       </div>
 
       <div class="card">
         <div class="card-title">Container Resource Allocation</div>
         <table>
           <tr><th>Service</th><th>Instances</th><th>CPU</th><th>Memory</th><th>Purpose</th></tr>
-          <tr><td><span class="tag tag-blue">omni-api</span></td><td>1</td><td>1 vCPU</td><td>2 GB</td><td>Django REST API</td></tr>
-          <tr><td><span class="tag tag-orange">omni-worker</span></td><td>1</td><td>1 vCPU</td><td>2 GB</td><td>Background tasks</td></tr>
-          <tr><td><span class="tag tag-blue">omni-scheduler</span></td><td>1</td><td>0.5 vCPU</td><td>1 GB</td><td>Celery Beat scheduler</td></tr>
-          <tr><td><span class="tag tag-purple">flow-api</span></td><td>1</td><td>1 vCPU</td><td>2 GB</td><td>FastAPI workflow engine</td></tr>
-          <tr><td><span class="tag tag-purple">flow-worker</span></td><td>1</td><td>1 vCPU</td><td>2 GB</td><td>Workflow processing</td></tr>
+          <tr><td><span class="tag tag-blue">omni-api</span></td><td>1</td><td>1000m</td><td>2Gi</td><td>Django REST API</td></tr>
+          <tr><td><span class="tag tag-orange">omni-worker</span></td><td>1</td><td>500m</td><td>512Mi</td><td>Background tasks</td></tr>
+          <tr><td><span class="tag tag-blue">omni-celery-beat</span></td><td>1</td><td>200m</td><td>256Mi</td><td>Celery Beat scheduler</td></tr>
+          <tr><td><span class="tag tag-purple">flow-api</span></td><td>1</td><td>1000m</td><td>1Gi</td><td>FastAPI workflow engine</td></tr>
+          <tr><td><span class="tag tag-purple">flow-worker</span></td><td>1</td><td>1000m</td><td>1Gi</td><td>Workflow processing</td></tr>
+          <tr><td><span class="tag tag-cyan">omni-web</span></td><td>1</td><td>50m</td><td>64Mi</td><td>Nginx serving React SPA</td></tr>
+          <tr><td><span class="tag tag-cyan">flow-web</span></td><td>1</td><td>50m</td><td>64Mi</td><td>Nginx serving React SPA</td></tr>
+          <tr><td><span class="tag tag-green">flower</span></td><td>1</td><td>100m</td><td>128Mi</td><td>Celery task monitoring</td></tr>
         </table>
       </div>
 
@@ -1311,7 +1476,7 @@ spec:
           <li><strong>RDS Multi-AZ:</strong> +$15/month</li>
           <li><strong>MongoDB Atlas cluster:</strong> +$57/month (M10 → M20)</li>
         </ul>
-        <p style="margin-top: 12px;"><strong>Total HA Cost: $607.39/month</strong></p>
+        <p style="margin-top: 12px;"><strong>Total HA Cost: $551.64/month</strong></p>
       </div>
 
       <div class="card">
@@ -1333,8 +1498,8 @@ spec:
 
         <p style="margin-top: 12px;"><strong>Annual Cost Planning:</strong></p>
         <ul>
-          <li><strong>Minimum Production:</strong> $5,128/year</li>
-          <li><strong>High Availability:</strong> $7,289/year</li>
+          <li><strong>Minimum Production:</strong> $4,460/year</li>
+          <li><strong>High Availability:</strong> $6,620/year</li>
           <li><strong>Reserved Instance Savings:</strong> $500-1,000/year</li>
         </ul>
       </div>
