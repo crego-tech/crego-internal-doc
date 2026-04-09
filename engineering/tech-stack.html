@@ -340,6 +340,205 @@
         font-size: 12px;
       }
     }
+  
+    /* ──────────────────────────────────────────────────────────────
+       POLISH LAYER (shared with infra-setup-guide)
+       Token refinements, focus-visible, motion, print, a11y
+       ────────────────────────────────────────────────────────────── */
+    :root {
+      /* Refined tinted neutrals (slightly cooler, matches infra guide) */
+      --bg: #0e0f13;
+      --surface: #17181e;
+      --surface-raised: #1b1c23;
+      --surface-hover: #22232c;
+      --border: #2c2d37;
+      --border-light: #3a3b47;
+      --text: #f2f2f7;
+      --text-dim: #b4b5c3;
+      --text-faint: #72738a;
+
+      /* Slightly bluer accent */
+      --blue: #8089ee;
+      --blue-dim: rgba(128, 137, 238, 0.14);
+      --blue-ring: rgba(128, 137, 238, 0.40);
+      --green: #63d0a1;
+      --green-dim: rgba(99, 208, 161, 0.14);
+      --orange: #f5ac66;
+      --orange-dim: rgba(245, 172, 102, 0.14);
+      --red: #f06b6b;
+      --red-dim: rgba(240, 107, 107, 0.14);
+      --purple: #c99cfc;
+      --purple-dim: rgba(201, 156, 252, 0.14);
+      --cyan: #6cbaff;
+      --cyan-dim: rgba(108, 186, 255, 0.14);
+      --pink: #f598c6;
+      --pink-dim: rgba(245, 152, 198, 0.14);
+
+      /* Spacing scale (4px base) */
+      --s-1: 4px;
+      --s-2: 8px;
+      --s-3: 12px;
+      --s-4: 16px;
+      --s-5: 20px;
+      --s-6: 24px;
+      --s-8: 32px;
+      --s-10: 40px;
+
+      /* Radii */
+      --r-sm: 6px;
+      --r-md: 8px;
+      --r-lg: 10px;
+      --r-xl: 12px;
+
+      /* Elevation */
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.22);
+
+      /* Motion */
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --dur-fast: 120ms;
+      --dur-med: 180ms;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-feature-settings: "cv11", "ss01", "ss03";
+      text-rendering: optimizeLegibility;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Keyboard focus — visible only for keyboard users */
+    :focus { outline: none; }
+    :focus-visible {
+      outline: 2px solid var(--blue-ring);
+      outline-offset: 2px;
+      border-radius: var(--r-sm);
+    }
+
+    ::selection {
+      background: var(--blue-dim);
+      color: var(--text);
+    }
+
+    /* Tab refinements (additive — doesn't replace base rules) */
+    .tab {
+      border-radius: var(--r-lg);
+      transition:
+        background var(--dur-fast) var(--ease),
+        color var(--dur-fast) var(--ease),
+        border-color var(--dur-fast) var(--ease),
+        transform var(--dur-fast) var(--ease);
+    }
+    .tab:active { transform: translateY(1px); }
+    .tab.active {
+      box-shadow: 0 0 0 1px rgba(128, 137, 238, 0.15) inset;
+      border-color: rgba(128, 137, 238, 0.32);
+    }
+    .panel.active {
+      animation: polishFadeIn var(--dur-med) var(--ease);
+    }
+    @keyframes polishFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card elevation */
+    .card { box-shadow: var(--shadow-sm); }
+
+    /* Note variant — color the inline label */
+    .note.info strong    { color: var(--blue); }
+    .note.warning strong { color: var(--orange); }
+    .note.danger strong  { color: var(--red); }
+    .note.success strong { color: var(--green); }
+
+    /* Table — zebra + hover (exclude the header row) */
+    table tr:not(:first-child):nth-child(even) td {
+      background: rgba(255, 255, 255, 0.015);
+    }
+    table tr:not(:first-child):hover td {
+      background: rgba(128, 137, 238, 0.06);
+    }
+
+    /* Code block — custom scrollbar */
+    pre::-webkit-scrollbar { height: 8px; width: 8px; }
+    pre::-webkit-scrollbar-track { background: transparent; }
+    pre::-webkit-scrollbar-thumb {
+      background: var(--border-light);
+      border-radius: 8px;
+    }
+    pre::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+    /* Inline links */
+    a { color: var(--blue); }
+    a:hover { color: var(--text); }
+
+    /* Ordered list marker */
+    ol li::marker {
+      color: var(--text-faint);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .panel.active { animation: none; }
+    }
+
+    /* Print — continuous document, no tabs */
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+        font-size: 10.5pt;
+      }
+      .container { max-width: none; padding: 0; }
+      .tabs { display: none !important; }
+      .panel {
+        display: block !important;
+        page-break-before: always;
+      }
+      .panel:first-of-type { page-break-before: auto; }
+      .card {
+        background: #fff;
+        border: 1px solid #ccc;
+        box-shadow: none;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .card-title, h1, .section-title { color: #000; }
+      .note {
+        background: #f5f5f5 !important;
+        color: #333 !important;
+        border-left-color: #999 !important;
+      }
+      pre {
+        background: #f8f8f8;
+        color: #000;
+        border: 1px solid #ccc;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      pre code, code { color: #000; }
+      table { border: 1px solid #999; }
+      th { background: #eee !important; color: #000 !important; }
+      td { color: #222 !important; border-color: #ccc !important; }
+      .mono { background: #eee; color: #000; }
+      a { color: #000; border-bottom: none; }
+      a[href]::after {
+        content: " (" attr(href) ")";
+        font-size: 9pt;
+        color: #555;
+      }
+      a[href^="#"]::after { content: ""; }
+    }
+    /* ── end polish layer ─────────────────────────────────────────── */
+
   </style>
 </head>
 <body>
@@ -349,14 +548,14 @@
       <p class="subtitle">Reorganized by technology category for better clarity</p>
     </header>
 
-    <div class="tabs">
-      <button class="tab active" onclick="showPanel('overview')">Overview</button>
-      <button class="tab" onclick="showPanel('languages')">Languages & Frameworks</button>
-      <button class="tab" onclick="showPanel('frontend')">Frontend & Mobile</button>
-      <button class="tab" onclick="showPanel('backend')">Backend Services</button>
-      <button class="tab" onclick="showPanel('databases')">Databases & Messaging</button>
-      <button class="tab" onclick="showPanel('infrastructure')">Infrastructure & Cloud</button>
-      <button class="tab" onclick="showPanel('monitoring')">Monitoring & DX</button>
+    <div class="tabs" role="tablist" aria-label="Tech stack sections">
+      <button type="button" class="tab active" onclick="showPanel('overview')">Overview</button>
+      <button type="button" class="tab" onclick="showPanel('languages')">Languages & Frameworks</button>
+      <button type="button" class="tab" onclick="showPanel('frontend')">Frontend & Mobile</button>
+      <button type="button" class="tab" onclick="showPanel('backend')">Backend Services</button>
+      <button type="button" class="tab" onclick="showPanel('databases')">Databases & Messaging</button>
+      <button type="button" class="tab" onclick="showPanel('infrastructure')">Infrastructure & Cloud</button>
+      <button type="button" class="tab" onclick="showPanel('monitoring')">Monitoring & DX</button>
     </div>
 
     <!-- Overview Panel -->
@@ -1314,23 +1513,82 @@
   </div>
 
   <script>
-    function showPanel(panelId) {
-      // Hide all panels
-      document.querySelectorAll('.panel').forEach(panel => {
-        panel.classList.remove('active');
+    (function () {
+      const tabs = document.querySelectorAll('.tab');
+      const panels = document.querySelectorAll('.panel');
+
+      function getTargetId(tab) {
+        const m = (tab.getAttribute('onclick') || '').match(/showPanel\('([^']+)'\)/);
+        return m ? m[1] : null;
+      }
+
+      function showPanel(panelId, clickedTab) {
+        panels.forEach(panel => panel.classList.remove('active'));
+        tabs.forEach(tab => {
+          tab.classList.remove('active');
+          tab.setAttribute('aria-selected', 'false');
+          tab.setAttribute('tabindex', '-1');
+        });
+
+        const panel = document.getElementById(panelId);
+        if (panel) panel.classList.add('active');
+
+        if (clickedTab) {
+          clickedTab.classList.add('active');
+          clickedTab.setAttribute('aria-selected', 'true');
+          clickedTab.setAttribute('tabindex', '0');
+        }
+
+        if (history.replaceState) {
+          history.replaceState(null, '', '#' + panelId);
+        }
+      }
+
+      tabs.forEach((tab, index) => {
+        tab.setAttribute('role', 'tab');
+        tab.setAttribute('tabindex', tab.classList.contains('active') ? '0' : '-1');
+        tab.setAttribute('aria-selected', tab.classList.contains('active') ? 'true' : 'false');
+        const targetId = getTargetId(tab);
+        if (targetId) tab.setAttribute('aria-controls', targetId);
+
+        tab.addEventListener('click', function (e) {
+          e.preventDefault();
+          const id = getTargetId(tab);
+          if (id) showPanel(id, tab);
+        });
+
+        tab.addEventListener('keydown', function (e) {
+          let target = null;
+          if (e.key === 'ArrowRight')     target = tabs[index + 1] || tabs[0];
+          else if (e.key === 'ArrowLeft') target = tabs[index - 1] || tabs[tabs.length - 1];
+          else if (e.key === 'Home')      target = tabs[0];
+          else if (e.key === 'End')       target = tabs[tabs.length - 1];
+          if (target) {
+            e.preventDefault();
+            target.click();
+            target.focus();
+          }
+        });
       });
 
-      // Deactivate all tabs
-      document.querySelectorAll('.tab').forEach(tab => {
-        tab.classList.remove('active');
+      // Tag all panels with tabpanel role
+      panels.forEach(p => p.setAttribute('role', 'tabpanel'));
+
+      // Open panel from URL hash on load
+      document.addEventListener('DOMContentLoaded', function () {
+        const hash = (location.hash || '').replace('#', '');
+        if (hash) {
+          const hashTab = Array.from(tabs).find(t => getTargetId(t) === hash);
+          if (hashTab) showPanel(hash, hashTab);
+        }
       });
 
-      // Show selected panel
-      document.getElementById(panelId).classList.add('active');
-
-      // Activate corresponding tab
-      event.target.classList.add('active');
-    }
+      // Global fallback for any inline onclick="showPanel('...')" handlers
+      window.showPanel = function (panelId) {
+        const t = Array.from(tabs).find(x => getTargetId(x) === panelId);
+        showPanel(panelId, t);
+      };
+    })();
   </script>
 </body>
 </html>
