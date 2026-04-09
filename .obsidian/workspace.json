@@ -196,8 +196,10 @@
       "bases:Create new base": false
     }
   },
-  "active": "637985ab04956f45",
+  "active": "ed4dd4587a20275d",
   "lastOpenFiles": [
+    "Untitled.md",
+    "engineering/infra-setup-guide.md",
     "site/platform/releases/v2.3.0-release-plan.xlsx",
     "site/platform/releases/cycle-160-plan.xlsx",
     "site/platform/releases/v2.3.0-release-plan.md",
@@ -212,11 +214,9 @@
     "site/infosec/v1-reports/Crego_API_Closure-Report.pdf",
     "site/infosec/v1-reports/Crego_-_Audit_Log_Policy.pdf",
     "site/infosec/v1-reports/Crego-Web-Application-Security-Audit-L2-Report_dsc.pdf",
-    "site/platform/releases/v2.2.0-linear.csv",
     "engineering/tech-stack.md",
     "engineering/tech-stack-summary.md",
     "engineering/remote-environment-access.md",
-    "engineering/infra-setup-guide.md",
     "infrastructure/source-code-security-assurance.md",
     "engineering/sdlc-development-guide.md",
     "engineering/utility-commands.md",
