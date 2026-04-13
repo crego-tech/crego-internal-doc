@@ -575,7 +575,7 @@
   <div class="container">
     <header>
       <h1>Remote Environment Access Guide</h1>
-      <div class="subtitle">GCP, GKE, kubectl, port-forwarding, and Lens setup guide</div>
+      <div class="subtitle">GCP, GKE, kubectl, port-forwarding, Lens setup, and secure production database access</div>
     </header>
 
     <!-- Quick Reference -->
@@ -1020,6 +1020,84 @@
         <li><strong>Port-forwarding</strong> — Access internal services (databases, message queues, caches) from your local machine</li>
         <li><strong>Lens</strong> — Visual Kubernetes management, logs, and debugging interface</li>
       </ul>
+    </div>
+
+    <!-- Secure Database Access: Production PostgreSQL -->
+    <div class="section-title">
+      <span class="icon" style="background:var(--red-dim);color:var(--red);">🔒</span>
+      Secure Database Access: Production PostgreSQL
+    </div>
+
+    <div class="note danger"><strong>Production environment.</strong> Follow this guide carefully. Access is routed through a secure IAP tunnel — no VPN required.</div>
+
+    <!-- Part 1: How to Connect -->
+    <div class="card">
+      <div class="card-title">Part 1: How to Connect (For Clients / Developers)</div>
+      <p>To securely access the private Cloud SQL database, you must route your connection through our secure IAP tunnel. No VPN is required.</p>
+
+      <p style="margin-top: 14px;"><strong>Prerequisites:</strong></p>
+      <ul>
+        <li><strong>Google Cloud SDK</strong> (gcloud CLI) installed</li>
+        <li>A preferred DB Client (<span class="mono">DBeaver</span>, <span class="mono">pgAdmin</span>, etc.)</li>
+        <li>IAM roles granted by admin: <span class="mono">IAP-secured Tunnel User</span> and <span class="mono">Compute Viewer</span></li>
+      </ul>
+
+      <p style="margin-top: 18px;"><strong>Step 1: Authenticate Locally</strong></p>
+      <p>Open your terminal and log in to the production project:</p>
+      <div class="cmd-group">
+        <div class="cmd">
+          <code>gcloud auth login</code>
+          <button class="copy-btn" onclick="cp(this)">Copy</button>
+        </div>
+      </div>
+      <div class="cmd-group">
+        <div class="cmd">
+          <code>gcloud config set project crego-app-prod</code>
+          <button class="copy-btn" onclick="cp(this)">Copy</button>
+        </div>
+      </div>
+
+      <p style="margin-top: 18px;"><strong>Step 2: Start the Secure Tunnel</strong></p>
+      <p>Run this command in your terminal as a single line. Leave the terminal window open in the background to keep the tunnel active.</p>
+      <div class="cmd-group">
+        <div class="cmd">
+          <code>gcloud compute ssh jumphost-server --zone=asia-south1-c --tunnel-through-iap -- -L 5432:10.158.1.3:5432</code>
+          <button class="copy-btn" onclick="cp(this)">Copy</button>
+        </div>
+      </div>
+
+      <p style="margin-top: 18px;"><strong>Step 3: Connect via DB Client</strong></p>
+      <p>Open your database tool and connect using:</p>
+      <table>
+        <tr><th>Setting</th><th>Value</th></tr>
+        <tr><td>Host</td><td><span class="mono">localhost</span></td></tr>
+        <tr><td>Port</td><td><span class="mono">5432</span></td></tr>
+        <tr><td>Username / Password</td><td>Use your provided database credentials</td></tr>
+      </table>
+    </div>
+
+    <!-- Part 2: Infrastructure Setup Details -->
+    <div class="card">
+      <div class="card-title">Part 2: Infrastructure Setup Details (Admin Reference)</div>
+      <p>This setup uses a <strong>"Zero Trust"</strong> architecture to keep the database completely hidden from the public internet.</p>
+
+      <p style="margin-top: 18px;"><strong>1. Bastion VM Details</strong></p>
+      <table>
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr><td>Name</td><td><span class="mono">jumphost-server</span></td></tr>
+        <tr><td>Machine Size</td><td>2 vCPU, 2 GB Memory</td></tr>
+        <tr><td>Network</td><td><span class="mono">crego-prod-vpc</span> (Subnet: <span class="mono">asia-south1-c</span>)</td></tr>
+        <tr><td>External IP</td><td>None (Strictly Private)</td></tr>
+        <tr><td>Estimated Monthly Cost</td><td>~$15.89 / month</td></tr>
+      </table>
+
+      <p style="margin-top: 18px;"><strong>2. Network & Security Settings</strong></p>
+      <table>
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr><td>Network Tag</td><td><span class="mono">jumphost-server</span></td></tr>
+        <tr><td>Firewall Rule</td><td>Ingress rule allows TCP Port 22 (SSH) only from Google's official IAP IP range (<span class="mono">35.235.240.0/20</span>) directed at the <span class="mono">jumphost-server</span> tag</td></tr>
+        <tr><td>Internal Routing</td><td>Bastion VM uses standard VPC internal routing to forward local port traffic to Cloud SQL private IP (<span class="mono">10.158.1.3</span>)</td></tr>
+      </table>
     </div>
 
     <!-- ALL DOCS LINK -->
