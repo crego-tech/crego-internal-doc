@@ -898,6 +898,26 @@
       </div>
     </div>
 
+    <div class="card">
+      <div class="card-title">MongoDB</div>
+      <p><strong>Start port forwarding:</strong></p>
+      <div class="cmd-group">
+        <div class="cmd">
+          <code>kubectl port-forward -n dev svc/mongodb 28017:27017 &</code>
+          <button class="copy-btn" onclick="cp(this)">Copy</button>
+        </div>
+      </div>
+
+      <p style="margin-top: 14px;"><strong>Connect via mongosh:</strong></p>
+      <div class="cmd-group">
+        <div class="cmd">
+          <code>mongosh --host localhost --port 28017</code>
+          <button class="copy-btn" onclick="cp(this)">Copy</button>
+        </div>
+      </div>
+      <p style="margin-top: 8px; font-size: 12px; color: var(--text-faint);">Use <span class="mono">--username</span> and <span class="mono">--authenticationDatabase</span> flags if authentication is enabled</p>
+    </div>
+
     <!-- Step 5: Web Preview -->
     <div class="section-title">
       <span class="icon" style="background:var(--blue-dim);color:var(--blue);">6</span>
