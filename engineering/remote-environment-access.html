@@ -569,6 +569,84 @@
     }
     /* ── end polish layer ─────────────────────────────────────────── */
 
+    /* ──────────────────────────────────────────────────────────────
+       TABLE OF CONTENTS (sticky quick-nav)
+       ────────────────────────────────────────────────────────────── */
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin: 0 -40px 24px -40px;
+      padding: 12px 40px;
+      background: rgba(14, 15, 19, 0.88);
+      backdrop-filter: saturate(140%) blur(10px);
+      -webkit-backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .toc-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-faint);
+      margin-bottom: 8px;
+    }
+
+    .toc-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      list-style: none;
+    }
+
+    .toc-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-dim);
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: border-color var(--dur-fast) var(--ease),
+                  background var(--dur-fast) var(--ease),
+                  color var(--dur-fast) var(--ease);
+    }
+
+    .toc-link:hover {
+      border-color: var(--border-light);
+      background: var(--surface-hover);
+      color: var(--text);
+    }
+
+    .toc-link .toc-num {
+      color: var(--text-faint);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .toc-link:hover .toc-num { color: var(--blue); }
+
+    /* Keep anchor jumps clear of the sticky bar */
+    .section-title {
+      scroll-margin-top: 96px;
+    }
+
+    @media (max-width: 768px) {
+      .toc {
+        margin: 0 -16px 16px -16px;
+        padding: 10px 16px;
+      }
+      .toc-link { font-size: 11px; padding: 4px 8px; }
+    }
+
+    @media print {
+      .toc { display: none; }
+    }
+
   </style>
 </head>
 <body>
@@ -578,8 +656,28 @@
       <div class="subtitle">GCP, GKE, kubectl, port-forwarding, Lens setup, and secure production database access</div>
     </header>
 
+    <!-- Sticky Table of Contents -->
+    <nav class="toc" aria-label="On this page">
+      <div class="toc-label">On this page</div>
+      <ul class="toc-list">
+        <li><a class="toc-link" href="#quick-reference"><span class="toc-num">⚡</span> Quick Reference</a></li>
+        <li><a class="toc-link" href="#prerequisites"><span class="toc-num">✓</span> Prerequisites</a></li>
+        <li><a class="toc-link" href="#install-cli"><span class="toc-num">0</span> Install CLI Tools</a></li>
+        <li><a class="toc-link" href="#gcp-console"><span class="toc-num">1</span> Cloud Console</a></li>
+        <li><a class="toc-link" href="#select-env"><span class="toc-num">2</span> Select Environment</a></li>
+        <li><a class="toc-link" href="#get-credentials"><span class="toc-num">3</span> Cluster Credentials</a></li>
+        <li><a class="toc-link" href="#port-forward"><span class="toc-num">4</span> Port Forwarding</a></li>
+        <li><a class="toc-link" href="#web-preview"><span class="toc-num">5</span> Web Preview</a></li>
+        <li><a class="toc-link" href="#lens"><span class="toc-num">6</span> Lens</a></li>
+        <li><a class="toc-link" href="#gke-scaling"><span class="toc-num">8</span> GKE Cluster Scaling</a></li>
+        <li><a class="toc-link" href="#troubleshooting"><span class="toc-num">⚙</span> Cleanup &amp; Troubleshooting</a></li>
+        <li><a class="toc-link" href="#summary"><span class="toc-num">📋</span> Summary</a></li>
+        <li><a class="toc-link" href="#prod-db-access"><span class="toc-num">🔒</span> Prod DB Access</a></li>
+      </ul>
+    </nav>
+
     <!-- Quick Reference -->
-    <div class="section-title">
+    <div class="section-title" id="quick-reference">
       <span class="icon" style="background:var(--cyan-dim);color:var(--cyan);">⚡</span>
       Quick Reference
     </div>
@@ -609,7 +707,7 @@
     </div>
 
     <!-- Prerequisites Section -->
-    <div class="section-title">
+    <div class="section-title" id="prerequisites">
       <span class="icon" style="background:var(--blue-dim);color:var(--blue);">✓</span>
       Prerequisites
     </div>
@@ -631,7 +729,7 @@
     </div>
 
     <!-- Step 0: Install CLI Tools -->
-    <div class="section-title">
+    <div class="section-title" id="install-cli">
       <span class="icon" style="background:var(--green-dim);color:var(--green);">1</span>
       Step 0: Install Required CLI Tools
     </div>
@@ -740,7 +838,7 @@
     </div>
 
     <!-- Step 1: Access Google Cloud Console -->
-    <div class="section-title">
+    <div class="section-title" id="gcp-console">
       <span class="icon" style="background:var(--orange-dim);color:var(--orange);">2</span>
       Step 1: Access Google Cloud Console
     </div>
@@ -755,7 +853,7 @@
     </div>
 
     <!-- Step 2: Select Target Environment -->
-    <div class="section-title">
+    <div class="section-title" id="select-env">
       <span class="icon" style="background:var(--purple-dim);color:var(--purple);">3</span>
       Step 2: Select the Target Environment
     </div>
@@ -791,7 +889,7 @@
     </div>
 
     <!-- Step 3: Get GKE Cluster Credentials -->
-    <div class="section-title">
+    <div class="section-title" id="get-credentials">
       <span class="icon" style="background:var(--cyan-dim);color:var(--cyan);">4</span>
       Step 3: Get GKE Cluster Credentials
     </div>
@@ -829,7 +927,7 @@
     </div>
 
     <!-- Step 4: Access Services via Port Forwarding -->
-    <div class="section-title">
+    <div class="section-title" id="port-forward">
       <span class="icon" style="background:var(--green-dim);color:var(--green);">5</span>
       Step 4: Access Services via Port Forwarding
     </div>
@@ -919,7 +1017,7 @@
     </div>
 
     <!-- Step 5: Web Preview -->
-    <div class="section-title">
+    <div class="section-title" id="web-preview">
       <span class="icon" style="background:var(--blue-dim);color:var(--blue);">6</span>
       Step 5: Access Services Using Web Preview
     </div>
@@ -934,7 +1032,7 @@
     </div>
 
     <!-- Step 6: Access Cluster Using Lens -->
-    <div class="section-title">
+    <div class="section-title" id="lens">
       <span class="icon" style="background:var(--orange-dim);color:var(--orange);">7</span>
       Step 6: Access the Cluster Using Lens
     </div>
@@ -988,8 +1086,74 @@
       </ul>
     </div>
 
+    <!-- Manual GKE Cluster Scaling (GCP) -->
+    <div class="section-title" id="gke-scaling">
+      <span class="icon" style="background:var(--pink-dim);color:var(--pink);">8</span>
+      Manual GKE Cluster Scaling (GCP)
+    </div>
+
+    <div class="note info"><strong>Prerequisite:</strong> Ensure you are authenticated in your local terminal before running these commands (<span class="mono">gcloud auth login</span>).</div>
+
+    <div class="note warn"><strong>Heads-up:</strong> Scaling a node pool to <span class="mono">0</span> will terminate all workloads running on it. Drain or confirm the environment is safe to stop before applying these commands.</div>
+
+    <!-- 1. DEV Environment -->
+    <div class="card">
+      <div class="card-title">1. DEV Environment</div>
+      <p>The Dev environment uses a single node pool (<span class="mono">private-pool</span>).</p>
+
+      <p style="margin-top: 14px;"><strong>🛑 Stop the Dev Cluster (Scale to 0 Nodes)</strong></p>
+      <div class="cmd-group">
+        <div class="cmd">
+          <code>gcloud container node-pools update private-pool --cluster=crego-app-dev-cluster --zone=asia-south1-a --project=crego-app-dev --min-nodes=0 --max-nodes=0</code>
+          <button class="copy-btn" onclick="cp(this)">Copy</button>
+        </div>
+      </div>
+
+      <p style="margin-top: 14px;"><strong>✅ Start the Dev Cluster (Restore to 1–10 Nodes)</strong></p>
+      <div class="cmd-group">
+        <div class="cmd">
+          <code>gcloud container node-pools update private-pool --cluster=crego-app-dev-cluster --zone=asia-south1-a --project=crego-app-dev --min-nodes=1 --max-nodes=10</code>
+          <button class="copy-btn" onclick="cp(this)">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. PREPROD Environment -->
+    <div class="card">
+      <div class="card-title">2. PREPROD Environment</div>
+      <p>The Preprod environment has two node pools (<span class="mono">default-pool</span> and <span class="mono">node-pool-1</span>). You must run both commands to fully scale the environment.</p>
+
+      <p style="margin-top: 14px;"><strong>🛑 Stop the Preprod Cluster (Scale to 0 Nodes)</strong></p>
+      <div class="cmd-group">
+        <div class="cmd">
+          <code>gcloud container node-pools update default-pool --cluster=crego-app-preprod --zone=asia-south1-a --project=gold-blueprint-451210-q1 --min-nodes=0 --max-nodes=0</code>
+          <button class="copy-btn" onclick="cp(this)">Copy</button>
+        </div>
+      </div>
+      <div class="cmd-group">
+        <div class="cmd">
+          <code>gcloud container node-pools update node-pool-1 --cluster=crego-app-preprod --zone=asia-south1-a --project=gold-blueprint-451210-q1 --min-nodes=0 --max-nodes=0</code>
+          <button class="copy-btn" onclick="cp(this)">Copy</button>
+        </div>
+      </div>
+
+      <p style="margin-top: 14px;"><strong>✅ Start the Preprod Cluster (Restore limits to 1–6 Nodes)</strong></p>
+      <div class="cmd-group">
+        <div class="cmd">
+          <code>gcloud container node-pools update default-pool --cluster=crego-app-preprod --zone=asia-south1-a --project=gold-blueprint-451210-q1 --min-nodes=1 --max-nodes=6</code>
+          <button class="copy-btn" onclick="cp(this)">Copy</button>
+        </div>
+      </div>
+      <div class="cmd-group">
+        <div class="cmd">
+          <code>gcloud container node-pools update node-pool-1 --cluster=crego-app-preprod --zone=asia-south1-a --project=gold-blueprint-451210-q1 --min-nodes=1 --max-nodes=6</code>
+          <button class="copy-btn" onclick="cp(this)">Copy</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Cleanup & Troubleshooting -->
-    <div class="section-title">
+    <div class="section-title" id="troubleshooting">
       <span class="icon" style="background:var(--red-dim);color:var(--red);">⚙</span>
       Cleanup & Troubleshooting
     </div>
@@ -1007,7 +1171,7 @@
     </div>
 
     <!-- Summary -->
-    <div class="section-title">
+    <div class="section-title" id="summary">
       <span class="icon" style="background:var(--green-dim);color:var(--green);">📋</span>
       Summary
     </div>
@@ -1023,7 +1187,7 @@
     </div>
 
     <!-- Secure Database Access: Production PostgreSQL -->
-    <div class="section-title">
+    <div class="section-title" id="prod-db-access">
       <span class="icon" style="background:var(--red-dim);color:var(--red);">🔒</span>
       Secure Database Access: Production PostgreSQL
     </div>
