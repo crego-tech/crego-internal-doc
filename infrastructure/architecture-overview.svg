@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1480" font-family="Inter, -apple-system, 'Helvetica Neue', sans-serif" font-size="13">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <marker id="arrowDashed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+    <style><![CDATA[
+      .box      { fill:#ffffff; stroke:#1f2937; stroke-width:1.5; rx:10; ry:10; }
+      .zone     { fill:#f8fafc; stroke:#94a3b8; stroke-width:1.2; stroke-dasharray:5,4; rx:14; ry:14; }
+      .zoneTitle{ font-weight:700; fill:#0f172a; font-size:14px; }
+      .lbl      { fill:#0f172a; }
+      .sub      { fill:#475569; font-size:11.5px; }
+      .small    { fill:#475569; font-size:11px; }
+      .title    { font-size:24px; font-weight:800; fill:#0f172a; }
+      .h2       { font-size:15px; font-weight:700; fill:#0f172a; }
+      .ok       { fill:#059669; font-weight:700; }
+      .warn     { fill:#d97706; font-weight:700; }
+      .bad      { fill:#dc2626; font-weight:700; }
+      .pillTxt  { font-size:10.5px; font-weight:700; fill:#fff; letter-spacing:0.4px; }
+      .arrow    { stroke:#475569; stroke-width:1.6; fill:none; }
+      .arrowDashed { stroke:#94a3b8; stroke-width:1.4; fill:none; stroke-dasharray:5,4; }
+      .badgeFill{ stroke:none; }
+    ]]></style>
+  </defs>
+
+  <!-- ===================== HEADER ===================== -->
+  <text x="40" y="38" class="title">crego-infra — Reference Architecture</text>
+  <text x="40" y="58" class="sub">GitOps · Multi-environment K8s on GCP  ·  Status: as observed in repo on 2026-05-05  ·  AWS overlays excluded (work-in-progress)</text>
+
+  <!-- Legend: Environment badges -->
+  <g transform="translate(900,20)">
+    <text x="0" y="14" class="h2">Environment legend</text>
+    <g transform="translate(0,22)">
+      <rect class="badgeFill" x="0"   y="0" width="46" height="22" rx="6" fill="#10b981"/><text x="23" y="15" text-anchor="middle" class="pillTxt">DEV</text>
+      <rect class="badgeFill" x="54"  y="0" width="46" height="22" rx="6" fill="#14b8a6"/><text x="77" y="15" text-anchor="middle" class="pillTxt">QA</text>
+      <rect class="badgeFill" x="108" y="0" width="46" height="22" rx="6" fill="#f59e0b"/><text x="131" y="15" text-anchor="middle" class="pillTxt">PRE</text>
+      <rect class="badgeFill" x="162" y="0" width="46" height="22" rx="6" fill="#ef4444"/><text x="185" y="15" text-anchor="middle" class="pillTxt">PRD</text>
+      <rect class="badgeFill" x="216" y="0" width="46" height="22" rx="6" fill="#3b82f6"/><text x="239" y="15" text-anchor="middle" class="pillTxt">ALL</text>
+    </g>
+    <g transform="translate(0,52)" class="small">
+      <text x="0"   y="0">DEV = dev-gcp · QA = qa1-gcp / qa2-gcp · PRE = preprod-gcp · PRD = prod-gcp · ALL = every env</text>
+    </g>
+  </g>
+
+  <!-- Legend: Status -->
+  <g transform="translate(1480,20)">
+    <text x="0" y="14" class="h2">Status</text>
+    <g transform="translate(0,22)">
+      <text x="0"  y="15" class="ok">✓</text><text x="14" y="15" class="small">deployed</text>
+      <text x="80" y="15" class="warn">⚠</text><text x="94" y="15" class="small">partial / risk</text>
+      <text x="180" y="15" class="bad">✗</text><text x="194" y="15" class="small">missing</text>
+    </g>
+    <g transform="translate(0,52)" class="small">
+      <text x="0" y="0">Acronyms used throughout: see bottom-right glossary</text>
+    </g>
+  </g>
+
+  <!-- ===================== USERS / EDGE ===================== -->
+  <g transform="translate(40,110)">
+    <rect class="box" x="0" y="0" width="240" height="50" fill="#eff6ff" stroke="#3b82f6"/>
+    <text x="120" y="22" text-anchor="middle" class="lbl" font-weight="700">End Users / Tenants</text>
+    <text x="120" y="40" text-anchor="middle" class="sub">HTTPS · per-tenant subdomains</text>
+  </g>
+  <line class="arrow" x1="160" y1="160" x2="160" y2="200" marker-end="url(#arrow)"/>
+
+  <!-- Edge layer with three variants -->
+  <g transform="translate(40,200)">
+    <rect class="zone" x="0" y="0" width="1720" height="120"/>
+    <text x="14" y="20" class="zoneTitle">EDGE — Ingress / Load Balancer</text>
+
+    <!-- PRD Gateway -->
+    <g transform="translate(20,38)">
+      <rect class="box" x="0" y="0" width="540" height="70" fill="#fef2f2" stroke="#ef4444"/>
+      <rect class="badgeFill" x="-8" y="-8" width="44" height="20" rx="6" fill="#ef4444"/>
+      <text x="14" y="6" text-anchor="middle" class="pillTxt">PRD</text>
+      <text x="20" y="26" class="lbl" font-weight="700">GKE Gateway API · gke-l7-global-external-managed</text>
+      <text x="20" y="44" class="sub">Static IP · TLS via cert-map · Security headers (HSTS/CSP/X-XSS) on HTTPRoute · NEGs to pod IPs</text>
+      <text x="20" y="60" class="warn">⚠ No WAF / Cloud Armor · ⚠ No rate-limit policy in repo</text>
+    </g>
+
+    <!-- DEV/QA/PRE NGINX -->
+    <g transform="translate(580,38)">
+      <rect class="box" x="0" y="0" width="1120" height="70" fill="#ecfdf5" stroke="#10b981"/>
+      <rect class="badgeFill" x="-8" y="-8" width="46"  height="20" rx="6" fill="#10b981"/><text x="15" y="6" text-anchor="middle" class="pillTxt">DEV</text>
+      <rect class="badgeFill" x="42" y="-8" width="46"  height="20" rx="6" fill="#14b8a6"/><text x="65" y="6" text-anchor="middle" class="pillTxt">QA</text>
+      <rect class="badgeFill" x="92" y="-8" width="46"  height="20" rx="6" fill="#f59e0b"/><text x="115" y="6" text-anchor="middle" class="pillTxt">PRE</text>
+      <text x="20" y="30" class="lbl" font-weight="700">NGINX Ingress Controller + cert-manager (Let's Encrypt HTTP-01)</text>
+      <text x="20" y="48" class="sub">ClusterSecretStore-issued certs · path-prefix routing to services on :8000 (Flower :5555) · no URL rewrite</text>
+      <text x="20" y="62" class="warn">⚠ HTTP-01 only — no DNS-01 (no wildcard certs) · ⚠ NGINX install not in GitOps (replicas/version unpinned, single replica by default)</text>
+    </g>
+  </g>
+
+  <line class="arrow" x1="900" y1="320" x2="900" y2="360" marker-end="url(#arrow)"/>
+
+  <!-- ===================== KUBERNETES NAMESPACE ===================== -->
+  <g transform="translate(40,360)">
+    <rect class="zone" x="0" y="0" width="1720" height="380"/>
+    <text x="14" y="20" class="zoneTitle">KUBERNETES NAMESPACE — one per env: development · qa1 · qa2 · preproduction · production</text>
+    <text x="14" y="38" class="sub">All app containers on :8000 (Flower :5555) · runAsNonRoot · drop ALL caps · HPA on APIs only · KEDA on Celery workers</text>
+
+    <!-- App tier -->
+    <g transform="translate(20,60)">
+      <rect class="box" x="0" y="0" width="820" height="120" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Application tier (HTTP)</text>
+      <rect class="badgeFill" x="780" y="6" width="40" height="18" rx="5" fill="#3b82f6"/><text x="800" y="20" text-anchor="middle" class="pillTxt">ALL</text>
+
+      <!-- service boxes -->
+      <g transform="translate(14,32)">
+        <rect class="box" x="0"   y="0" width="148" height="74" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="74"  y="18" text-anchor="middle" class="lbl" font-weight="700">omni-api</text>
+        <text x="74"  y="34" text-anchor="middle" class="sub">/api/* · Django · :8000</text>
+        <text x="74"  y="50" text-anchor="middle" class="sub">HPA min=1 max=3 (CPU 70%)</text>
+        <text x="74"  y="66" text-anchor="middle" class="bad">⚠ PRD overrides replicas:1</text>
+      </g>
+      <g transform="translate(170,32)">
+        <rect class="box" x="0"   y="0" width="148" height="74" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="74"  y="18" text-anchor="middle" class="lbl" font-weight="700">flow-api</text>
+        <text x="74"  y="34" text-anchor="middle" class="sub">/flow/api/* · :8000</text>
+        <text x="74"  y="50" text-anchor="middle" class="sub">HPA min=1 max=3</text>
+        <text x="74"  y="66" text-anchor="middle" class="bad">⚠ PRD overrides replicas:1</text>
+      </g>
+      <g transform="translate(326,32)">
+        <rect class="box" x="0"   y="0" width="148" height="74" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="74"  y="18" text-anchor="middle" class="lbl" font-weight="700">omni-web</text>
+        <text x="74"  y="34" text-anchor="middle" class="sub">/omni/* + / · React</text>
+        <text x="74"  y="50" text-anchor="middle" class="warn">no HPA</text>
+        <text x="74"  y="66" text-anchor="middle" class="sub">replicas: 1</text>
+      </g>
+      <g transform="translate(482,32)">
+        <rect class="box" x="0"   y="0" width="148" height="74" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="74"  y="18" text-anchor="middle" class="lbl" font-weight="700">flow-web</text>
+        <text x="74"  y="34" text-anchor="middle" class="sub">/flow/* · React</text>
+        <text x="74"  y="50" text-anchor="middle" class="warn">no HPA</text>
+        <text x="74"  y="66" text-anchor="middle" class="sub">replicas: 1</text>
+      </g>
+      <g transform="translate(638,32)">
+        <rect class="box" x="0"   y="0" width="168" height="74" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="84"  y="18" text-anchor="middle" class="lbl" font-weight="700">flower</text>
+        <text x="84"  y="34" text-anchor="middle" class="sub">/{omni,flow}/flower/* :5555</text>
+        <text x="84"  y="50" text-anchor="middle" class="warn">no HPA / no auth in repo</text>
+        <text x="84"  y="66" text-anchor="middle" class="sub">Celery monitor</text>
+      </g>
+    </g>
+
+    <!-- Worker tier -->
+    <g transform="translate(20,190)">
+      <rect class="box" x="0" y="0" width="820" height="100" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Async / Workers (event-driven)</text>
+      <rect class="badgeFill" x="780" y="6" width="40" height="18" rx="5" fill="#3b82f6"/><text x="800" y="20" text-anchor="middle" class="pillTxt">ALL</text>
+
+      <g transform="translate(14,30)">
+        <rect class="box" x="0"   y="0" width="248" height="60" fill="#fff7ed" stroke="#f59e0b"/>
+        <text x="124" y="20" text-anchor="middle" class="lbl" font-weight="700">omni-celery-worker</text>
+        <text x="124" y="36" text-anchor="middle" class="sub">KEDA: RabbitMQ depth ≥ 50 + CPU 80%</text>
+        <text x="124" y="52" text-anchor="middle" class="sub">min=1 max=3 · poll 30s · cool-down 5m</text>
+      </g>
+      <g transform="translate(280,30)">
+        <rect class="box" x="0"   y="0" width="248" height="60" fill="#fff7ed" stroke="#f59e0b"/>
+        <text x="124" y="20" text-anchor="middle" class="lbl" font-weight="700">flow-celery-worker</text>
+        <text x="124" y="36" text-anchor="middle" class="sub">KEDA same trigger model</text>
+        <text x="124" y="52" text-anchor="middle" class="warn">PRE: 14 tenant-specific variants</text>
+      </g>
+      <g transform="translate(546,30)">
+        <rect class="box" x="0"   y="0" width="260" height="60" fill="#fff7ed" stroke="#f59e0b"/>
+        <text x="130" y="20" text-anchor="middle" class="lbl" font-weight="700">omni-celery-beat (singleton)</text>
+        <text x="130" y="36" text-anchor="middle" class="sub">scheduled jobs</text>
+        <text x="130" y="52" text-anchor="middle" class="bad">⚠ no PDB · no leader-election</text>
+      </g>
+    </g>
+
+    <!-- Security / Identity -->
+    <g transform="translate(860,60)">
+      <rect class="box" x="0" y="0" width="430" height="120" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Identity &amp; RBAC</text>
+      <rect class="badgeFill" x="390" y="6" width="40" height="18" rx="5" fill="#3b82f6"/><text x="410" y="20" text-anchor="middle" class="pillTxt">ALL</text>
+      <text x="14" y="42" class="sub">SA per app · Workload Identity (WI) — GCP-native pod identity</text>
+      <text x="14" y="58" class="warn">⚠ Single shared K8s Role <tspan font-family="monospace">app-reader</tspan> grants secrets+configmaps+pods to 7 SAs</text>
+      <text x="14" y="74" class="warn">⚠ ArgoCD AppProject prod allows sourceRepos: ['*']</text>
+      <text x="14" y="90" class="bad">✗ No Pod Security Admission (PSA) labels on namespaces</text>
+      <text x="14" y="106" class="bad">✗ readOnlyRootFilesystem: false on api/web/worker</text>
+    </g>
+
+    <!-- Network policies -->
+    <g transform="translate(1310,60)">
+      <rect class="box" x="0" y="0" width="390" height="120" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Network Policy (NP)</text>
+      <rect class="badgeFill" x="350" y="6" width="40" height="18" rx="5" fill="#3b82f6"/><text x="370" y="20" text-anchor="middle" class="pillTxt">ALL</text>
+      <text x="14" y="42" class="ok">✓ Default-deny ingress + egress baseline</text>
+      <text x="14" y="58" class="ok">✓ DB &amp; RabbitMQ NPs in base/{env}/network-policy-*.yaml</text>
+      <text x="14" y="74" class="ok">✓ allow-inter-service-communication.yaml per overlay</text>
+      <text x="14" y="90" class="warn">⚠ Egress 0.0.0.0/0 still open (no DNS/HTTPS-only filter)</text>
+      <text x="14" y="106" class="bad">✗ No NPs on kube-system / argocd / keda-system / eso</text>
+    </g>
+
+    <!-- Secrets pipeline -->
+    <g transform="translate(860,190)">
+      <rect class="box" x="0" y="0" width="840" height="100" fill="#eff6ff" stroke="#3b82f6"/>
+      <text x="14" y="20" class="h2">Secrets pipeline — External Secrets Operator (ESO)</text>
+      <rect class="badgeFill" x="800" y="6" width="40" height="18" rx="5" fill="#3b82f6"/><text x="820" y="20" text-anchor="middle" class="pillTxt">ALL</text>
+      <text x="14" y="40" class="sub">ExternalSecret  →  ClusterSecretStore (cloud-sm)  →  K8s Secret <tspan font-family="monospace">app-env</tspan>  (refresh: 5m)</text>
+      <text x="14" y="58" class="sub">Backend: Google Secret Manager (GSM) via Workload Identity (WI) · keys: <tspan font-family="monospace">app-dev · app-preprod · app-prod · app-qa1 · app-qa2</tspan></text>
+      <text x="14" y="76" class="sub">SA <tspan font-family="monospace">eso-sa</tspan> per namespace · GSM project varies per env (e.g. <tspan font-family="monospace">crego-app-dev</tspan>, <tspan font-family="monospace">crego-app-prod</tspan>)</text>
+      <text x="14" y="94" class="bad">✗ No rotation policy · ✗ No Customer-Managed Encryption Keys (CMEK) on GSM / PD-SSD · ⚠ argocd-repo-secret.yaml has placeholder PAT in repo</text>
+    </g>
+
+    <!-- Cross gaps row inside cluster -->
+    <g transform="translate(20,300)">
+      <rect class="box" x="0" y="0" width="1680" height="64" fill="#fff7ed" stroke="#f59e0b"/>
+      <text x="14" y="20" class="h2">In-cluster resilience gaps (cluster-wide)</text>
+      <text x="14" y="40" class="bad">✗ Zero PodDisruptionBudgets (PDBs) anywhere · ✗ No podAntiAffinity / topologySpreadConstraints · ✗ No startup probes</text>
+      <text x="14" y="56" class="warn">⚠ Memory request ≪ limit (omni-api 2Gi/4Gi) — OOM risk · ⚠ flower exposed without ingress auth annotation in repo · ⚠ image tags mutable (short-SHA, no digest pinning)</text>
+    </g>
+  </g>
+
+  <line class="arrow" x1="900" y1="740" x2="900" y2="780" marker-end="url(#arrow)"/>
+
+  <!-- ===================== DATA TIER ===================== -->
+  <g transform="translate(40,780)">
+    <rect class="zone" x="0" y="0" width="1720" height="180"/>
+    <text x="14" y="20" class="zoneTitle">DATA TIER</text>
+
+    <!-- In-cluster -->
+    <g transform="translate(20,40)">
+      <rect class="box" x="0" y="0" width="820" height="124" fill="#ecfdf5" stroke="#10b981"/>
+      <rect class="badgeFill" x="-8" y="-8" width="46"  height="20" rx="6" fill="#10b981"/><text x="15" y="6" text-anchor="middle" class="pillTxt">DEV</text>
+      <rect class="badgeFill" x="42" y="-8" width="46"  height="20" rx="6" fill="#14b8a6"/><text x="65" y="6" text-anchor="middle" class="pillTxt">QA</text>
+      <rect class="badgeFill" x="92" y="-8" width="46"  height="20" rx="6" fill="#f59e0b"/><text x="115" y="6" text-anchor="middle" class="pillTxt">PRE</text>
+      <text x="14" y="30" class="h2">In-cluster stateful services (apps/{env}/*)</text>
+      <text x="14" y="50" class="sub">PostgreSQL (PVC 150Gi)  ·  Redis (PVC 5Gi)  ·  RabbitMQ (PVC 10Gi)  ·  MongoDB (PVC 20Gi)</text>
+      <text x="14" y="68" class="warn">⚠ Single replica each · ⚠ No backup CronJob · ⚠ StorageClass=standard (no snapshot policy)</text>
+      <text x="14" y="86" class="bad">⚠⚠ PRE diverges from PRD — promotion can surprise (PRE = local DBs, PRD = managed)</text>
+      <text x="14" y="106" class="sub">PVC has <tspan font-family="monospace">argocd.argoproj.io/sync-options: Sync=false</tspan> (data preserved on ArgoCD prune)</text>
+    </g>
+
+    <!-- Managed -->
+    <g transform="translate(860,40)">
+      <rect class="box" x="0" y="0" width="840" height="124" fill="#fef2f2" stroke="#ef4444"/>
+      <rect class="badgeFill" x="-8" y="-8" width="46" height="20" rx="6" fill="#ef4444"/><text x="15" y="6" text-anchor="middle" class="pillTxt">PRD</text>
+      <text x="14" y="30" class="h2">Managed cloud data services</text>
+      <text x="14" y="50" class="sub">Cloud SQL for PostgreSQL — private IP, HA &amp; PITR variable-driven (terraform/modules/gcp-cloudsql-postgres)</text>
+      <text x="14" y="68" class="sub">Cloud Memorystore Redis — VPC peering (terraform/modules/gcp-redis)</text>
+      <text x="14" y="86" class="sub">MongoDB — external (DSN injected via ESO; not managed in repo)</text>
+      <text x="14" y="104" class="bad">⚠⚠ RabbitMQ STILL in-cluster in PRD — single replica, no HA, no PDB, no backup</text>
+    </g>
+  </g>
+
+  <!-- ===================== ADDONS / GITOPS / OBSERVABILITY ===================== -->
+  <g transform="translate(40,980)">
+    <rect class="zone" x="0" y="0" width="1720" height="200"/>
+    <text x="14" y="20" class="zoneTitle">PLATFORM ADDONS · GITOPS · OBSERVABILITY  (per-env enabled flags)</text>
+
+    <!-- Addons matrix -->
+    <g transform="translate(20,40)">
+      <rect class="box" x="0" y="0" width="540" height="150" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Addons (argocd-apps + addons/{env}/)</text>
+      <g class="small" transform="translate(14,38)">
+        <text x="0"   y="0"  font-weight="700">Addon</text>
+        <text x="280" y="0"  text-anchor="middle" font-weight="700">DEV</text>
+        <text x="350" y="0"  text-anchor="middle" font-weight="700">QA</text>
+        <text x="420" y="0"  text-anchor="middle" font-weight="700">PRE</text>
+        <text x="490" y="0"  text-anchor="middle" font-weight="700">PRD</text>
+
+        <text x="0"   y="20">cert-manager</text>
+        <text x="280" y="20" text-anchor="middle" class="ok">✓</text>
+        <text x="350" y="20" text-anchor="middle" class="ok">✓</text>
+        <text x="420" y="20" text-anchor="middle" class="ok">✓</text>
+        <text x="490" y="20" text-anchor="middle" class="bad">✗</text>
+
+        <text x="0"   y="40">external-dns</text>
+        <text x="280" y="40" text-anchor="middle" class="ok">✓</text>
+        <text x="350" y="40" text-anchor="middle" class="ok">✓</text>
+        <text x="420" y="40" text-anchor="middle" class="ok">✓</text>
+        <text x="490" y="40" text-anchor="middle" class="bad">✗</text>
+
+        <text x="0"   y="60">External Secrets Operator (ESO)</text>
+        <text x="280" y="60" text-anchor="middle" class="ok">✓</text>
+        <text x="350" y="60" text-anchor="middle" class="ok">✓</text>
+        <text x="420" y="60" text-anchor="middle" class="ok">✓</text>
+        <text x="490" y="60" text-anchor="middle" class="ok">✓</text>
+
+        <text x="0"   y="80">KEDA (event-driven autoscaler)</text>
+        <text x="280" y="80" text-anchor="middle" class="ok">✓</text>
+        <text x="350" y="80" text-anchor="middle" class="ok">✓</text>
+        <text x="420" y="80" text-anchor="middle" class="ok">✓</text>
+        <text x="490" y="80" text-anchor="middle" class="bad">✗</text>
+
+        <text x="0"   y="100">Prometheus / Grafana / Alertmanager</text>
+        <text x="280" y="100" text-anchor="middle" class="bad">✗</text>
+        <text x="350" y="100" text-anchor="middle" class="bad">✗</text>
+        <text x="420" y="100" text-anchor="middle" class="bad">✗</text>
+        <text x="490" y="100" text-anchor="middle" class="bad">✗</text>
+      </g>
+    </g>
+
+    <!-- GitOps -->
+    <g transform="translate(580,40)">
+      <rect class="box" x="0" y="0" width="540" height="150" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">GitOps — ArgoCD App-of-Apps</text>
+      <text x="14" y="40" class="sub">argocd-apps/{env}/ — root Application points at this repo on <tspan font-family="monospace">main</tspan></text>
+      <text x="14" y="56" class="sub">syncPolicy: automated · prune · selfHeal (identical for DEV / QA / PRE / PRD)</text>
+      <text x="14" y="72" class="bad">⚠⚠ PRD auto-syncs from <tspan font-family="monospace">main</tspan> — no tag pinning, no manual gate</text>
+      <text x="14" y="88" class="bad">⚠⚠ AppProject prod-project allows sourceRepos: ['*']</text>
+      <text x="14" y="104" class="bad">⚠⚠ argocd-repo-secret.yaml committed with placeholder PAT</text>
+      <text x="14" y="124" class="warn">⚠ Image refs use mutable short-SHA tags (no digest); promote via scripts/bump-image.sh</text>
+      <text x="14" y="140" class="bad">✗ No CODEOWNERS · ✗ No branch protection asserted in repo</text>
+    </g>
+
+    <!-- Observability -->
+    <g transform="translate(1140,40)">
+      <rect class="box" x="0" y="0" width="560" height="150" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Observability (sparse)</text>
+      <text x="14" y="40" class="warn">⚠ Sentry — env vars (OMNI_/FLOW_SENTRY_DSN) wired; DSNs EMPTY in config/clients.yaml</text>
+      <text x="14" y="56" class="bad">✗ Prometheus / Grafana / Alertmanager / PrometheusRules — none deployed</text>
+      <text x="14" y="72" class="bad">✗ OpenTelemetry (OTel) collector — none; apps not instrumented</text>
+      <text x="14" y="88" class="bad">✗ Centralised logs — RSYS_HOST/PORT placeholders, no Fluent Bit / Loki / EFK</text>
+      <text x="14" y="104" class="bad">✗ K8s API audit log sink (BQ/GCS) · ✗ ArgoCD audit retention</text>
+      <text x="14" y="120" class="bad">✗ kube-state-metrics · ✗ node-exporter · ✗ blackbox / synthetics</text>
+      <text x="14" y="136" class="bad">✗ Service Level Objectives (SLOs) · ✗ alert routing (Slack / PagerDuty)</text>
+    </g>
+  </g>
+
+  <!-- ===================== CI/CD + CLUSTER PLATFORM + TERRAFORM ===================== -->
+  <g transform="translate(40,1200)">
+    <rect class="zone" x="0" y="0" width="1720" height="240"/>
+    <text x="14" y="20" class="zoneTitle">CI / CD · CLUSTER PLATFORM · INFRASTRUCTURE-AS-CODE (IaC)</text>
+
+    <!-- CI/CD -->
+    <g transform="translate(20,40)">
+      <rect class="box" x="0" y="0" width="540" height="190" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">CI / CD &amp; validation</text>
+      <text x="14" y="40" class="ok">✓ GitHub Actions: yamllint · kubectl --dry-run · kustomize build · PR-title CRE-{n}: gate</text>
+      <text x="14" y="58" class="ok">✓ Pre-commit: yamllint · shellcheck · hadolint · detect-secrets · cspell · commitizen</text>
+      <text x="14" y="76" class="bad">✗ No conftest / Open Policy Agent (OPA) gate</text>
+      <text x="14" y="92" class="bad">✗ No kubeconform / kubeval schema validation</text>
+      <text x="14" y="108" class="bad">✗ No tfsec / checkov / terrascan IaC scan</text>
+      <text x="14" y="124" class="bad">✗ No Trivy / Grype container image vulnerability scan</text>
+      <text x="14" y="140" class="bad">✗ No <tspan font-family="monospace">terraform plan</tspan> on PR (drift undetected)</text>
+      <text x="14" y="156" class="bad">✗ No CODEOWNERS · ✗ No SBOM / signed-commit / sigstore</text>
+      <text x="14" y="174" class="warn">⚠ Promotion via scripts/promote-services.sh + bump-image.sh (manual SHA pin)</text>
+    </g>
+
+    <!-- Cluster platform -->
+    <g transform="translate(580,40)">
+      <rect class="box" x="0" y="0" width="540" height="190" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Cluster platform — GKE</text>
+      <rect class="badgeFill" x="500" y="6" width="40" height="18" rx="5" fill="#3b82f6"/><text x="520" y="20" text-anchor="middle" class="pillTxt">ALL</text>
+      <text x="14" y="40" class="ok">✓ Regional cluster · private nodes · WI on · Network Policy on</text>
+      <text x="14" y="56" class="ok">✓ Shielded nodes (secure boot + integrity monitoring)</text>
+      <text x="14" y="72" class="ok">✓ Cloud NAT (AUTO_ONLY) · single shared NAT IP · cost-optimised</text>
+      <text x="14" y="88" class="bad">⚠⚠ Public control-plane endpoint with Master Authorized Networks (MAN) defaulting to 0.0.0.0/0</text>
+      <text x="14" y="104" class="bad">⚠ VPC firewall allows ALL protocols/ports inside subnet/pod/svc CIDRs</text>
+      <text x="14" y="120" class="bad">⚠ No Customer-Managed Encryption Keys (CMEK) on PD-SSD / Cloud SQL / GSM</text>
+      <text x="14" y="136" class="bad">✗ No Binary Authorization (BA) · ✗ No admission policy (Kyverno / Gatekeeper)</text>
+      <text x="14" y="152" class="bad">✗ No GKE Backup · ✗ No Velero · ✗ No PV snapshot schedule</text>
+      <text x="14" y="170" class="bad">⚠⚠ Single region (asia-south1) — no DR / pilot-light secondary</text>
+    </g>
+
+    <!-- Terraform / IaC -->
+    <g transform="translate(1140,40)">
+      <rect class="box" x="0" y="0" width="560" height="190" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Terraform — IaC scope</text>
+      <text x="14" y="40" class="ok">✓ <tspan font-family="monospace">terraform/environments/gcp/prod</tspan> exists</text>
+      <text x="14" y="56" class="ok">✓ Modules: gke-cluster · gcp-vpc · gcp-cloudsql-postgres · gcp-redis</text>
+      <text x="14" y="72" class="ok">✓ Remote state in GCS (state locking via GCS)</text>
+      <text x="14" y="92" class="bad">⚠⚠ DEV / QA / PRE provisioned via cluster/scripts/bootstrap-gcp.sh (gcloud) — drift-prone, no remote state</text>
+      <text x="14" y="108" class="bad">✗ No tfvars examples / no documented secret rotation</text>
+      <text x="14" y="124" class="bad">✗ No required_version pin in versions.tf</text>
+      <text x="14" y="140" class="bad">✗ No drift detection (no scheduled <tspan font-family="monospace">terraform plan</tspan>)</text>
+      <text x="14" y="156" class="warn">⚠ IAM bindings for ESO / external-dns / KEDA done in bash, not TF</text>
+      <text x="14" y="172" class="warn">⚠ Workload Identity GSA↔KSA bindings created post-hoc by fix-external-secrets-auth.sh</text>
+    </g>
+  </g>
+
+  <!-- ===================== ACRONYM GLOSSARY ===================== -->
+  <g transform="translate(40,1450)">
+    <text x="0" y="0" class="sub">
+      <tspan font-weight="700">Acronyms — </tspan>
+      <tspan>HPA = Horizontal Pod Autoscaler · KEDA = Kubernetes Event-Driven Autoscaling · PDB = Pod Disruption Budget · PSA = Pod Security Admission · </tspan>
+      <tspan>WI = Workload Identity · GSA = Google Service Account · KSA = Kubernetes Service Account · ESO = External Secrets Operator · GSM = Google Secret Manager · </tspan>
+      <tspan>NEG = Network Endpoint Group · NP = Network Policy · MAN = Master Authorized Networks · CMEK = Customer-Managed Encryption Keys · BA = Binary Authorization · </tspan>
+      <tspan>WAF = Web Application Firewall · SLO = Service Level Objective · OTel = OpenTelemetry · OPA = Open Policy Agent · SBOM = Software Bill of Materials · </tspan>
+      <tspan>PITR = Point-In-Time Recovery · DR = Disaster Recovery · HA = High Availability · IaC = Infrastructure-as-Code · PAT = Personal Access Token</tspan>
+    </text>
+  </g>
+</svg>

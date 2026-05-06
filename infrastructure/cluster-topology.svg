@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1880 1140" font-family="Inter, -apple-system, 'Helvetica Neue', sans-serif" font-size="12">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <style><![CDATA[
+      .title    { font-size:24px; font-weight:800; fill:#0f172a; }
+      .sub      { fill:#475569; font-size:11.5px; }
+      .h2       { font-size:14px; font-weight:700; fill:#0f172a; }
+      .h3       { font-size:12.5px; font-weight:700; fill:#0f172a; }
+      .lbl      { fill:#0f172a; font-size:11.5px; }
+      .small    { fill:#475569; font-size:11px; }
+      .mono     { font-family: 'SF Mono', Menlo, monospace; font-size:11px; fill:#0f172a; }
+      .ok       { fill:#059669; font-weight:700; }
+      .warn     { fill:#d97706; font-weight:700; }
+      .bad      { fill:#dc2626; font-weight:700; }
+      .pillTxt  { font-size:10.5px; font-weight:700; fill:#fff; letter-spacing:0.4px; }
+      .zone     { fill:#f8fafc; stroke:#94a3b8; stroke-width:1.2; stroke-dasharray:5,4; rx:14; ry:14; }
+      .card     { fill:#ffffff; stroke-width:2; rx:14; ry:14; }
+      .section  { fill:#ffffff; stroke:#e2e8f0; stroke-width:1; rx:8; ry:8; }
+      .nsbox    { fill:#f8fafc; stroke:#cbd5e1; stroke-width:1; rx:6; ry:6; }
+      .arrow    { stroke:#475569; stroke-width:1.5; fill:none; }
+    ]]></style>
+  </defs>
+
+  <!-- ========== HEADER ========== -->
+  <text x="40" y="38" class="title">crego-infra — Per-Cluster Topology</text>
+  <text x="40" y="58" class="sub">3 separate GKE clusters in asia-south1 · same App-of-Apps pattern · same ESO secrets pipeline · diverging addon footprint between envs · DEV cluster hosts development + qa1 + qa2 namespaces</text>
+
+  <!-- Status legend -->
+  <g transform="translate(1500,20)">
+    <text x="0" y="14" class="h2">Status</text>
+    <text x="0"  y="38" class="ok">✓</text><text x="14" y="38" class="small">deployed</text>
+    <text x="80" y="38" class="warn">⚠</text><text x="94" y="38" class="small">partial / risk</text>
+    <text x="180" y="38" class="bad">✗</text><text x="194" y="38" class="small">missing</text>
+    <text x="0"  y="58" class="bad">⚠⚠</text><text x="22" y="58" class="small">critical / blocker</text>
+  </g>
+
+  <!-- ========== SHARED SOURCE-OF-TRUTH STRIP ========== -->
+  <g transform="translate(20,90)">
+    <rect class="zone" width="1840" height="60"/>
+    <text x="20" y="22" class="h2">Source of truth → GitHub: crego-tech/crego-infra · branch <tspan class="mono">main</tspan> · single repo</text>
+    <text x="20" y="42" class="small">Each cluster runs its own ArgoCD instance; pulls <tspan class="mono">argocd-apps/{env}-gcp/</tspan> + <tspan class="mono">addons/{env}-gcp/</tspan> + <tspan class="mono">overlays/{env}-gcp/</tspan> + <tspan class="mono">base/{env}-gcp/</tspan>. Sync policy <tspan class="mono">automated/prune/selfHeal</tspan> identical in all envs (incl. PRD ⚠⚠)</text>
+  </g>
+
+  <!-- =================================================================== -->
+  <!-- ========== DEV CLUSTER (x=20) ====================================== -->
+  <!-- =================================================================== -->
+  <g transform="translate(20,170)">
+    <rect class="card" width="600" height="850" stroke="#10b981"/>
+
+    <!-- Cluster header -->
+    <rect x="0" y="0" width="600" height="60" rx="14" fill="#10b981"/>
+    <rect x="0" y="42" width="600" height="18" fill="#10b981"/>
+    <text x="20" y="26" fill="#ffffff" font-size="18" font-weight="800">DEV CLUSTER · gke-dev</text>
+    <text x="20" y="48" fill="#ecfdf5" font-size="11.5">asia-south1 · regional · private nodes · WI on · NetworkPolicy on · 1 cluster, 3 namespaces</text>
+
+    <!-- Edge / Ingress -->
+    <g transform="translate(10,72)">
+      <rect class="section" width="580" height="100"/>
+      <text x="12" y="20" class="h3">Edge — NGINX Ingress Controller (public LB IP)</text>
+      <text x="12" y="40" class="small">cert-manager · Let's Encrypt HTTP-01 · staging + prod ClusterIssuer</text>
+      <text x="12" y="56" class="small">Path-prefix routing — services on :8000 (Flower :5555) · no URL rewrite</text>
+      <text x="12" y="76" class="warn">⚠ NGINX install not in GitOps — replicas/version unpinned, default = 1 replica</text>
+      <text x="12" y="92" class="warn">⚠ HTTP-01 only — no DNS-01 → no wildcard certs, LE rate-limit risk per tenant</text>
+    </g>
+
+    <!-- Namespaces / Workloads -->
+    <g transform="translate(10,182)">
+      <rect class="section" width="580" height="252"/>
+      <text x="12" y="20" class="h3">Namespaces &amp; workloads (App-of-Apps per env)</text>
+
+      <!-- development NS -->
+      <g transform="translate(12,30)">
+        <rect class="nsbox" width="556" height="68"/>
+        <text x="10" y="16" class="h3"><tspan class="mono">development</tspan> namespace</text>
+        <text x="10" y="34" class="small">APIs: omni-api · flow-api  (HPA 1-3 CPU 70%)</text>
+        <text x="10" y="48" class="small">Web: omni-web · flow-web  ·  Monitor: flower (no HPA)</text>
+        <text x="10" y="62" class="small">Workers: omni-celery-{worker,beat} · flow-celery-worker  (KEDA: RabbitMQ depth 50 + CPU 80%)</text>
+      </g>
+
+      <!-- qa1 NS -->
+      <g transform="translate(12,104)">
+        <rect class="nsbox" width="556" height="56"/>
+        <text x="10" y="16" class="h3"><tspan class="mono">qa1</tspan> namespace · QA env-1</text>
+        <text x="10" y="34" class="small">Same workload set as <tspan class="mono">development</tspan> · scaled-down replicas</text>
+        <text x="10" y="50" class="small">Pulls overlays/qa1-gcp · base/qa1-gcp · own ArgoCD Application set</text>
+      </g>
+
+      <!-- qa2 NS -->
+      <g transform="translate(12,166)">
+        <rect class="nsbox" width="556" height="56"/>
+        <text x="10" y="16" class="h3"><tspan class="mono">qa2</tspan> namespace · QA env-2</text>
+        <text x="10" y="34" class="small">Same workload set · independent tenant config</text>
+        <text x="10" y="50" class="small">Pulls overlays/qa2-gcp · base/qa2-gcp</text>
+      </g>
+
+      <text x="12" y="240" class="warn">⚠ All 3 NS share single cluster — noisy-neighbour risk; no ResourceQuota/LimitRange per NS in repo</text>
+    </g>
+
+    <!-- Stateful data -->
+    <g transform="translate(10,444)">
+      <rect class="section" width="580" height="110"/>
+      <text x="12" y="20" class="h3">Stateful data (in-cluster, per namespace)</text>
+      <text x="12" y="40" class="small"><tspan class="mono">postgres</tspan> (PVC 150Gi) · <tspan class="mono">redis</tspan> (5Gi) · <tspan class="mono">rabbitmq</tspan> (10Gi) · <tspan class="mono">mongodb</tspan> (20Gi)</text>
+      <text x="12" y="56" class="small">StorageClass: <tspan class="mono">standard</tspan> · PVC ArgoCD sync-option: <tspan class="mono">Sync=false</tspan> (data preserved on prune)</text>
+      <text x="12" y="76" class="warn">⚠ Single replica each · ⚠ No backup CronJob in repo · ⚠ No VolumeSnapshot schedule</text>
+      <text x="12" y="94" class="small">Acceptable for DEV ergonomics; QA1/QA2 inherit same posture</text>
+    </g>
+
+    <!-- Addons -->
+    <g transform="translate(10,564)">
+      <rect class="section" width="580" height="115"/>
+      <text x="12" y="20" class="h3">Cluster-wide addons (argocd-apps/dev-gcp + addons/dev-gcp)</text>
+      <text x="12" y="40" class="ok">✓ cert-manager  ✓ external-dns  ✓ External Secrets Operator (ESO)  ✓ KEDA</text>
+      <text x="12" y="58" class="bad">✗ Prometheus / Grafana / Alertmanager  ✗ OpenTelemetry collector  ✗ Loki/Fluent Bit</text>
+      <text x="12" y="76" class="bad">✗ kube-state-metrics  ✗ node-exporter  ✗ blackbox / synthetics</text>
+      <text x="12" y="96" class="warn">⚠ Sentry env vars wired in apps but DSNs empty in <tspan class="mono">config/clients.yaml</tspan></text>
+    </g>
+
+    <!-- GitOps + Secrets + NAT -->
+    <g transform="translate(10,689)">
+      <rect class="section" width="580" height="151"/>
+      <text x="12" y="20" class="h3">GitOps · Secrets · Egress</text>
+      <text x="12" y="40" class="small"><tspan font-weight="700">ArgoCD:</tspan> argocd-apps/{dev,qa1,qa2}-gcp/ — App-of-Apps · syncs <tspan class="mono">main</tspan> · prune + selfHeal</text>
+      <text x="12" y="58" class="small"><tspan font-weight="700">Secrets backend:</tspan> GSM project <tspan class="mono">crego-app-dev</tspan> · keys <tspan class="mono">app-dev / app-qa1 / app-qa2</tspan></text>
+      <text x="12" y="74" class="small">ESO ClusterSecretStore <tspan class="mono">cloud-sm</tspan> · WI: <tspan class="mono">eso-sa</tspan> KSA per NS → GSA <tspan class="mono">eso-sa@crego-app-dev</tspan></text>
+      <text x="12" y="92" class="small"><tspan font-weight="700">Egress:</tspan> Cloud NAT (AUTO_ONLY) — single regional IP for all outbound</text>
+      <text x="12" y="112" class="warn">⚠ argocd-repo-secret.yaml contains placeholder GitHub PAT (auth out-of-band)</text>
+      <text x="12" y="130" class="warn">⚠ AppProjects allow <tspan class="mono">'*'</tspan> sourceRepos in repo bootstrap</text>
+      <text x="12" y="146" class="warn">⚠ Egress NetworkPolicy still allows 0.0.0.0/0</text>
+    </g>
+  </g>
+
+  <!-- =================================================================== -->
+  <!-- ========== PREPROD CLUSTER (x=640) ================================= -->
+  <!-- =================================================================== -->
+  <g transform="translate(640,170)">
+    <rect class="card" width="600" height="850" stroke="#f59e0b"/>
+
+    <rect x="0" y="0" width="600" height="60" rx="14" fill="#f59e0b"/>
+    <rect x="0" y="42" width="600" height="18" fill="#f59e0b"/>
+    <text x="20" y="26" fill="#ffffff" font-size="18" font-weight="800">PREPROD CLUSTER · gke-preprod</text>
+    <text x="20" y="48" fill="#fff7ed" font-size="11.5">asia-south1 · regional · private nodes · WI on · NetworkPolicy on · 1 cluster, 1 namespace</text>
+
+    <!-- Edge -->
+    <g transform="translate(10,72)">
+      <rect class="section" width="580" height="100"/>
+      <text x="12" y="20" class="h3">Edge — NGINX Ingress Controller (public LB IP)</text>
+      <text x="12" y="40" class="small">cert-manager · Let's Encrypt HTTP-01 · staging + prod ClusterIssuer</text>
+      <text x="12" y="56" class="small">Path-prefix routing — services on :8000 (Flower :5555)</text>
+      <text x="12" y="76" class="warn">⚠ NGINX install not in GitOps · default = 1 replica</text>
+      <text x="12" y="92" class="warn">⚠ HTTP-01 only — same wildcard / rate-limit caveats as DEV</text>
+    </g>
+
+    <!-- Namespace -->
+    <g transform="translate(10,182)">
+      <rect class="section" width="580" height="252"/>
+      <text x="12" y="20" class="h3">Namespace &amp; workloads</text>
+
+      <g transform="translate(12,30)">
+        <rect class="nsbox" width="556" height="206"/>
+        <text x="10" y="18" class="h3"><tspan class="mono">preproduction</tspan> namespace</text>
+        <text x="10" y="38" class="small"><tspan font-weight="700">APIs:</tspan> omni-api · flow-api  (HPA 1-3 CPU 70%)</text>
+        <text x="10" y="54" class="small"><tspan font-weight="700">Web:</tspan> omni-web · flow-web  ·  <tspan font-weight="700">Monitor:</tspan> flower (no HPA, no auth annotation)</text>
+        <text x="10" y="70" class="small"><tspan font-weight="700">Beat (singleton):</tspan> omni-celery-beat (no PDB, no leader election)</text>
+        <text x="10" y="86" class="small"><tspan font-weight="700">Workers:</tspan> flow-celery-worker (KEDA on RabbitMQ depth)</text>
+        <text x="10" y="106" class="warn">⚠ 14 tenant-specific omni-celery-worker variants</text>
+        <text x="10" y="122" class="small">    (hand-edited in <tspan class="mono">overlays/preprod-gcp/kustomization.yaml</tspan> ~450 lines)</text>
+        <text x="10" y="146" class="small"><tspan font-weight="700">Use case:</tspan> client UAT, release candidate verification</text>
+        <text x="10" y="166" class="warn">⚠ Web/flower replicas: 1 — same posture as DEV</text>
+        <text x="10" y="186" class="bad">⚠⚠ No PDBs · no podAntiAffinity · same as every other env</text>
+      </g>
+    </g>
+
+    <!-- Stateful -->
+    <g transform="translate(10,444)">
+      <rect class="section" width="580" height="110"/>
+      <text x="12" y="20" class="h3">Stateful data (in-cluster — DOES NOT mirror PROD)</text>
+      <text x="12" y="40" class="small"><tspan class="mono">postgres · redis · rabbitmq · mongodb</tspan> all in-cluster, single replica, PVC-backed</text>
+      <text x="12" y="60" class="bad">⚠⚠ PRE topology diverges from PROD — promotion can surprise</text>
+      <text x="12" y="78" class="small">Should mirror PROD (Cloud SQL + Memorystore) to be a useful release gate</text>
+      <text x="12" y="96" class="warn">⚠ <tspan class="mono">USE_EXTERNAL_POSTGRESQL=false</tspan> in preprod overlay (vs <tspan class="mono">true</tspan> in prod)</text>
+    </g>
+
+    <!-- Addons -->
+    <g transform="translate(10,564)">
+      <rect class="section" width="580" height="115"/>
+      <text x="12" y="20" class="h3">Cluster-wide addons (argocd-apps/preprod-gcp + addons/preprod-gcp)</text>
+      <text x="12" y="40" class="ok">✓ cert-manager  ✓ external-dns  ✓ External Secrets Operator (ESO)  ✓ KEDA</text>
+      <text x="12" y="58" class="bad">✗ Prometheus / Grafana / Alertmanager  ✗ OpenTelemetry collector</text>
+      <text x="12" y="76" class="bad">✗ Centralised logs · ✗ kube-state-metrics · ✗ node-exporter</text>
+      <text x="12" y="96" class="warn">⚠ Same observability gap as DEV — release candidates fly blind on PRE</text>
+    </g>
+
+    <!-- GitOps + Secrets + NAT -->
+    <g transform="translate(10,689)">
+      <rect class="section" width="580" height="151"/>
+      <text x="12" y="20" class="h3">GitOps · Secrets · Egress</text>
+      <text x="12" y="40" class="small"><tspan font-weight="700">ArgoCD:</tspan> argocd-apps/preprod-gcp/ · syncs <tspan class="mono">main</tspan> · prune + selfHeal · git+ssh repo auth</text>
+      <text x="12" y="58" class="small"><tspan font-weight="700">Secrets backend:</tspan> GSM project <tspan class="mono">crego-app-preprod</tspan> · key <tspan class="mono">app-preprod</tspan></text>
+      <text x="12" y="74" class="small">ESO ClusterSecretStore <tspan class="mono">cloud-sm</tspan> · WI: <tspan class="mono">eso-sa</tspan> KSA → GSA</text>
+      <text x="12" y="92" class="small"><tspan font-weight="700">Egress:</tspan> Cloud NAT (AUTO_ONLY) — single regional IP</text>
+      <text x="12" y="112" class="warn">⚠ Same auto-sync from <tspan class="mono">main</tspan> as DEV — no PRE-specific approval gate</text>
+      <text x="12" y="130" class="warn">⚠ Same NetworkPolicy egress 0.0.0.0/0 issue as DEV</text>
+      <text x="12" y="146" class="small">Cluster bootstrapped via <tspan class="mono">cluster/scripts/bootstrap-gcp.sh</tspan> — no Terraform</text>
+    </g>
+  </g>
+
+  <!-- =================================================================== -->
+  <!-- ========== PROD CLUSTER (x=1260) =================================== -->
+  <!-- =================================================================== -->
+  <g transform="translate(1260,170)">
+    <rect class="card" width="600" height="850" stroke="#ef4444"/>
+
+    <rect x="0" y="0" width="600" height="60" rx="14" fill="#ef4444"/>
+    <rect x="0" y="42" width="600" height="18" fill="#ef4444"/>
+    <text x="20" y="26" fill="#ffffff" font-size="18" font-weight="800">PROD CLUSTER · gke-prod</text>
+    <text x="20" y="48" fill="#fef2f2" font-size="11.5">asia-south1 · regional · private nodes · WI on · ⚠⚠ public CP endpoint MAN=0.0.0.0/0</text>
+
+    <!-- Edge -->
+    <g transform="translate(10,72)">
+      <rect class="section" width="580" height="100"/>
+      <text x="12" y="20" class="h3">Edge — GKE Gateway API (gke-l7-global-external-managed)</text>
+      <text x="12" y="40" class="small">Static IP <tspan class="mono">crego-prod-ip</tspan> · TLS via cert-map (Google-managed certs)</text>
+      <text x="12" y="56" class="small">Security headers (HSTS / CSP / X-XSS) injected on HTTPRoute</text>
+      <text x="12" y="74" class="small">NEG-backed (pod IP routing) · per-Service HealthCheckPolicy</text>
+      <text x="12" y="92" class="bad">⚠ No Cloud Armor / WAF · ⚠ no rate-limit policy in repo</text>
+    </g>
+
+    <!-- Namespace -->
+    <g transform="translate(10,182)">
+      <rect class="section" width="580" height="252"/>
+      <text x="12" y="20" class="h3">Namespace &amp; workloads</text>
+
+      <g transform="translate(12,30)">
+        <rect class="nsbox" width="556" height="206"/>
+        <text x="10" y="18" class="h3"><tspan class="mono">production</tspan> namespace</text>
+        <text x="10" y="38" class="small"><tspan font-weight="700">APIs:</tspan> omni-api (req 1000m/2Gi, lim 2000m/4Gi) · flow-api (req 500m/500Mi)</text>
+        <text x="10" y="54" class="small"><tspan font-weight="700">Web:</tspan> omni-web · flow-web  ·  <tspan font-weight="700">Monitor:</tspan> flower</text>
+        <text x="10" y="70" class="small"><tspan font-weight="700">Workers:</tspan> omni-celery-{worker,beat} · flow-celery-worker</text>
+        <text x="10" y="90" class="bad">⚠⚠ overlays/prod-gcp/kustomization.yaml overrides <tspan class="mono">replicas: 1</tspan> for ALL Deployments</text>
+        <text x="10" y="106" class="bad">      → defeats HPA (which is defined min=1 max=3 for APIs)</text>
+        <text x="10" y="126" class="warn">⚠ flower exposed without ingress auth annotation</text>
+        <text x="10" y="142" class="warn">⚠ readOnlyRootFilesystem: false on api/web/worker</text>
+        <text x="10" y="162" class="bad">⚠⚠ Zero PDBs · zero podAntiAffinity / topologySpreadConstraints</text>
+        <text x="10" y="186" class="small">Image refs: short-SHA tags (mutable, not digest-pinned)</text>
+      </g>
+    </g>
+
+    <!-- Stateful -->
+    <g transform="translate(10,444)">
+      <rect class="section" width="580" height="110"/>
+      <text x="12" y="20" class="h3">Stateful data (managed cloud services)</text>
+      <text x="12" y="40" class="ok">✓ Cloud SQL Postgres (private IP) — HA + PITR variable-driven via Terraform</text>
+      <text x="12" y="56" class="ok">✓ Memorystore Redis (VPC peering)</text>
+      <text x="12" y="72" class="small">External MongoDB (DSN injected via ESO; not managed in this repo)</text>
+      <text x="12" y="92" class="bad">⚠⚠ RabbitMQ STILL in-cluster: single replica, no HA, no backup, no PDB</text>
+    </g>
+
+    <!-- Addons -->
+    <g transform="translate(10,564)">
+      <rect class="section" width="580" height="115"/>
+      <text x="12" y="20" class="h3">Cluster-wide addons (addons/prod-gcp/ contains ESO ONLY)</text>
+      <text x="12" y="40" class="ok">✓ External Secrets Operator (ESO)</text>
+      <text x="12" y="58" class="bad">⚠⚠ ✗ cert-manager  ✗ external-dns  ✗ KEDA  ✗ Prometheus stack  ✗ OTel</text>
+      <text x="12" y="76" class="warn">⚠ Either confirm these are installed out-of-band, or copy preprod-gcp's addon set</text>
+      <text x="12" y="94" class="bad">⚠⚠ Without KEDA, celery workers cannot scale on RabbitMQ depth in PRD</text>
+    </g>
+
+    <!-- GitOps + Secrets + NAT -->
+    <g transform="translate(10,689)">
+      <rect class="section" width="580" height="151"/>
+      <text x="12" y="20" class="h3">GitOps · Secrets · Egress</text>
+      <text x="12" y="40" class="small"><tspan font-weight="700">ArgoCD:</tspan> argocd-apps/prod-gcp/ · git+ssh repo auth</text>
+      <text x="12" y="58" class="bad">⚠⚠ targetRevision: <tspan class="mono">main</tspan> + auto-sync + prune + selfHeal — any commit deploys to PRD</text>
+      <text x="12" y="76" class="bad">⚠⚠ AppProject <tspan class="mono">prod-project</tspan> allows <tspan class="mono">sourceRepos: ['*']</tspan></text>
+      <text x="12" y="96" class="small"><tspan font-weight="700">Secrets backend:</tspan> GSM project <tspan class="mono">crego-app-prod</tspan> · key <tspan class="mono">app-prod</tspan> · WI <tspan class="mono">eso-sa</tspan></text>
+      <text x="12" y="114" class="small"><tspan font-weight="700">Egress:</tspan> Cloud NAT (AUTO_ONLY) — single regional IP</text>
+      <text x="12" y="132" class="warn">⚠ VPC firewall allows ALL protocols/ports inside subnet/pod/svc CIDRs (<tspan class="mono">terraform/modules/gcp-vpc</tspan>)</text>
+      <text x="12" y="148" class="small">Provisioned by Terraform (only env that is) → <tspan class="mono">terraform/environments/gcp/prod</tspan></text>
+    </g>
+  </g>
+
+  <!-- ========== SHARED FOOTER ========== -->
+  <g transform="translate(20,1040)">
+    <rect class="zone" width="1840" height="80"/>
+    <text x="20" y="22" class="h2">Shared concerns (apply to all 3 clusters)</text>
+    <text x="20" y="42" class="bad">⚠⚠ Single region asia-south1 — no DR cluster, no GKE Backup, no Velero, no PV snapshot schedule, no cross-region replica</text>
+    <text x="20" y="58" class="bad">⚠⚠ No Pod Security Admission labels on any namespace · no PDBs · no podAntiAffinity / topologySpreadConstraints</text>
+    <text x="20" y="74" class="warn">⚠ No CMEK on PD-SSD / Cloud SQL / GSM · ⚠ No K8s API audit log sink · ⚠ No CODEOWNERS / branch protection asserted in repo</text>
+  </g>
+</svg>
