@@ -1405,6 +1405,51 @@
           </tr>
         </tbody>
       </table>
+
+      <div class="section-title">
+        <span class="icon icon-infra">🌐</span>
+        Platform IP Addresses
+      </div>
+      <p style="color: var(--text-dim); margin-bottom: 16px;">
+        <strong>Egress</strong> IPs are the outbound NAT addresses our pods use when calling third-party vendor APIs — share these with vendors who need to whitelist our outbound traffic.
+        <strong>Ingress</strong> IPs are the inbound addresses vendors use to reach our services.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Environment</th>
+            <th>Egress (Outbound — NAT IPs)</th>
+            <th>Ingress (Inbound — Main app)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-cyan">Dev</span></td>
+            <td><span class="mono">34.93.169.151</span></td>
+            <td><span class="mono">34.111.207.61</span></td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-orange">Preprod</span></td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                <span class="mono">34.47.153.186</span>
+                <span class="mono">35.244.57.192</span>
+              </div>
+            </td>
+            <td><span class="mono">35.190.126.196</span></td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-red">Prod</span></td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                <span class="mono">34.100.213.44</span>
+                <span class="mono">34.47.139.78</span>
+              </div>
+            </td>
+            <td><span class="mono">34.54.253.214</span></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- Monitoring & DX Panel -->
