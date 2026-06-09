@@ -1,5 +1,8 @@
 # Tyger Capital V1 → V2 Migration — Role‑Based Checklist
 
+- **Cutover (T):** Sunday, 5 July 2026 (12:00 AM – 7:00 AM IST)
+- **Launch (T+1):** Monday, 6 July 2026
+
 Reference: [Migration Plan](tiger-capital-v1-to-v2-migration-plan.md)
 
 ---

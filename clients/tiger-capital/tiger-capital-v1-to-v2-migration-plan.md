@@ -1,8 +1,8 @@
 # Tyger Capital V1 → V2 Migration Plan
 
-- **Launch date:** `{LAUNCH_DATE}` *(to be confirmed)*
-- **Cutover (T):** `{MIGRATION_DATE}` — Sunday *(to be confirmed)*
-- **Downtime window:** Sunday cutover day (exact hours TBD)
+- **Launch date:** 6 July 2026 (Monday)
+- **Cutover (T):** 5 July 2026 — Sunday
+- **Downtime window:** 12:00 AM – 7:00 AM IST, Sunday 5 July 2026
 - **Source (V1):** `tyger.jupiter.crego.io` — Crego Jupiter platform
 - **Target (V2):** `tyger.crego.ai` — Crego V2 platform
 - **Parallel‑run period:** 14 days post‑cutover (or until next month‑end) — both V1 and V2 are live; Tyger Capital team works primarily on V2 while also entering data into V1
@@ -78,9 +78,9 @@ Steps:
 - Dry‑run the H2H flow end‑to‑end on V2 using test data.
 - Keep V1 IPs whitelisted with SBI for the parallel‑run period.
 
-### 3.5 Communications (T‑2 to T‑1)
+### 3.5 Communications (T‑1, Saturday 4 July 2026)
 
-- Send downtime notice to Tyger Capital stakeholders and end‑users for Sunday `{MIGRATION_DATE}`.
+- Send downtime notice to Tyger Capital stakeholders and end‑users for Sunday 5 July 2026 (12:00 AM – 7:00 AM IST).
 - Communicate the parallel‑run policy: "V1 and V2 will both remain live for 14 days (or until month‑end). Tyger Capital team will primarily use V2 while also entering data into V1. Once V1 and V2 reports match and the team is confident, V1 will be decommissioned."
 - War‑room bridge, Slack channel, and on‑call rota confirmed.
 
@@ -99,7 +99,7 @@ Go/No‑Go checklist must be green:
 
 ---
 
-## 4. Cutover Timeline — Sunday `{MIGRATION_DATE}`
+## 4. Cutover Timeline — Sunday `5 July 2026`
 
 | Time (IST)    | Activity                                                                                                   |
 | ------------- | ---------------------------------------------------------------------------------------------------------- |
