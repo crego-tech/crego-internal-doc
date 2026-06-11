@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1280" font-family="Inter, -apple-system, 'Helvetica Neue', sans-serif" font-size="13">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <style><![CDATA[
+      .box      { fill:#ffffff; stroke:#1f2937; stroke-width:1.5; rx:10; ry:10; }
+      .zone     { fill:#f8fafc; stroke:#94a3b8; stroke-width:1.2; stroke-dasharray:5,4; rx:14; ry:14; }
+      .zoneTitle{ font-weight:700; fill:#0f172a; font-size:14px; }
+      .lbl      { fill:#0f172a; }
+      .sub      { fill:#475569; font-size:11.5px; }
+      .small    { fill:#475569; font-size:11px; }
+      .title    { font-size:24px; font-weight:800; fill:#0f172a; }
+      .h2       { font-size:15px; font-weight:700; fill:#0f172a; }
+      .ok       { fill:#059669; font-weight:700; }
+      .pillTxt  { font-size:10.5px; font-weight:700; fill:#fff; letter-spacing:0.4px; }
+      .arrow    { stroke:#475569; stroke-width:1.6; fill:none; }
+      .badgeFill{ stroke:none; }
+      .mono     { font-family: 'SF Mono', Menlo, monospace; }
+    ]]></style>
+  </defs>
+
+  <!-- ===================== HEADER ===================== -->
+  <text x="40" y="38" class="title">Target Architecture — Single-Tenant (Client Cloud Deployed)</text>
+  <text x="40" y="58" class="sub">Production-only · cloud-agnostic (maps to AWS / Azure / GCP) · one dedicated stack per client · hardened baseline — all controls in place (✓)</text>
+
+  <!-- TARGET badge -->
+  <g transform="translate(1180,18)">
+    <rect class="badgeFill" x="0" y="0" width="150" height="26" rx="7" fill="#059669"/>
+    <text x="75" y="18" text-anchor="middle" class="pillTxt" font-size="12">TARGET / HARDENED</text>
+  </g>
+
+  <!-- Status legend -->
+  <g transform="translate(1360,20)">
+    <text x="0" y="14" class="h2">Status</text>
+    <g transform="translate(0,22)">
+      <text x="0"  y="15" class="ok">✓</text><text x="14" y="15" class="small">control implemented &amp; enforced</text>
+    </g>
+    <g transform="translate(0,46)" class="small">
+      <text x="0" y="0">Isolation model: dedicated cluster + dedicated managed data per client (strongest blast-radius containment)</text>
+    </g>
+  </g>
+
+  <!-- ===================== USERS / EDGE ===================== -->
+  <g transform="translate(40,110)">
+    <rect class="box" x="0" y="0" width="300" height="50" fill="#eff6ff" stroke="#3b82f6"/>
+    <text x="150" y="22" text-anchor="middle" class="lbl" font-weight="700">Client End Users</text>
+    <text x="150" y="40" text-anchor="middle" class="sub">HTTPS · client-owned domain / subdomains</text>
+  </g>
+  <line class="arrow" x1="190" y1="160" x2="190" y2="200" marker-end="url(#arrow)"/>
+
+  <!-- Edge layer -->
+  <g transform="translate(40,200)">
+    <rect class="zone" x="0" y="0" width="1720" height="118"/>
+    <text x="14" y="20" class="zoneTitle">EDGE — WAF · CDN · Managed L7 Gateway</text>
+    <g transform="translate(20,36)">
+      <rect class="box" x="0" y="0" width="1680" height="70" fill="#ecfdf5" stroke="#10b981"/>
+      <text x="20" y="24" class="lbl" font-weight="700">Cloud WAF + CDN (Cloud Armor / AWS WAF / Front Door) → Managed L7 Load Balancer · Gateway API</text>
+      <text x="20" y="42" class="sub">Static IP · Wildcard TLS via DNS-01 (cert-manager) · HSTS / CSP / X-Frame on every route · backed by health-checked endpoint groups → pod IPs</text>
+      <text x="20" y="60" class="ok">✓ Managed WAF ruleset (OWASP CRT) · ✓ Per-route rate-limiting &amp; bot control · ✓ DDoS protection · ✓ Geo / IP allow-listing for admin paths</text>
+    </g>
+  </g>
+  <line class="arrow" x1="900" y1="318" x2="900" y2="358" marker-end="url(#arrow)"/>
+
+  <!-- ===================== KUBERNETES NAMESPACE ===================== -->
+  <g transform="translate(40,358)">
+    <rect class="zone" x="0" y="0" width="1720" height="378"/>
+    <text x="14" y="20" class="zoneTitle">MANAGED KUBERNETES — single production namespace (dedicated cluster per client)</text>
+    <text x="14" y="38" class="sub">runAsNonRoot · drop ALL caps · readOnlyRootFilesystem · seccomp RuntimeDefault · HPA on APIs &amp; web · KEDA on workers · PDBs &amp; topology spread everywhere</text>
+
+    <!-- App tier -->
+    <g transform="translate(20,60)">
+      <rect class="box" x="0" y="0" width="820" height="120" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Application tier (HTTP)</text>
+      <g transform="translate(14,32)">
+        <rect class="box" x="0" y="0" width="148" height="74" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="74" y="18" text-anchor="middle" class="lbl" font-weight="700">omni-api</text>
+        <text x="74" y="34" text-anchor="middle" class="sub">/api/* · Django</text>
+        <text x="74" y="50" text-anchor="middle" class="ok">HPA min=2 max=N</text>
+        <text x="74" y="66" text-anchor="middle" class="ok">✓ PDB · anti-affinity</text>
+      </g>
+      <g transform="translate(170,32)">
+        <rect class="box" x="0" y="0" width="148" height="74" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="74" y="18" text-anchor="middle" class="lbl" font-weight="700">flow-api</text>
+        <text x="74" y="34" text-anchor="middle" class="sub">/flow/api/*</text>
+        <text x="74" y="50" text-anchor="middle" class="ok">HPA min=2 max=N</text>
+        <text x="74" y="66" text-anchor="middle" class="ok">✓ PDB · anti-affinity</text>
+      </g>
+      <g transform="translate(326,32)">
+        <rect class="box" x="0" y="0" width="148" height="74" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="74" y="18" text-anchor="middle" class="lbl" font-weight="700">omni-web</text>
+        <text x="74" y="34" text-anchor="middle" class="sub">/omni/* + / · React</text>
+        <text x="74" y="50" text-anchor="middle" class="ok">HPA min=2</text>
+        <text x="74" y="66" text-anchor="middle" class="ok">✓ PDB</text>
+      </g>
+      <g transform="translate(482,32)">
+        <rect class="box" x="0" y="0" width="148" height="74" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="74" y="18" text-anchor="middle" class="lbl" font-weight="700">flow-web</text>
+        <text x="74" y="34" text-anchor="middle" class="sub">/flow/* · React</text>
+        <text x="74" y="50" text-anchor="middle" class="ok">HPA min=2</text>
+        <text x="74" y="66" text-anchor="middle" class="ok">✓ PDB</text>
+      </g>
+      <g transform="translate(638,32)">
+        <rect class="box" x="0" y="0" width="168" height="74" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="84" y="18" text-anchor="middle" class="lbl" font-weight="700">flower</text>
+        <text x="84" y="34" text-anchor="middle" class="sub">Celery monitor</text>
+        <text x="84" y="50" text-anchor="middle" class="ok">✓ SSO / OAuth2-proxy</text>
+        <text x="84" y="66" text-anchor="middle" class="ok">✓ admin IP allow-list</text>
+      </g>
+    </g>
+
+    <!-- Worker tier -->
+    <g transform="translate(20,190)">
+      <rect class="box" x="0" y="0" width="820" height="100" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Async / Workers (event-driven)</text>
+      <g transform="translate(14,30)">
+        <rect class="box" x="0" y="0" width="248" height="60" fill="#fff7ed" stroke="#f59e0b"/>
+        <text x="124" y="20" text-anchor="middle" class="lbl" font-weight="700">omni-celery-worker</text>
+        <text x="124" y="36" text-anchor="middle" class="sub">KEDA: broker depth + CPU</text>
+        <text x="124" y="52" text-anchor="middle" class="ok">✓ PDB · min=2 max=N</text>
+      </g>
+      <g transform="translate(280,30)">
+        <rect class="box" x="0" y="0" width="248" height="60" fill="#fff7ed" stroke="#f59e0b"/>
+        <text x="124" y="20" text-anchor="middle" class="lbl" font-weight="700">flow-celery-worker</text>
+        <text x="124" y="36" text-anchor="middle" class="sub">KEDA same trigger model</text>
+        <text x="124" y="52" text-anchor="middle" class="ok">✓ PDB · min=2 max=N</text>
+      </g>
+      <g transform="translate(546,30)">
+        <rect class="box" x="0" y="0" width="260" height="60" fill="#fff7ed" stroke="#f59e0b"/>
+        <text x="130" y="20" text-anchor="middle" class="lbl" font-weight="700">celery-beat (singleton)</text>
+        <text x="130" y="36" text-anchor="middle" class="ok">✓ Leader-election lock</text>
+        <text x="130" y="52" text-anchor="middle" class="ok">✓ PDB maxUnavailable=0</text>
+      </g>
+    </g>
+
+    <!-- Identity & RBAC -->
+    <g transform="translate(860,60)">
+      <rect class="box" x="0" y="0" width="430" height="120" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Identity &amp; RBAC</text>
+      <text x="14" y="42" class="sub">One SA per app · Workload Identity / IRSA (no static keys)</text>
+      <text x="14" y="60" class="ok">✓ Least-privilege Role per SA — secrets scoped by name</text>
+      <text x="14" y="78" class="ok">✓ Pod Security Admission = restricted on namespace</text>
+      <text x="14" y="96" class="ok">✓ readOnlyRootFilesystem: true on api/web/worker</text>
+      <text x="14" y="112" class="ok">✓ Admission control (Kyverno/Gatekeeper) enforces policy</text>
+    </g>
+
+    <!-- Network policy -->
+    <g transform="translate(1310,60)">
+      <rect class="box" x="0" y="0" width="390" height="120" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Network Policy</text>
+      <text x="14" y="42" class="ok">✓ Default-deny ingress + egress baseline</text>
+      <text x="14" y="60" class="ok">✓ Scoped allow to DB / broker ports only</text>
+      <text x="14" y="78" class="ok">✓ Egress limited to DNS + HTTPS + known CIDRs</text>
+      <text x="14" y="96" class="ok">✓ NetworkPolicies on system namespaces too</text>
+      <text x="14" y="112" class="ok">✓ Inter-service allow-list per workload</text>
+    </g>
+
+    <!-- Secrets pipeline -->
+    <g transform="translate(860,190)">
+      <rect class="box" x="0" y="0" width="840" height="100" fill="#eff6ff" stroke="#3b82f6"/>
+      <text x="14" y="20" class="h2">Secrets pipeline — External Secrets Operator (ESO)</text>
+      <text x="14" y="40" class="sub">ExternalSecret → SecretStore → K8s Secret (refresh 5m) · backend = cloud Secret Manager (ASM / GSM / Key Vault) via Workload Identity</text>
+      <text x="14" y="58" class="ok">✓ CMEK / customer-managed keys on secret store + disks · ✓ Automated rotation policy (≤90d) with versioned references</text>
+      <text x="14" y="76" class="ok">✓ No secrets in Git — repo creds via sealed/ESO · ✓ Secret access audit-logged · ✓ envelope encryption end-to-end</text>
+      <text x="14" y="94" class="sub">No long-lived service-account keys anywhere in the pipeline.</text>
+    </g>
+
+    <!-- resilience row -->
+    <g transform="translate(20,300)">
+      <rect class="box" x="0" y="0" width="1680" height="64" fill="#ecfdf5" stroke="#10b981"/>
+      <text x="14" y="20" class="h2">In-cluster resilience &amp; supply-chain (cluster-wide)</text>
+      <text x="14" y="40" class="ok">✓ PodDisruptionBudgets on all workloads · ✓ podAntiAffinity + topologySpreadConstraints across zones · ✓ startup + liveness + readiness probes</text>
+      <text x="14" y="56" class="ok">✓ Right-sized requests≈limits (no OOM) · ✓ Images digest-pinned &amp; signed (cosign) · ✓ Binary Authorization admits only signed, scanned images</text>
+    </g>
+  </g>
+  <line class="arrow" x1="900" y1="736" x2="900" y2="776" marker-end="url(#arrow)"/>
+
+  <!-- ===================== DATA TIER ===================== -->
+  <g transform="translate(40,776)">
+    <rect class="zone" x="0" y="0" width="1720" height="152"/>
+    <text x="14" y="20" class="zoneTitle">DATA TIER — fully managed, HA, private (dedicated per client)</text>
+    <g transform="translate(20,36)">
+      <rect class="box" x="0" y="0" width="1680" height="100" fill="#fef2f2" stroke="#ef4444"/>
+      <text x="14" y="24" class="h2">Managed cloud data services — private endpoints only</text>
+      <text x="14" y="46" class="sub">Managed PostgreSQL (RDS / Cloud SQL / Flexible Server) · Managed Redis (ElastiCache / Memorystore) · Managed Message Broker (Amazon MQ / CloudAMQP / RabbitMQ-HA operator) · Managed MongoDB (Atlas / DocumentDB)</text>
+      <text x="14" y="66" class="ok">✓ Multi-AZ HA + automatic failover · ✓ PITR + scheduled backups with tested restore · ✓ CMEK encryption at rest · ✓ TLS in transit</text>
+      <text x="14" y="84" class="ok">✓ No data services run in-cluster in production — message broker is managed/HA too · ✓ Private IP, reachable only via scoped firewall + NetworkPolicy</text>
+    </g>
+  </g>
+
+  <!-- ===================== ADDONS / GITOPS / OBSERVABILITY ===================== -->
+  <g transform="translate(40,948)">
+    <rect class="zone" x="0" y="0" width="1720" height="150"/>
+    <text x="14" y="20" class="zoneTitle">PLATFORM ADDONS · GITOPS · OBSERVABILITY</text>
+
+    <g transform="translate(20,34)">
+      <rect class="box" x="0" y="0" width="540" height="106" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Addons (all enabled in prod)</text>
+      <text x="14" y="40" class="ok">✓ cert-manager (DNS-01 wildcard) · ✓ external-dns</text>
+      <text x="14" y="58" class="ok">✓ External Secrets Operator · ✓ KEDA autoscaler</text>
+      <text x="14" y="76" class="ok">✓ Kyverno/Gatekeeper admission · ✓ Velero backup</text>
+      <text x="14" y="94" class="ok">✓ Identical addon set across all environments</text>
+    </g>
+
+    <g transform="translate(580,34)">
+      <rect class="box" x="0" y="0" width="540" height="106" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">GitOps — ArgoCD App-of-Apps</text>
+      <text x="14" y="40" class="ok">✓ Prod syncs from immutable Git tag (no auto-track of main)</text>
+      <text x="14" y="58" class="ok">✓ Manual approval gate / sync window for production</text>
+      <text x="14" y="76" class="ok">✓ AppProject restricted to specific source repos &amp; dests</text>
+      <text x="14" y="94" class="ok">✓ CODEOWNERS + branch protection + signed commits</text>
+    </g>
+
+    <g transform="translate(1140,34)">
+      <rect class="box" x="0" y="0" width="560" height="106" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Observability (full stack)</text>
+      <text x="14" y="40" class="ok">✓ Prometheus + Grafana + Alertmanager + kube-state-metrics</text>
+      <text x="14" y="58" class="ok">✓ OpenTelemetry tracing · ✓ Sentry DSNs configured</text>
+      <text x="14" y="76" class="ok">✓ Centralized logs (Loki / EFK) · ✓ K8s audit log sink</text>
+      <text x="14" y="94" class="ok">✓ SLOs defined · ✓ alert routing to PagerDuty / Slack</text>
+    </g>
+  </g>
+
+  <!-- ===================== CI/CD + PLATFORM + IAC ===================== -->
+  <g transform="translate(40,1118)">
+    <rect class="zone" x="0" y="0" width="1720" height="118"/>
+    <text x="14" y="20" class="zoneTitle">CI/CD · CLUSTER PLATFORM · INFRASTRUCTURE-AS-CODE</text>
+
+    <g transform="translate(20,34)">
+      <rect class="box" x="0" y="0" width="540" height="74" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="18" class="h2" font-size="13.5">CI/CD &amp; supply chain</text>
+      <text x="14" y="36" class="ok">✓ OPA/conftest + kubeconform schema gates</text>
+      <text x="14" y="52" class="ok">✓ tfsec / checkov · ✓ Trivy image scan · ✓ SBOM + cosign</text>
+      <text x="14" y="68" class="ok">✓ terraform plan on PR · ✓ PR-title + CODEOWNERS gates</text>
+    </g>
+    <g transform="translate(580,34)">
+      <rect class="box" x="0" y="0" width="540" height="74" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="18" class="h2" font-size="13.5">Cluster platform</text>
+      <text x="14" y="36" class="ok">✓ Private control-plane · MAN restricted to admin/CI CIDRs</text>
+      <text x="14" y="52" class="ok">✓ Least-privilege VPC firewall (port-scoped) · ✓ CMEK · ✓ Binary Auth</text>
+      <text x="14" y="68" class="ok">✓ Cluster + PV backup &amp; snapshots · ✓ Multi-AZ; DR runbook + pilot-light</text>
+    </g>
+    <g transform="translate(1140,34)">
+      <rect class="box" x="0" y="0" width="560" height="74" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="18" class="h2" font-size="13.5">Terraform / IaC</text>
+      <text x="14" y="36" class="ok">✓ 100% of infra in Terraform (no bootstrap drift) · remote state + locking</text>
+      <text x="14" y="52" class="ok">✓ required_version + provider pins · ✓ scheduled drift detection</text>
+      <text x="14" y="68" class="ok">✓ All IAM bindings in TF · ✓ private-service / VPC-SC perimeter</text>
+    </g>
+  </g>
+
+  <!-- Glossary -->
+  <g transform="translate(40,1262)">
+    <text x="0" y="0" class="sub">
+      <tspan font-weight="700">Acronyms — </tspan>
+      <tspan>HPA = Horizontal Pod Autoscaler · KEDA = K8s Event-Driven Autoscaling · PDB = Pod Disruption Budget · PSA = Pod Security Admission · WI/IRSA = Workload Identity · ESO = External Secrets Operator · CMEK = Customer-Managed Encryption Keys · WAF = Web Application Firewall · PITR = Point-In-Time Recovery · SLO = Service Level Objective · DR = Disaster Recovery · MAN = Master Authorized Networks · VPC-SC = VPC Service Controls</tspan>
+    </text>
+  </g>
+</svg>

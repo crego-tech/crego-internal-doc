@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1240" font-family="Inter, -apple-system, 'Helvetica Neue', sans-serif" font-size="12">
+  <defs>
+    <marker id="arrIn"  viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker>
+    <marker id="arrOut" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ea580c"/></marker>
+    <marker id="arrApi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/></marker>
+    <marker id="arrPsa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#059669"/></marker>
+    <marker id="arrCp"  viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+    <style><![CDATA[
+      .title    { font-size:22px; font-weight:800; fill:#0f172a; }
+      .sub      { fill:#475569; font-size:11.5px; }
+      .h2       { font-size:14px; font-weight:700; fill:#0f172a; }
+      .h3       { font-size:12.5px; font-weight:700; fill:#0f172a; }
+      .small    { fill:#475569; font-size:11px; }
+      .mono     { font-family: 'SF Mono', Menlo, monospace; font-size:11px; fill:#0f172a; }
+      .ok       { fill:#059669; font-weight:700; }
+      .pillTxt  { font-size:10px; font-weight:700; fill:#fff; letter-spacing:0.4px; }
+      .card     { fill:#ffffff; stroke-width:2.2; rx:14; ry:14; }
+      .vpc      { fill:#f0f9ff; stroke:#0ea5e9; stroke-width:1.6; stroke-dasharray:6,4; rx:10; ry:10; }
+      .gke      { fill:#ffffff; stroke:#1e40af; stroke-width:1.6; rx:10; ry:10; }
+      .gpc-ext  { fill:#fef3c7; stroke:#a16207; stroke-width:1.2; rx:10; ry:10; }
+      .gpc-svc  { fill:#ecfdf5; stroke:#047857; stroke-width:1.4; stroke-dasharray:6,4; rx:10; ry:10; }
+      .actor    { fill:#f8fafc; stroke:#475569; stroke-width:1.4; rx:8; ry:8; }
+      .edge     { fill:#eff6ff; stroke:#3b82f6; stroke-width:1.4; rx:8; ry:8; }
+      .api      { fill:#f5f3ff; stroke:#7c3aed; stroke-width:1.4; rx:8; ry:8; }
+      .nat      { fill:#fff7ed; stroke:#ea580c; stroke-width:1.4; rx:8; ry:8; }
+      .fw       { fill:#ecfdf5; stroke:#10b981; stroke-width:1.2; rx:8; ry:8; }
+      .arrIn    { stroke:#2563eb; stroke-width:1.8; fill:none; }
+      .arrOut   { stroke:#ea580c; stroke-width:1.8; fill:none; stroke-dasharray:5,3; }
+      .arrApi   { stroke:#7c3aed; stroke-width:1.8; fill:none; stroke-dasharray:6,3; }
+      .arrPsa   { stroke:#059669; stroke-width:2; fill:none; }
+      .arrCp    { stroke:#475569; stroke-width:1.6; fill:none; stroke-dasharray:3,3; }
+      .arrowLbl { font-size:10.5px; fill:#0f172a; }
+    ]]></style>
+  </defs>
+
+  <!-- HEADER -->
+  <text x="30" y="36" class="title">Target Network — Single-Tenant (Client Cloud Deployed)</text>
+  <text x="30" y="56" class="sub">Production-only · cloud-agnostic · dedicated VPC + private cluster + managed data per client · all data services managed (no in-cluster DBs)</text>
+
+  <!-- Legend -->
+  <g transform="translate(30,72)">
+    <line class="arrIn"  x1="0"  y1="10" x2="30" y2="10" marker-end="url(#arrIn)"/><text x="36" y="14" class="small">inbound HTTPS</text>
+    <line class="arrOut" x1="150" y1="10" x2="180" y2="10" marker-end="url(#arrOut)"/><text x="186" y="14" class="small">egress to internet (NAT)</text>
+    <line class="arrApi" x1="350" y1="10" x2="380" y2="10" marker-end="url(#arrApi)"/><text x="386" y="14" class="small">egress to cloud APIs (private)</text>
+    <line class="arrPsa" x1="580" y1="10" x2="610" y2="10" marker-end="url(#arrPsa)"/><text x="616" y="14" class="small">private peering to managed data</text>
+    <text x="820" y="14" class="ok">✓</text><text x="834" y="14" class="small">configured &amp; enforced</text>
+  </g>
+
+  <!-- CARD -->
+  <g transform="translate(20,96)">
+    <rect class="card" width="960" height="1120" stroke="#059669"/>
+    <rect x="0" y="0" width="960" height="50" rx="14" fill="#059669"/>
+    <rect x="0" y="38" width="960" height="12" fill="#059669"/>
+    <text x="20" y="24" fill="#ffffff" font-size="17" font-weight="800">CLIENT PROD CLUSTER · NETWORK (dedicated per client)</text>
+    <text x="20" y="42" fill="#ecfdf5" font-size="11">Cloud-agnostic — managed K8s (EKS/AKS/GKE) · region per client · single production namespace</text>
+
+    <!-- External actors -->
+    <g transform="translate(20,66)">
+      <rect class="actor" x="0" y="0" width="450" height="60"/>
+      <text x="14" y="20" class="h3">Internet — Client end users</text>
+      <text x="14" y="38" class="small">Client domain / subdomains · HTTPS only</text>
+      <text x="14" y="54" class="small">Resolves to WAF/CDN edge IP via managed DNS</text>
+
+      <rect class="actor" x="470" y="0" width="450" height="60"/>
+      <text x="484" y="20" class="h3">Operators — kubectl via bastion / IAP / SSO</text>
+      <text x="484" y="38" class="ok">✓ Control-plane PRIVATE endpoint — no public API</text>
+      <text x="484" y="54" class="ok">✓ Authorized networks = admin + CI CIDRs only · MFA + short-lived creds</text>
+    </g>
+
+    <line class="arrIn" x1="245" y1="128" x2="245" y2="158" marker-end="url(#arrIn)"/>
+    <text x="253" y="146" class="arrowLbl">443/tcp</text>
+    <line class="arrCp" x1="700" y1="128" x2="700" y2="158" marker-end="url(#arrCp)"/>
+    <text x="708" y="146" class="arrowLbl">kube-apiserver 443 (private)</text>
+
+    <!-- Edge layer -->
+    <g transform="translate(20,158)">
+      <rect class="edge" x="0" y="0" width="450" height="82"/>
+      <text x="14" y="20" class="h3">Inbound — WAF/CDN → Managed L7 LB</text>
+      <text x="14" y="38" class="small">Static IP · Gateway API · TLS via cert-manager DNS-01 (wildcard)</text>
+      <text x="14" y="54" class="ok">✓ WAF (OWASP) + per-route rate-limit + DDoS protection</text>
+      <text x="14" y="72" class="ok">✓ HSTS/CSP/X-Frame injected · LB &amp; cert fully GitOps-managed (HA)</text>
+
+      <rect class="edge" x="470" y="0" width="450" height="82"/>
+      <text x="484" y="20" class="h3">Managed control-plane (provider VPC)</text>
+      <text x="484" y="38" class="ok">✓ Private endpoint (no public API server)</text>
+      <text x="484" y="54" class="small">CP ↔ nodes peering managed by provider</text>
+      <text x="484" y="72" class="ok">✓ Reachable only from authorized admin/CI networks</text>
+    </g>
+
+    <line class="arrIn" x1="245" y1="240" x2="245" y2="270" marker-end="url(#arrIn)"/>
+
+    <!-- VPC -->
+    <g transform="translate(20,270)">
+      <rect class="vpc" width="920" height="620"/>
+      <text x="20" y="22" class="h3">VPC: <tspan class="mono">client-prod-vpc</tspan> (custom mode, single regional subnet) · Private API access ON</text>
+
+      <!-- Subnet -->
+      <g transform="translate(20,36)">
+        <rect class="gpc-ext" x="0" y="0" width="880" height="60"/>
+        <text x="14" y="20" class="h3">Subnet: <tspan class="mono">prod-subnet</tspan> · Private service/API access: ON</text>
+        <text x="14" y="38" class="small"><tspan font-weight="700">Primary CIDR:</tspan> client-allocated · <tspan font-weight="700">Pods (secondary)</tspan> · <tspan font-weight="700">Services (secondary)</tspan> — IP-aliasing</text>
+        <text x="14" y="54" class="small">Reserved peered range allocated for managed data services</text>
+      </g>
+
+      <!-- Cluster -->
+      <g transform="translate(20,108)">
+        <rect class="gke" x="0" y="0" width="560" height="300"/>
+        <text x="14" y="20" class="h3">Managed K8s cluster — private nodes (no public IPs)</text>
+        <text x="14" y="38" class="small"><tspan font-weight="700">Nodes:</tspan> auto-repair / auto-upgrade · shielded / secure-boot · CMEK-encrypted disks</text>
+        <text x="14" y="54" class="small"><tspan font-weight="700">Network Policy:</tspan> ON (Calico/Cilium) · <tspan font-weight="700">Workload Identity / IRSA:</tspan> ON</text>
+        <text x="14" y="70" class="small"><tspan font-weight="700">Admission:</tspan> Kyverno/Gatekeeper + Binary Authorization (signed images only)</text>
+
+        <g transform="translate(14,82)">
+          <rect class="actor" x="0" y="0" width="530" height="78"/>
+          <text x="10" y="18" class="h3">Pods (NS: <tspan class="mono">production</tspan>)</text>
+          <text x="10" y="35" class="small">Apps: omni-api · flow-api · omni-web · flow-web · flower (SSO)</text>
+          <text x="10" y="51" class="small">Workers: omni/flow celery-worker · beat (leader-election) — KEDA</text>
+          <text x="10" y="68" class="ok">✓ No in-cluster DBs — all data is managed &amp; private</text>
+        </g>
+
+        <text x="14" y="186" class="ok">✓ Egress NetworkPolicy: DNS + HTTPS + managed-DB CIDRs only</text>
+        <text x="14" y="204" class="ok">✓ PSA=restricted · readOnlyRootFilesystem · drop ALL caps</text>
+        <text x="14" y="222" class="ok">✓ ResourceQuota + LimitRange on namespace</text>
+
+        <text x="14" y="248" class="h3">Intra-cluster traffic</text>
+        <text x="14" y="265" class="small">Pod-to-pod over service CIDR · resolved by cluster DNS</text>
+        <text x="14" y="282" class="ok">✓ Default-deny NetworkPolicy — only declared flows allowed</text>
+      </g>
+
+      <!-- NAT -->
+      <g transform="translate(600,108)">
+        <rect class="nat" x="0" y="0" width="300" height="116"/>
+        <text x="14" y="20" class="h3">Cloud Router + NAT</text>
+        <text x="14" y="38" class="small">Egress for private nodes to internet</text>
+        <text x="14" y="56" class="ok">✓ RESERVED static NAT IP(s) — stable egress</text>
+        <text x="14" y="74" class="small">Partner IP allow-listing remains valid</text>
+        <text x="14" y="92" class="ok">✓ NAT flow logging enabled</text>
+        <text x="14" y="108" class="small" fill="#ea580c">Outbound to internet / external MongoDB if used</text>
+      </g>
+
+      <!-- Private API access -->
+      <g transform="translate(600,238)">
+        <rect class="api" x="0" y="0" width="300" height="100"/>
+        <text x="14" y="20" class="h3">Private cloud-API access</text>
+        <text x="14" y="38" class="small">Traffic to provider APIs stays on backbone</text>
+        <text x="14" y="54" class="small">No external IP required on nodes</text>
+        <text x="14" y="72" class="ok">✓ Used by ESO, image pulls, DNS, logging</text>
+        <text x="14" y="90" class="ok">✓ Private-service / VPC-SC perimeter enforced</text>
+      </g>
+
+      <!-- Firewall -->
+      <g transform="translate(20,420)">
+        <rect class="fw" x="0" y="0" width="880" height="92"/>
+        <text x="14" y="20" class="h3">VPC firewall rules (least-privilege)</text>
+        <text x="14" y="38" class="ok">✓ Port-scoped allow: 5432 (SQL) · 6379 (Redis) · 5672 (broker) · 27017 (Mongo) · 53 · 443 only</text>
+        <text x="14" y="56" class="ok">✓ Implicit deny ingress from internet (no public node IPs) · ✓ explicit egress deny-by-default with allow-list</text>
+        <text x="14" y="74" class="ok">✓ Defence-in-depth: VPC firewall + K8s NetworkPolicy both enforced</text>
+      </g>
+
+      <!-- Managed data peering -->
+      <g transform="translate(20,524)">
+        <rect class="gpc-svc" x="0" y="0" width="880" height="84"/>
+        <text x="14" y="20" class="h3">Managed data (private peering / private endpoints)</text>
+        <text x="14" y="38" class="small">Managed Postgres · Redis · Message broker · MongoDB — reached only over private IP via peering</text>
+        <text x="14" y="56" class="ok">✓ Multi-AZ HA + PITR + CMEK + TLS · ✓ never traverses the public internet</text>
+        <text x="14" y="74" class="ok">✓ Reachable only from app subnet on scoped ports (no lateral DB exposure)</text>
+      </g>
+    </g>
+
+    <!-- Bottom cloud APIs -->
+    <g transform="translate(20,908)">
+      <rect class="api" x="0" y="0" width="920" height="112"/>
+      <text x="14" y="20" class="h3">Cloud APIs &amp; managed services (private access)</text>
+      <text x="14" y="40" class="small"><tspan font-weight="700">Secret Manager:</tspan> read by ESO via Workload Identity / IRSA — CMEK-encrypted, rotation ≤90d</text>
+      <text x="14" y="58" class="small"><tspan font-weight="700">Managed DNS:</tspan> records updated by external-dns (scoped DNS role)</text>
+      <text x="14" y="76" class="small"><tspan font-weight="700">Container registry:</tspan> signed-image pulls · <tspan font-weight="700">Logging/Monitoring:</tspan> node SA writes logs &amp; metrics</text>
+      <text x="14" y="96" class="ok">✓ CMEK on secrets/disks/DB · ✓ VPC-SC perimeter · ✓ K8s API audit log sink to object storage / SIEM</text>
+    </g>
+
+    <!-- arrows -->
+    <line class="arrPsa" x1="580" y1="406" x2="600" y2="406" marker-end="url(#arrPsa)"/>
+    <line class="arrOut" x1="580" y1="360" x2="600" y2="360" marker-end="url(#arrOut)"/>
+    <line class="arrApi" x1="580" y1="470" x2="600" y2="470" marker-end="url(#arrApi)"/>
+  </g>
+</svg>

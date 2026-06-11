@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1320" font-family="Inter, -apple-system, 'Helvetica Neue', sans-serif" font-size="13">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <style><![CDATA[
+      .box      { fill:#ffffff; stroke:#1f2937; stroke-width:1.5; rx:10; ry:10; }
+      .zone     { fill:#f8fafc; stroke:#94a3b8; stroke-width:1.2; stroke-dasharray:5,4; rx:14; ry:14; }
+      .zoneTitle{ font-weight:700; fill:#0f172a; font-size:14px; }
+      .lbl      { fill:#0f172a; }
+      .sub      { fill:#475569; font-size:11.5px; }
+      .small    { fill:#475569; font-size:11px; }
+      .title    { font-size:24px; font-weight:800; fill:#0f172a; }
+      .h2       { font-size:15px; font-weight:700; fill:#0f172a; }
+      .ok       { fill:#059669; font-weight:700; }
+      .pillTxt  { font-size:10.5px; font-weight:700; fill:#fff; letter-spacing:0.4px; }
+      .arrow    { stroke:#475569; stroke-width:1.6; fill:none; }
+      .badgeFill{ stroke:none; }
+      .tenant   { fill:#faf5ff; stroke:#7c3aed; stroke-width:1.3; stroke-dasharray:5,3; rx:10; ry:10; }
+      .mono     { font-family: 'SF Mono', Menlo, monospace; }
+    ]]></style>
+  </defs>
+
+  <!-- ===================== HEADER ===================== -->
+  <text x="40" y="38" class="title">Target Architecture — Multi-Tenant (Crego Shared Cloud)</text>
+  <text x="40" y="58" class="sub">Production-only · GCP · shared GKE cluster · namespace-per-tenant isolation · shared managed data with per-tenant logical DB · hardened baseline (✓)</text>
+
+  <g transform="translate(1180,18)">
+    <rect class="badgeFill" x="0" y="0" width="150" height="26" rx="7" fill="#059669"/>
+    <text x="75" y="18" text-anchor="middle" class="pillTxt" font-size="12">TARGET / HARDENED</text>
+  </g>
+  <g transform="translate(1360,20)">
+    <text x="0" y="14" class="h2">Status</text>
+    <g transform="translate(0,22)">
+      <text x="0" y="15" class="ok">✓</text><text x="14" y="15" class="small">control implemented &amp; enforced</text>
+    </g>
+    <g transform="translate(0,46)" class="small">
+      <text x="0" y="0">Isolation: namespace-per-tenant + ResourceQuota + default-deny NetworkPolicy + per-tenant SA &amp; logical DB</text>
+    </g>
+  </g>
+
+  <!-- ===================== USERS / EDGE ===================== -->
+  <g transform="translate(40,110)">
+    <rect class="box" x="0" y="0" width="320" height="50" fill="#eff6ff" stroke="#3b82f6"/>
+    <text x="160" y="22" text-anchor="middle" class="lbl" font-weight="700">End Users / Tenants</text>
+    <text x="160" y="40" text-anchor="middle" class="sub">HTTPS · per-tenant subdomains *.crego.app</text>
+  </g>
+  <line class="arrow" x1="200" y1="160" x2="200" y2="200" marker-end="url(#arrow)"/>
+
+  <!-- Edge -->
+  <g transform="translate(40,200)">
+    <rect class="zone" x="0" y="0" width="1720" height="118"/>
+    <text x="14" y="20" class="zoneTitle">EDGE — Cloud Armor (WAF) · GKE Gateway API (global external LB)</text>
+    <g transform="translate(20,36)">
+      <rect class="box" x="0" y="0" width="1680" height="70" fill="#fef2f2" stroke="#ef4444"/>
+      <text x="20" y="24" class="lbl" font-weight="700">GKE Gateway API · gke-l7-global-external-managed → Cloud Armor security policy attached to backend</text>
+      <text x="20" y="42" class="sub">Static anycast IP · Wildcard TLS via cert-map + DNS-01 · HSTS / CSP / X-Frame on HTTPRoute · NEG → pod IPs · per-tenant Host routing</text>
+      <text x="20" y="60" class="ok">✓ Cloud Armor WAF (OWASP) · ✓ Per-tenant rate-limit &amp; bot policy · ✓ Adaptive DDoS protection · ✓ Admin paths IP-restricted</text>
+    </g>
+  </g>
+  <line class="arrow" x1="900" y1="318" x2="900" y2="358" marker-end="url(#arrow)"/>
+
+  <!-- ===================== SHARED GKE CLUSTER ===================== -->
+  <g transform="translate(40,358)">
+    <rect class="zone" x="0" y="0" width="1720" height="430"/>
+    <text x="14" y="20" class="zoneTitle">SHARED GKE CLUSTER (production) — namespace-per-tenant</text>
+    <text x="14" y="38" class="sub">Cluster-wide baseline: PSA=restricted · runAsNonRoot · readOnlyRootFilesystem · drop ALL caps · Kyverno/Gatekeeper admission · Binary Authorization · default-deny NetworkPolicy</text>
+
+    <!-- Per-tenant namespace template -->
+    <g transform="translate(20,58)">
+      <rect class="tenant" x="0" y="0" width="1100" height="240"/>
+      <text x="14" y="22" class="h2" fill="#6d28d9">Namespace per tenant — tenant-&lt;id&gt; (template, replicated per client)</text>
+      <text x="14" y="40" class="sub">✓ ResourceQuota + LimitRange (no noisy-neighbour) · ✓ Default-deny NetworkPolicy · ✓ Dedicated ServiceAccount + scoped RBAC · ✓ Per-tenant ESO secret</text>
+
+      <!-- App tier -->
+      <g transform="translate(14,52)">
+        <rect class="box" x="0" y="0" width="1072" height="96" fill="#ffffff" stroke="#1f2937"/>
+        <text x="12" y="18" class="h2" font-size="13.5">Application tier (HTTP)</text>
+        <g transform="translate(12,28)">
+          <rect class="box" x="0" y="0" width="150" height="58" fill="#f1f5f9" stroke="#64748b"/>
+          <text x="75" y="20" text-anchor="middle" class="lbl" font-weight="700">omni-api</text>
+          <text x="75" y="36" text-anchor="middle" class="ok">HPA min=2</text>
+          <text x="75" y="50" text-anchor="middle" class="ok">✓ PDB</text>
+        </g>
+        <g transform="translate(174,28)">
+          <rect class="box" x="0" y="0" width="150" height="58" fill="#f1f5f9" stroke="#64748b"/>
+          <text x="75" y="20" text-anchor="middle" class="lbl" font-weight="700">flow-api</text>
+          <text x="75" y="36" text-anchor="middle" class="ok">HPA min=2</text>
+          <text x="75" y="50" text-anchor="middle" class="ok">✓ PDB</text>
+        </g>
+        <g transform="translate(336,28)">
+          <rect class="box" x="0" y="0" width="150" height="58" fill="#f1f5f9" stroke="#64748b"/>
+          <text x="75" y="20" text-anchor="middle" class="lbl" font-weight="700">omni-web</text>
+          <text x="75" y="36" text-anchor="middle" class="ok">HPA min=2</text>
+          <text x="75" y="50" text-anchor="middle" class="ok">✓ PDB</text>
+        </g>
+        <g transform="translate(498,28)">
+          <rect class="box" x="0" y="0" width="150" height="58" fill="#f1f5f9" stroke="#64748b"/>
+          <text x="75" y="20" text-anchor="middle" class="lbl" font-weight="700">flow-web</text>
+          <text x="75" y="36" text-anchor="middle" class="ok">HPA min=2</text>
+          <text x="75" y="50" text-anchor="middle" class="ok">✓ PDB</text>
+        </g>
+        <g transform="translate(660,28)">
+          <rect class="box" x="0" y="0" width="180" height="58" fill="#f1f5f9" stroke="#64748b"/>
+          <text x="90" y="20" text-anchor="middle" class="lbl" font-weight="700">flower</text>
+          <text x="90" y="36" text-anchor="middle" class="ok">✓ SSO / OAuth2-proxy</text>
+          <text x="90" y="50" text-anchor="middle" class="ok">✓ admin IP allow-list</text>
+        </g>
+        <g transform="translate(852,28)">
+          <rect class="box" x="0" y="0" width="208" height="58" fill="#fff7ed" stroke="#f59e0b"/>
+          <text x="104" y="20" text-anchor="middle" class="lbl" font-weight="700">workers (KEDA)</text>
+          <text x="104" y="36" text-anchor="middle" class="sub">omni/flow celery-worker</text>
+          <text x="104" y="50" text-anchor="middle" class="ok">✓ PDB · beat leader-election</text>
+        </g>
+      </g>
+      <text x="14" y="214" class="ok">✓ Workloads pinned via topologySpread across zones · ✓ digest-pinned signed images · ✓ startup/liveness/readiness probes · ✓ requests≈limits</text>
+      <text x="14" y="232" class="small">Optional: high-tier tenants pinned to dedicated node pool (taints/tolerations) for stronger workload isolation.</text>
+    </g>
+
+    <!-- Identity & RBAC -->
+    <g transform="translate(1140,58)">
+      <rect class="box" x="0" y="0" width="560" height="115" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Identity &amp; RBAC (per tenant)</text>
+      <text x="14" y="40" class="sub">SA per app per namespace · Workload Identity (GKE-native)</text>
+      <text x="14" y="58" class="ok">✓ Least-privilege Role per SA — secrets scoped by name</text>
+      <text x="14" y="76" class="ok">✓ PSA=restricted + Kyverno policy per namespace</text>
+      <text x="14" y="94" class="ok">✓ Tenant SA cannot read another tenant's secrets/configmaps</text>
+      <text x="14" y="110" class="ok">✓ ArgoCD AppProject restricted to repo + tenant dests</text>
+    </g>
+
+    <!-- Network policy -->
+    <g transform="translate(1140,183)">
+      <rect class="box" x="0" y="0" width="560" height="115" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Network Policy &amp; tenancy guardrails</text>
+      <text x="14" y="40" class="ok">✓ Default-deny ingress + egress in every tenant namespace</text>
+      <text x="14" y="58" class="ok">✓ Cross-namespace traffic denied (no tenant→tenant)</text>
+      <text x="14" y="76" class="ok">✓ Egress limited to DNS + HTTPS + managed-DB CIDRs</text>
+      <text x="14" y="94" class="ok">✓ NetworkPolicies on kube-system / argocd / eso / keda</text>
+      <text x="14" y="110" class="ok">✓ ResourceQuota + LimitRange enforce fair-share</text>
+    </g>
+
+    <!-- Secrets pipeline full width -->
+    <g transform="translate(20,308)">
+      <rect class="box" x="0" y="0" width="1680" height="96" fill="#eff6ff" stroke="#3b82f6"/>
+      <text x="14" y="20" class="h2">Secrets pipeline — External Secrets Operator (ESO) · per-tenant keys</text>
+      <text x="14" y="40" class="sub">ExternalSecret → ClusterSecretStore (GSM) → K8s Secret app-env per namespace (refresh 5m) · key app-prod-&lt;tenant&gt; · ESO SA via Workload Identity</text>
+      <text x="14" y="58" class="ok">✓ CMEK on GSM + PD-SSD + Cloud SQL · ✓ Automated rotation (≤90d) · ✓ No PAT/secret in Git (sealed/ESO) · ✓ Secret access audit-logged</text>
+      <text x="14" y="78" class="ok">✓ Per-tenant secret namespace isolation — ESO binding cannot cross tenant boundary · ✓ envelope encryption end-to-end</text>
+    </g>
+  </g>
+  <line class="arrow" x1="900" y1="788" x2="900" y2="828" marker-end="url(#arrow)"/>
+
+  <!-- ===================== DATA TIER ===================== -->
+  <g transform="translate(40,828)">
+    <rect class="zone" x="0" y="0" width="1720" height="150"/>
+    <text x="14" y="20" class="zoneTitle">DATA TIER — shared managed services, per-tenant logical isolation</text>
+    <g transform="translate(20,36)">
+      <rect class="box" x="0" y="0" width="1680" height="98" fill="#fef2f2" stroke="#ef4444"/>
+      <text x="14" y="24" class="h2">Managed cloud data (private IP via VPC peering) — per-tenant database / schema with row-level scoping</text>
+      <text x="14" y="46" class="sub">Cloud SQL for PostgreSQL (HA + PITR) · Memorystore Redis (HA) · Managed/HA RabbitMQ (CloudAMQP or operator, per-tenant vhost) · MongoDB Atlas (per-tenant DB)</text>
+      <text x="14" y="66" class="ok">✓ Multi-AZ HA + PITR + tested restore · ✓ CMEK at rest · ✓ TLS in transit · ✓ Per-tenant DB credentials, no shared superuser</text>
+      <text x="14" y="84" class="ok">✓ No data service in-cluster (RabbitMQ managed/HA) · ✓ Firewall scoped to 5432/6379/5672/27017 from app subnet only · ✓ pre-prod == prod topology</text>
+    </g>
+  </g>
+
+  <!-- ===================== ADDONS / GITOPS / OBSERVABILITY ===================== -->
+  <g transform="translate(40,998)">
+    <rect class="zone" x="0" y="0" width="1720" height="150"/>
+    <text x="14" y="20" class="zoneTitle">PLATFORM ADDONS · GITOPS · OBSERVABILITY</text>
+    <g transform="translate(20,34)">
+      <rect class="box" x="0" y="0" width="540" height="106" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Addons (all enabled in prod)</text>
+      <text x="14" y="40" class="ok">✓ cert-manager (DNS-01 wildcard) · ✓ external-dns</text>
+      <text x="14" y="58" class="ok">✓ External Secrets Operator · ✓ KEDA autoscaler</text>
+      <text x="14" y="76" class="ok">✓ Kyverno/Gatekeeper · ✓ Velero + GKE Backup</text>
+      <text x="14" y="94" class="ok">✓ Prod addon set == dev/qa/preprod (no divergence)</text>
+    </g>
+    <g transform="translate(580,34)">
+      <rect class="box" x="0" y="0" width="540" height="106" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">GitOps — ArgoCD App-of-Apps</text>
+      <text x="14" y="40" class="ok">✓ Prod syncs from immutable Git tag + manual gate</text>
+      <text x="14" y="58" class="ok">✓ AppProject restricted to repo &amp; tenant destinations</text>
+      <text x="14" y="76" class="ok">✓ CODEOWNERS + branch protection + signed commits</text>
+      <text x="14" y="94" class="ok">✓ Per-tenant ApplicationSet generates namespaces</text>
+    </g>
+    <g transform="translate(1140,34)">
+      <rect class="box" x="0" y="0" width="560" height="106" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="20" class="h2">Observability (full stack, per-tenant labels)</text>
+      <text x="14" y="40" class="ok">✓ Prometheus + Grafana + Alertmanager + kube-state-metrics</text>
+      <text x="14" y="58" class="ok">✓ OpenTelemetry tracing · ✓ Sentry DSNs per service</text>
+      <text x="14" y="76" class="ok">✓ Centralized logs (Loki) tenant-tagged · ✓ audit log sink</text>
+      <text x="14" y="94" class="ok">✓ SLOs per tenant tier · ✓ alert routing PagerDuty / Slack</text>
+    </g>
+  </g>
+
+  <!-- ===================== CI/CD + PLATFORM + IAC ===================== -->
+  <g transform="translate(40,1168)">
+    <rect class="zone" x="0" y="0" width="1720" height="118"/>
+    <text x="14" y="20" class="zoneTitle">CI/CD · CLUSTER PLATFORM · INFRASTRUCTURE-AS-CODE</text>
+    <g transform="translate(20,34)">
+      <rect class="box" x="0" y="0" width="540" height="74" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="18" class="h2" font-size="13.5">CI/CD &amp; supply chain</text>
+      <text x="14" y="36" class="ok">✓ OPA/conftest + kubeconform · ✓ tfsec / checkov</text>
+      <text x="14" y="52" class="ok">✓ Trivy image scan · ✓ SBOM + cosign signing</text>
+      <text x="14" y="68" class="ok">✓ terraform plan on PR · ✓ CODEOWNERS gate</text>
+    </g>
+    <g transform="translate(580,34)">
+      <rect class="box" x="0" y="0" width="540" height="74" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="18" class="h2" font-size="13.5">Cluster platform — GKE</text>
+      <text x="14" y="36" class="ok">✓ Private control-plane · MAN = admin/CI CIDRs only</text>
+      <text x="14" y="52" class="ok">✓ Port-scoped VPC firewall · ✓ CMEK · ✓ Binary Auth · ✓ Shielded nodes</text>
+      <text x="14" y="68" class="ok">✓ GKE Backup + PV snapshots · ✓ multi-region DR (pilot-light)</text>
+    </g>
+    <g transform="translate(1140,34)">
+      <rect class="box" x="0" y="0" width="560" height="74" fill="#ffffff" stroke="#1f2937"/>
+      <text x="14" y="18" class="h2" font-size="13.5">Terraform / IaC</text>
+      <text x="14" y="36" class="ok">✓ All envs in Terraform (no bootstrap.sh drift) · remote state + lock</text>
+      <text x="14" y="52" class="ok">✓ required_version + provider pins · ✓ scheduled drift detection</text>
+      <text x="14" y="68" class="ok">✓ IAM bindings in TF · ✓ VPC Service Controls perimeter</text>
+    </g>
+  </g>
+
+  <!-- Glossary -->
+  <g transform="translate(40,1306)">
+    <text x="0" y="0" class="sub">
+      <tspan font-weight="700">Acronyms — </tspan>
+      <tspan>HPA = Horizontal Pod Autoscaler · KEDA = K8s Event-Driven Autoscaling · PDB = Pod Disruption Budget · PSA = Pod Security Admission · WI = Workload Identity · ESO = External Secrets Operator · GSM = Google Secret Manager · CMEK = Customer-Managed Encryption Keys · NEG = Network Endpoint Group · PITR = Point-In-Time Recovery · SLO = Service Level Objective · MAN = Master Authorized Networks · VPC-SC = VPC Service Controls</tspan>
+    </text>
+  </g>
+</svg>

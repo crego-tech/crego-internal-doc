@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1300" font-family="Inter, -apple-system, 'Helvetica Neue', sans-serif" font-size="12">
+  <defs>
+    <marker id="arrIn"  viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker>
+    <marker id="arrOut" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ea580c"/></marker>
+    <marker id="arrApi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/></marker>
+    <marker id="arrPsa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#059669"/></marker>
+    <marker id="arrCp"  viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+    <style><![CDATA[
+      .title    { font-size:22px; font-weight:800; fill:#0f172a; }
+      .sub      { fill:#475569; font-size:11.5px; }
+      .h2       { font-size:14px; font-weight:700; fill:#0f172a; }
+      .h3       { font-size:12.5px; font-weight:700; fill:#0f172a; }
+      .small    { fill:#475569; font-size:11px; }
+      .mono     { font-family: 'SF Mono', Menlo, monospace; font-size:11px; fill:#0f172a; }
+      .ok       { fill:#059669; font-weight:700; }
+      .pillTxt  { font-size:10px; font-weight:700; fill:#fff; letter-spacing:0.4px; }
+      .card     { fill:#ffffff; stroke-width:2.2; rx:14; ry:14; }
+      .vpc      { fill:#f0f9ff; stroke:#0ea5e9; stroke-width:1.6; stroke-dasharray:6,4; rx:10; ry:10; }
+      .gke      { fill:#ffffff; stroke:#1e40af; stroke-width:1.6; rx:10; ry:10; }
+      .gpc-ext  { fill:#fef3c7; stroke:#a16207; stroke-width:1.2; rx:10; ry:10; }
+      .gpc-svc  { fill:#ecfdf5; stroke:#047857; stroke-width:1.4; stroke-dasharray:6,4; rx:10; ry:10; }
+      .actor    { fill:#f8fafc; stroke:#475569; stroke-width:1.4; rx:8; ry:8; }
+      .edge     { fill:#eff6ff; stroke:#3b82f6; stroke-width:1.4; rx:8; ry:8; }
+      .api      { fill:#f5f3ff; stroke:#7c3aed; stroke-width:1.4; rx:8; ry:8; }
+      .nat      { fill:#fff7ed; stroke:#ea580c; stroke-width:1.4; rx:8; ry:8; }
+      .fw       { fill:#ecfdf5; stroke:#10b981; stroke-width:1.2; rx:8; ry:8; }
+      .tenant   { fill:#faf5ff; stroke:#7c3aed; stroke-width:1.3; stroke-dasharray:5,3; rx:8; ry:8; }
+      .arrIn    { stroke:#2563eb; stroke-width:1.8; fill:none; }
+      .arrOut   { stroke:#ea580c; stroke-width:1.8; fill:none; stroke-dasharray:5,3; }
+      .arrApi   { stroke:#7c3aed; stroke-width:1.8; fill:none; stroke-dasharray:6,3; }
+      .arrPsa   { stroke:#059669; stroke-width:2; fill:none; }
+      .arrCp    { stroke:#475569; stroke-width:1.6; fill:none; stroke-dasharray:3,3; }
+      .arrowLbl { font-size:10.5px; fill:#0f172a; }
+    ]]></style>
+  </defs>
+
+  <!-- HEADER -->
+  <text x="30" y="36" class="title">Target Network — Multi-Tenant (Crego Shared Cloud)</text>
+  <text x="30" y="56" class="sub">Production-only · GCP project crego-app-prod · shared GKE cluster · namespace-per-tenant · managed data via Service Networking peering</text>
+
+  <!-- Legend -->
+  <g transform="translate(30,72)">
+    <line class="arrIn"  x1="0"  y1="10" x2="30" y2="10" marker-end="url(#arrIn)"/><text x="36" y="14" class="small">inbound HTTPS</text>
+    <line class="arrOut" x1="150" y1="10" x2="180" y2="10" marker-end="url(#arrOut)"/><text x="186" y="14" class="small">egress to internet (NAT)</text>
+    <line class="arrApi" x1="350" y1="10" x2="380" y2="10" marker-end="url(#arrApi)"/><text x="386" y="14" class="small">egress to Google APIs (PGA)</text>
+    <line class="arrPsa" x1="570" y1="10" x2="600" y2="10" marker-end="url(#arrPsa)"/><text x="606" y="14" class="small">VPC peering (managed data)</text>
+    <text x="810" y="14" class="ok">✓</text><text x="824" y="14" class="small">configured &amp; enforced</text>
+  </g>
+
+  <!-- CARD -->
+  <g transform="translate(20,96)">
+    <rect class="card" width="960" height="1180" stroke="#ef4444"/>
+    <rect x="0" y="0" width="960" height="50" rx="14" fill="#ef4444"/>
+    <rect x="0" y="38" width="960" height="12" fill="#ef4444"/>
+    <text x="20" y="24" fill="#ffffff" font-size="17" font-weight="800">CREGO SHARED PROD CLUSTER · NETWORK</text>
+    <text x="20" y="42" fill="#fef2f2" font-size="11">GCP <tspan class="mono" fill="#fff">crego-app-prod</tspan> · region asia-south1 · namespace-per-tenant · PREPROD = identical topology (incl. managed data)</text>
+
+    <!-- External actors -->
+    <g transform="translate(20,66)">
+      <rect class="actor" x="0" y="0" width="450" height="60"/>
+      <text x="14" y="20" class="h3">Internet — End users / tenants</text>
+      <text x="14" y="38" class="small">Per-tenant subdomains <tspan class="mono">*.crego.app</tspan> · HTTPS only</text>
+      <text x="14" y="54" class="small">Resolves to global anycast IP <tspan class="mono">crego-prod-ip</tspan></text>
+
+      <rect class="actor" x="470" y="0" width="450" height="60"/>
+      <text x="484" y="20" class="h3">Operators — kubectl / IAP / ArgoCD UI</text>
+      <text x="484" y="38" class="ok">✓ Control-plane PRIVATE endpoint (no public API)</text>
+      <text x="484" y="54" class="ok">✓ Master Authorized Networks = admin + CI CIDRs only · MFA</text>
+    </g>
+
+    <line class="arrIn" x1="245" y1="128" x2="245" y2="158" marker-end="url(#arrIn)"/>
+    <text x="253" y="146" class="arrowLbl">443 · global</text>
+    <line class="arrCp" x1="700" y1="128" x2="700" y2="158" marker-end="url(#arrCp)"/>
+    <text x="708" y="146" class="arrowLbl">kube-apiserver 443 (private)</text>
+
+    <!-- Edge -->
+    <g transform="translate(20,158)">
+      <rect class="edge" x="0" y="0" width="450" height="82"/>
+      <text x="14" y="20" class="h3">Inbound LB — GKE Gateway API + Cloud Armor</text>
+      <text x="14" y="38" class="small">Class <tspan class="mono">gke-l7-global-external-managed</tspan> · static IP <tspan class="mono">crego-prod-ip</tspan> · NEG → pod IPs</text>
+      <text x="14" y="54" class="ok">✓ Cloud Armor WAF + per-tenant rate-limit + DDoS · HSTS/CSP via HTTPRoute</text>
+      <text x="14" y="72" class="ok">✓ TLS via cert-manager DNS-01 wildcard · external-dns manages tenant records</text>
+
+      <rect class="edge" x="470" y="0" width="450" height="82"/>
+      <text x="484" y="20" class="h3">GKE Control-plane (Google-managed VPC)</text>
+      <text x="484" y="38" class="ok">✓ <tspan class="mono">enable_private_endpoint=true</tspan> (PRIVATE)</text>
+      <text x="484" y="54" class="small">CP ↔ nodes peering managed by GKE</text>
+      <text x="484" y="72" class="ok">✓ Not reachable from public internet</text>
+    </g>
+
+    <line class="arrIn" x1="245" y1="240" x2="245" y2="270" marker-end="url(#arrIn)"/>
+
+    <!-- VPC -->
+    <g transform="translate(20,270)">
+      <rect class="vpc" width="920" height="680"/>
+      <text x="20" y="22" class="h3">VPC: <tspan class="mono">prod-vpc</tspan> (custom mode, single regional subnet) · Private Google Access ON · Terraform-managed</text>
+
+      <!-- Subnet -->
+      <g transform="translate(20,36)">
+        <rect class="gpc-ext" x="0" y="0" width="880" height="60"/>
+        <text x="14" y="20" class="h3">Subnet: <tspan class="mono">prod-subnet</tspan> · asia-south1 · Private Google Access: ON</text>
+        <text x="14" y="38" class="small"><tspan font-weight="700">Primary:</tspan> <tspan class="mono">10.10.0.0/16</tspan> · <tspan font-weight="700">Pods:</tspan> <tspan class="mono">10.20.0.0/14</tspan> · <tspan font-weight="700">Services:</tspan> <tspan class="mono">10.24.0.0/20</tspan></text>
+        <text x="14" y="54" class="small">Service Networking peered range reserved for Cloud SQL + Memorystore</text>
+      </g>
+
+      <!-- Cluster -->
+      <g transform="translate(20,108)">
+        <rect class="gke" x="0" y="0" width="560" height="360"/>
+        <text x="14" y="20" class="h3">GKE cluster — <tspan class="mono">gke-prod</tspan> (regional, private nodes)</text>
+        <text x="14" y="38" class="small"><tspan font-weight="700">Nodes:</tspan> shielded · CMEK disks · auto-repair/upgrade · WI pool <tspan class="mono">crego-app-prod.svc.id.goog</tspan></text>
+        <text x="14" y="54" class="small"><tspan font-weight="700">Net Policy:</tspan> ON (Dataplane-V2) · <tspan font-weight="700">Admission:</tspan> Kyverno + Binary Authorization</text>
+
+        <!-- tenant namespaces -->
+        <g transform="translate(14,66)">
+          <rect class="tenant" x="0" y="0" width="258" height="120"/>
+          <text x="10" y="18" class="h3" fill="#6d28d9">NS <tspan class="mono">tenant-a</tspan></text>
+          <text x="10" y="35" class="small">apps + workers + flower(SSO)</text>
+          <text x="10" y="51" class="ok">✓ ResourceQuota / LimitRange</text>
+          <text x="10" y="67" class="ok">✓ Default-deny NetworkPolicy</text>
+          <text x="10" y="83" class="ok">✓ Dedicated SA + scoped RBAC</text>
+          <text x="10" y="99" class="ok">✓ Per-tenant ESO secret only</text>
+          <text x="10" y="115" class="small">no in-cluster DBs</text>
+
+          <rect class="tenant" x="272" y="0" width="258" height="120"/>
+          <text x="282" y="18" class="h3" fill="#6d28d9">NS <tspan class="mono">tenant-b</tspan> … <tspan class="mono">tenant-n</tspan></text>
+          <text x="282" y="35" class="small">identical template via ApplicationSet</text>
+          <text x="282" y="51" class="ok">✓ Cross-NS traffic denied</text>
+          <text x="282" y="67" class="ok">✓ Tenant SA cannot read peer secrets</text>
+          <text x="282" y="83" class="ok">✓ topologySpread across zones</text>
+          <text x="282" y="99" class="ok">✓ signed/digest-pinned images</text>
+          <text x="282" y="115" class="small">optional dedicated node pool (hi-tier)</text>
+        </g>
+
+        <text x="14" y="208" class="ok">✓ Egress NetworkPolicy: DNS + HTTPS + managed-DB CIDRs only</text>
+        <text x="14" y="226" class="ok">✓ PSA=restricted · readOnlyRootFilesystem · drop ALL caps (all NS)</text>
+        <text x="14" y="244" class="h3">Egress paths from pods</text>
+        <text x="14" y="262" class="small">→ <tspan font-weight="700" fill="#ea580c">Internet</tspan>: pod → Cloud NAT → reserved NAT IP</text>
+        <text x="14" y="278" class="small">→ <tspan font-weight="700" fill="#7c3aed">Google APIs</tspan>: pod → Private Google Access → googleapis.com</text>
+        <text x="14" y="294" class="small">→ <tspan font-weight="700" fill="#059669">Managed data</tspan>: pod → VPC peering → Cloud SQL / Memorystore (private IP)</text>
+        <text x="14" y="312" class="ok">✓ Tenant DB creds scoped — pod reaches only its own logical DB</text>
+        <text x="14" y="332" class="ok">✓ Default-deny NetworkPolicy — only declared flows allowed</text>
+        <text x="14" y="350" class="small">External MongoDB (if used) egress via Cloud NAT with TLS</text>
+      </g>
+
+      <!-- Service networking -->
+      <g transform="translate(600,108)">
+        <rect class="gpc-svc" x="0" y="0" width="300" height="210"/>
+        <text x="14" y="20" class="h3">Service Networking (managed data)</text>
+        <text x="14" y="36" class="small">VPC peering <tspan class="mono">servicenetworking</tspan> · reserved range</text>
+        <g transform="translate(14,48)">
+          <rect class="gpc-ext" x="0" y="0" width="272" height="62"/>
+          <text x="10" y="18" class="h3">Cloud SQL — Postgres (HA)</text>
+          <text x="10" y="34" class="small">Private IP · HA + PITR ON · CMEK</text>
+          <text x="10" y="50" class="ok">✓ Per-tenant DB · no shared superuser</text>
+        </g>
+        <g transform="translate(14,120)">
+          <rect class="gpc-ext" x="0" y="0" width="272" height="76"/>
+          <text x="10" y="18" class="h3">Memorystore — Redis (HA)</text>
+          <text x="10" y="34" class="small">Private peering · same region · CMEK</text>
+          <text x="10" y="50" class="ok">✓ Managed/HA RabbitMQ (per-tenant vhost)</text>
+          <text x="10" y="66" class="ok">✓ MongoDB Atlas — per-tenant DB</text>
+        </g>
+      </g>
+
+      <!-- NAT -->
+      <g transform="translate(600,328)">
+        <rect class="nat" x="0" y="0" width="300" height="80"/>
+        <text x="14" y="20" class="h3">Cloud Router + Cloud NAT</text>
+        <text x="14" y="38" class="ok">✓ RESERVED static NAT IP — stable egress</text>
+        <text x="14" y="54" class="small">Partner IP allow-listing stays valid</text>
+        <text x="14" y="72" class="ok">✓ NAT logging enabled</text>
+      </g>
+
+      <!-- Firewall -->
+      <g transform="translate(20,480)">
+        <rect class="fw" x="0" y="0" width="880" height="92"/>
+        <text x="14" y="20" class="h3">VPC firewall rules (least-privilege, Terraform-managed)</text>
+        <text x="14" y="38" class="ok">✓ Port-scoped: TCP 5432 (SQL) · 6379 (Redis) · 5672/15672 (Rabbit) · 27017 (Mongo) · 53 · 443 only</text>
+        <text x="14" y="56" class="ok">✓ Implicit deny ingress from internet · ✓ Cloud SQL/Memorystore reachable only from app subnet (no lateral movement)</text>
+        <text x="14" y="74" class="ok">✓ Defence-in-depth: VPC firewall + K8s NetworkPolicy · explicit egress allow-list</text>
+      </g>
+
+      <!-- DNS/cert note -->
+      <g transform="translate(20,584)">
+        <rect class="fw" x="0" y="0" width="880" height="84"/>
+        <text x="14" y="20" class="h3">Prod addon parity (no divergence)</text>
+        <text x="14" y="38" class="ok">✓ <tspan class="mono">addons/prod-gcp/</tspan> includes cert-manager + external-dns + KEDA + ESO (same as dev/qa/preprod)</text>
+        <text x="14" y="56" class="ok">✓ Tenant subdomain DNS auto-managed by external-dns · ✓ TLS via DNS-01 wildcard (unified cert flow)</text>
+        <text x="14" y="74" class="ok">✓ PREPROD uses managed Cloud SQL/Memorystore too — valid release gate</text>
+      </g>
+    </g>
+
+    <!-- Bottom: Google APIs -->
+    <g transform="translate(20,968)">
+      <rect class="api" x="0" y="0" width="920" height="118"/>
+      <text x="14" y="20" class="h3">Google APIs &amp; managed services (Private Google Access / VPC peering)</text>
+      <text x="14" y="40" class="small"><tspan font-weight="700">Secret Manager:</tspan> project <tspan class="mono">crego-app-prod</tspan> · per-tenant key <tspan class="mono">app-prod-&lt;tenant&gt;</tspan> — ESO via WI · CMEK · rotation ≤90d</text>
+      <text x="14" y="58" class="small"><tspan font-weight="700">Cloud DNS:</tspan> zone <tspan class="mono">crego.app</tspan> — records auto-managed by external-dns</text>
+      <text x="14" y="76" class="small"><tspan font-weight="700">Artifact Registry:</tspan> signed-image pulls · <tspan font-weight="700">Cloud Logging:</tspan> node SA writes logs/metrics</text>
+      <text x="14" y="96" class="ok">✓ CMEK on GSM/PD/Cloud SQL · ✓ VPC Service Controls perimeter · ✓ K8s API audit log sink (BQ/GCS) → SIEM</text>
+      <text x="14" y="112" class="ok">✓ Cloud SQL cross-region read-replica enabled for DR (pilot-light secondary region)</text>
+    </g>
+
+    <!-- arrows -->
+    <line class="arrPsa" x1="580" y1="320" x2="600" y2="320" marker-end="url(#arrPsa)"/>
+    <line class="arrOut" x1="580" y1="430" x2="600" y2="430" marker-end="url(#arrOut)"/>
+    <line class="arrApi" x1="580" y1="380" x2="600" y2="380" marker-end="url(#arrApi)"/>
+  </g>
+</svg>
