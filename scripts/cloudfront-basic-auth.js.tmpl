@@ -1,0 +1,28 @@
+// CloudFront Function (runtime cloudfront-js-2.0), viewer-request on internal/*
+// Enforces HTTP Basic Auth and rewrites directory paths to index.html.
+//
+// This is a TEMPLATE — __B64_CREDENTIALS__ is substituted by
+// setup-internal-auth.sh from DOCS_AUTH_USER/DOCS_AUTH_PASS in scripts/.env.
+// The rendered file is never committed.
+function handler(event) {
+  var request = event.request;
+  var expected = 'Basic __B64_CREDENTIALS__';
+  var auth = request.headers.authorization;
+
+  if (!auth || auth.value !== expected) {
+    return {
+      statusCode: 401,
+      statusDescription: 'Unauthorized',
+      headers: {
+        'www-authenticate': { value: 'Basic realm="Crego Internal Docs", charset="UTF-8"' },
+        'cache-control': { value: 'no-store' }
+      }
+    };
+  }
+
+  // S3 REST origins do not serve index documents for sub-paths.
+  if (request.uri === '/internal' || request.uri === '/internal/') {
+    request.uri = '/internal/index.html';
+  }
+  return request;
+}
