@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crego — Collateral Module · Design Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --radius:.65rem;
+  --background:oklch(1 0 0);
+  --foreground:oklch(.141 .005 285.823);
+  --card:oklch(1 0 0);
+  --muted:oklch(.967 .001 286.375);
+  --muted-fg:oklch(.552 .016 285.938);
+  --accent:oklch(.967 .001 286.375);
+  --accent-fg:oklch(.21 .006 285.885);
+  --border:oklch(.92 .004 286.32);
+  --input:oklch(.92 .004 286.32);
+  --primary:oklch(.623 .214 259.815);
+  --primary-fg:oklch(.97 .014 254.604);
+  --primary-soft:oklch(.97 .014 254.604);
+  --destructive:oklch(.577 .245 27.325);
+  --destructive-soft:oklch(.968 .022 21);
+  --success:oklch(.627 .17 149);
+  --success-soft:oklch(.965 .04 152);
+  --warning:oklch(.74 .16 74);
+  --warning-soft:oklch(.977 .05 88);
+  --sidebar:oklch(.985 0 0);
+  --sidebar-border:oklch(.92 .004 286.32);
+  --shadow-sm:0 1px 2px 0 rgb(0 0 0 / .05);
+  --shadow:0 1px 3px 0 rgb(0 0 0 / .07),0 1px 2px -1px rgb(0 0 0 / .07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{font-family:'Geist',ui-sans-serif,system-ui,sans-serif;background:var(--background);color:var(--foreground);-webkit-font-smoothing:antialiased}
+.mono{font-family:'Geist Mono',monospace}
+a{color:inherit;text-decoration:none}
+/* ---------- shell ---------- */
+.app{display:flex;min-height:100vh}
+.sidebar{width:232px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--sidebar-border);padding:16px 10px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 10px 18px}
+.brand-logo{width:30px;height:30px;border-radius:8px;background:var(--foreground);color:#fff;display:grid;place-items:center;font-weight:700;font-size:15px}
+.brand b{font-size:15px;font-weight:600}
+.brand span{display:block;font-size:11px;color:var(--muted-fg)}
+.nav-label{font-size:11px;font-weight:500;color:var(--muted-fg);padding:14px 10px 6px;text-transform:uppercase;letter-spacing:.04em}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:calc(var(--radius) - 2px);font-size:13.5px;color:var(--accent-fg);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:inherit}
+.nav-item:hover{background:var(--accent)}
+.nav-item.active{background:var(--primary);color:var(--primary-fg);font-weight:500}
+.nav-item .ico{width:17px;height:17px;flex-shrink:0;opacity:.75}
+.nav-item.active .ico{opacity:1}
+.nav-badge{margin-left:auto;background:var(--destructive);color:#fff;font-size:10.5px;font-weight:600;border-radius:99px;padding:1px 7px}
+.main{flex:1;min-width:0}
+.topbar{height:54px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;padding:0 26px;position:sticky;top:0;background:oklch(1 0 0/.85);backdrop-filter:blur(8px);z-index:20}
+.crumb{font-size:13px;color:var(--muted-fg)}
+.crumb b{color:var(--foreground);font-weight:500}
+.topbar .spacer{flex:1}
+.avatar{width:29px;height:29px;border-radius:99px;background:var(--primary);color:var(--primary-fg);display:grid;place-items:center;font-size:12px;font-weight:600}
+.content{padding:26px;max-width:1240px}
+.screen{display:none;animation:fade .25s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* ---------- primitives ---------- */
+.page-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:22px}
+.page-head h1{font-size:21px;font-weight:600;letter-spacing:-.02em}
+.page-head p{font-size:13.5px;color:var(--muted-fg);margin-top:3px}
+.page-head .actions{margin-left:auto;display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:13.5px;font-weight:500;border-radius:calc(var(--radius) - 2px);padding:7.5px 14px;cursor:pointer;border:1px solid transparent;transition:.15s}
+.btn-primary{background:var(--primary);color:var(--primary-fg)}
+.btn-primary:hover{filter:brightness(1.06)}
+.btn-outline{background:var(--background);border-color:var(--input);color:var(--foreground)}
+.btn-outline:hover{background:var(--accent)}
+.btn-ghost{background:none;color:var(--accent-fg)}
+.btn-ghost:hover{background:var(--accent)}
+.btn-destructive{background:var(--destructive);color:#fff}
+.btn-sm{padding:5px 10px;font-size:12.5px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.card-pad{padding:18px 20px}
+.card h3{font-size:14.5px;font-weight:600;letter-spacing:-.01em}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.stat .lbl{font-size:12.5px;color:var(--muted-fg);font-weight:500}
+.stat .val{font-size:23px;font-weight:650;letter-spacing:-.02em;margin-top:5px}
+.stat .sub{font-size:12px;color:var(--muted-fg);margin-top:4px}
+.stat .sub.up{color:var(--success)}
+.stat .sub.down{color:var(--destructive)}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:500;border-radius:99px;padding:2.5px 9px;white-space:nowrap}
+.badge .dot{width:5px;height:5px;border-radius:99px;background:currentColor}
+.b-green{background:var(--success-soft);color:oklch(.44 .12 150)}
+.b-amber{background:var(--warning-soft);color:oklch(.5 .12 70)}
+.b-red{background:var(--destructive-soft);color:oklch(.45 .19 27)}
+.b-blue{background:var(--primary-soft);color:oklch(.45 .18 260)}
+.b-gray{background:var(--muted);color:var(--muted-fg)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:12px;font-weight:500;color:var(--muted-fg);padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer;transition:background .1s}
+tbody tr:hover{background:var(--muted)}
+.cell-main{font-weight:500}
+.cell-sub{font-size:12px;color:var(--muted-fg);margin-top:2px}
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.search{display:flex;align-items:center;gap:8px;border:1px solid var(--input);border-radius:calc(var(--radius) - 2px);padding:7px 12px;font-size:13px;color:var(--muted-fg);background:var(--background);min-width:250px}
+.chip{border:1px solid var(--input);background:var(--background);border-radius:99px;padding:5.5px 13px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;color:var(--accent-fg)}
+.chip.on{background:var(--foreground);color:var(--background);border-color:var(--foreground)}
+.ltv-bar{height:6px;border-radius:99px;background:var(--muted);overflow:hidden;min-width:90px}
+.ltv-bar i{display:block;height:100%;border-radius:99px}
+.ltv-ok i{background:var(--success)}
+.ltv-warn i{background:var(--warning)}
+.ltv-breach i{background:var(--destructive)}
+.ltv-cell{display:flex;align-items:center;gap:9px}
+.ltv-cell b{font-size:12.5px;font-weight:600;min-width:38px}
+/* forms */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:12.5px;font-weight:500}
+.field label em{color:var(--destructive);font-style:normal}
+.field input,.field select,.field textarea{font-family:inherit;font-size:13.5px;padding:8.5px 12px;border:1px solid var(--input);border-radius:calc(var(--radius) - 2px);background:var(--background);color:var(--foreground);outline:none;transition:.15s}
+.field input:focus,.field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px oklch(.623 .214 259.815/.15)}
+.field .hint{font-size:11.5px;color:var(--muted-fg)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.type-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.type-card{border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;text-align:left;background:var(--background);font-family:inherit;transition:.15s}
+.type-card:hover{border-color:var(--muted-fg)}
+.type-card.on{border-color:var(--primary);background:var(--primary-soft)}
+.type-card .t-ico{font-size:20px}
+.type-card b{display:block;font-size:13px;margin-top:8px;font-weight:600}
+.type-card span{font-size:11.5px;color:var(--muted-fg)}
+/* stepper */
+.steps{display:flex;gap:0;margin-bottom:24px}
+.step{flex:1;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted-fg)}
+.step .n{width:24px;height:24px;border-radius:99px;border:1.5px solid var(--border);display:grid;place-items:center;font-size:11.5px;font-weight:600;flex-shrink:0;background:var(--background)}
+.step.done .n{background:var(--success);border-color:var(--success);color:#fff}
+.step.cur{color:var(--foreground);font-weight:500}
+.step.cur .n{border-color:var(--primary);color:var(--primary)}
+.step .line{flex:1;height:1.5px;background:var(--border);margin:0 10px}
+.step.done .line{background:var(--success)}
+/* timeline */
+.tl{list-style:none;position:relative;padding-left:22px}
+.tl:before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:1.5px;background:var(--border)}
+.tl li{position:relative;padding-bottom:16px;font-size:13px}
+.tl li:before{content:'';position:absolute;left:-20.5px;top:4px;width:9px;height:9px;border-radius:99px;background:var(--background);border:2px solid var(--muted-fg)}
+.tl li.hl:before{border-color:var(--primary);background:var(--primary)}
+.tl .tl-t{font-weight:500}
+.tl .tl-s{font-size:11.5px;color:var(--muted-fg);margin-top:2px}
+/* tabs */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:18px}
+.tab{padding:8px 14px;font-size:13.5px;font-weight:500;color:var(--muted-fg);cursor:pointer;border:none;background:none;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--foreground);border-bottom-color:var(--primary)}
+/* gauge */
+.gauge-wrap{display:flex;align-items:center;gap:22px}
+.gauge{position:relative;width:130px;height:74px;overflow:hidden}
+.gauge svg{display:block}
+.gauge .gv{position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:21px;font-weight:650;letter-spacing:-.02em}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:7px 20px;font-size:13px}
+.kv dt{color:var(--muted-fg)}
+.kv dd{font-weight:500}
+/* alert */
+.alert{display:flex;gap:11px;padding:13px 15px;border-radius:var(--radius);font-size:13px;border:1px solid;align-items:flex-start}
+.alert b{display:block;font-weight:600;margin-bottom:2px}
+.alert-red{background:var(--destructive-soft);border-color:oklch(.85 .08 27);color:oklch(.4 .17 27)}
+.alert-amber{background:var(--warning-soft);border-color:oklch(.85 .09 85);color:oklch(.45 .11 70)}
+.alert-blue{background:var(--primary-soft);border-color:oklch(.85 .07 258);color:oklch(.42 .16 260)}
+/* doc rows */
+.doc{display:flex;align-items:center;gap:11px;padding:10px 12px;border:1px solid var(--border);border-radius:calc(var(--radius) - 2px);font-size:13px;margin-bottom:8px}
+.doc .d-ico{width:32px;height:32px;border-radius:7px;background:var(--muted);display:grid;place-items:center;font-size:14px}
+.doc b{font-weight:500}
+.doc span{font-size:11.5px;color:var(--muted-fg);display:block}
+.doc .btn{margin-left:auto}
+/* modal-ish approval box */
+.approve-box{border:1px solid var(--border);border-radius:var(--radius);padding:16px;background:var(--sidebar)}
+/* borrower phone */
+.phone{width:375px;border:1px solid var(--border);border-radius:28px;box-shadow:var(--shadow),0 18px 40px -18px rgb(0 0 0/.18);overflow:hidden;background:var(--background);flex-shrink:0}
+.phone .p-status{height:34px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted-fg)}
+.phone .p-body{padding:18px 20px 26px;min-height:560px}
+.p-head{font-size:18px;font-weight:650;letter-spacing:-.02em;margin-bottom:4px}
+.p-sub{font-size:12.5px;color:var(--muted-fg);margin-bottom:16px}
+.holding{display:flex;align-items:center;gap:11px;border:1.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:9px;cursor:pointer;transition:.15s}
+.holding.on{border-color:var(--primary);background:var(--primary-soft)}
+.holding .h-logo{width:34px;height:34px;border-radius:8px;background:var(--muted);display:grid;place-items:center;font-weight:600;font-size:12px}
+.holding b{font-size:13px;display:block}
+.holding span{font-size:11px;color:var(--muted-fg)}
+.holding .h-amt{margin-left:auto;text-align:right}
+.holding .h-amt b{font-size:13px}
+.check{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--input);flex-shrink:0}
+.holding.on .check{background:var(--primary);border-color:var(--primary);position:relative}
+.holding.on .check:after{content:'✓';color:#fff;font-size:11px;position:absolute;inset:0;display:grid;place-items:center}
+.p-cta{width:100%;padding:13px;font-size:14.5px;border-radius:12px;margin-top:14px}
+.flow-note{max-width:420px}
+.flow-note h4{font-size:13px;font-weight:600;margin:16px 0 6px}
+.flow-note p{font-size:12.5px;color:var(--muted-fg);line-height:1.55}
+.otp{display:flex;gap:8px;margin:14px 0}
+.otp i{width:44px;height:50px;border:1.5px solid var(--input);border-radius:10px;display:grid;place-items:center;font-style:normal;font-size:18px;font-weight:600}
+.otp i.f{border-color:var(--primary)}
+.section-gap{margin-top:22px}
+.muted{color:var(--muted-fg)}
+.right{text-align:right}
+.proto-note{position:fixed;bottom:14px;right:16px;background:var(--foreground);color:var(--background);font-size:11px;padding:6px 12px;border-radius:99px;opacity:.85;z-index:50}
+@media(max-width:1100px){.g4{grid-template-columns:1fr 1fr}.type-cards{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">C</div>
+      <div><b>Crego Omni</b><span>Collateral Module</span></div>
+    </div>
+    <div class="nav-label">Overview</div>
+    <button class="nav-item active" data-nav="dashboard"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</button>
+    <div class="nav-label">Register</div>
+    <button class="nav-item" data-nav="assets"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/></svg>Assets</button>
+    <button class="nav-item" data-nav="create"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>New Asset</button>
+    <button class="nav-item" data-nav="facility"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/></svg>Facilities</button>
+    <div class="nav-label">Workflows</div>
+    <button class="nav-item" data-nav="valuations"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M5 8l7-5 7 5M5 8v4a7 7 0 0014 0V8"/></svg>Valuations<span class="nav-badge">4</span></button>
+    <button class="nav-item" data-nav="perfection"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>Perfection<span class="nav-badge">2</span></button>
+    <button class="nav-item" data-nav="margin"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>Margin Calls<span class="nav-badge">1</span></button>
+    <button class="nav-item" data-nav="release"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 11V7a4 4 0 018 0"/><rect x="4" y="11" width="16" height="10" rx="2"/></svg>Releases</button>
+    <div class="nav-label">Experience</div>
+    <button class="nav-item" data-nav="borrower"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg>Borrower Journey</button>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <div class="topbar">
+      <span class="crumb">Crego Omni / <b id="crumb">Dashboard</b></span>
+      <div class="spacer"></div>
+      <span class="badge b-blue"><span class="dot"></span>Tenant: tiger-capital</span>
+      <div class="avatar">AB</div>
+    </div>
+    <div class="content" id="content-root">
+
+<!-- ================= DASHBOARD ================= -->
+<section class="screen active" id="s-dashboard">
+  <div class="page-head">
+    <div><h1>Collateral Dashboard</h1><p>Portfolio security coverage, LTV health and pending actions</p></div>
+    <div class="actions"><button class="btn btn-outline btn-sm">Export</button><button class="btn btn-primary btn-sm" data-nav="create">+ New Asset</button></div>
+  </div>
+  <div class="grid g4">
+    <div class="card card-pad stat"><div class="lbl">Total collateral value</div><div class="val">₹142.6 Cr</div><div class="sub up">▲ 2.1% this month</div></div>
+    <div class="card card-pad stat"><div class="lbl">Secured exposure</div><div class="val">₹87.3 Cr</div><div class="sub">Portfolio LTV 61.2%</div></div>
+    <div class="card card-pad stat"><div class="lbl">Active collateral</div><div class="val">312</div><div class="sub">across 268 facilities</div></div>
+    <div class="card card-pad stat"><div class="lbl">LTV breaches</div><div class="val" style="color:var(--destructive)">3</div><div class="sub down">1 past cure SLA</div></div>
+  </div>
+  <div class="grid g2 section-gap">
+    <div class="card card-pad">
+      <h3>LTV distribution</h3>
+      <div style="display:flex;gap:6px;align-items:flex-end;height:130px;margin-top:18px">
+        <div style="flex:1;text-align:center"><div style="height:34px;background:var(--success);border-radius:6px 6px 0 0;opacity:.85"></div><div class="muted" style="font-size:11px;margin-top:6px">&lt;40%</div></div>
+        <div style="flex:1;text-align:center"><div style="height:78px;background:var(--success);border-radius:6px 6px 0 0;opacity:.85"></div><div class="muted" style="font-size:11px;margin-top:6px">40–55%</div></div>
+        <div style="flex:1;text-align:center"><div style="height:104px;background:var(--success);border-radius:6px 6px 0 0;opacity:.85"></div><div class="muted" style="font-size:11px;margin-top:6px">55–65%</div></div>
+        <div style="flex:1;text-align:center"><div style="height:58px;background:var(--warning);border-radius:6px 6px 0 0"></div><div class="muted" style="font-size:11px;margin-top:6px">65–75%</div></div>
+        <div style="flex:1;text-align:center"><div style="height:22px;background:var(--destructive);border-radius:6px 6px 0 0"></div><div class="muted" style="font-size:11px;margin-top:6px">&gt;75%</div></div>
+      </div>
+    </div>
+    <div class="card card-pad">
+      <h3>Pending actions</h3>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:9px">
+        <div class="alert alert-red"><div><b>CRE-LAP-0142 · LTV 81.4% — margin call active</b>Cure SLA: 4 of 7 working days remaining. <a href="#" data-nav="margin" style="text-decoration:underline">Open margin call →</a></div></div>
+        <div class="alert alert-amber"><div><b>4 valuations awaiting checker approval</b>Oldest pending 3 days · <a href="#" data-nav="valuations" style="text-decoration:underline">Review queue →</a></div></div>
+        <div class="alert alert-blue"><div><b>2 charges pending perfection &gt; 15 days</b>CERSAI filing overdue on 1 property · <a href="#" data-nav="perfection" style="text-decoration:underline">View register →</a></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card section-gap">
+    <div class="card-pad" style="display:flex;align-items:center"><h3>Coverage by asset class</h3><span class="muted" style="margin-left:auto;font-size:12px">Value · share of book</span></div>
+    <table>
+      <thead><tr><th>Asset class</th><th>Assets</th><th>Collateral value</th><th>Exposure</th><th>Avg LTV</th><th style="width:220px">Policy cap</th></tr></thead>
+      <tbody>
+        <tr><td class="cell-main">🏠 Immovable property (LAP / HL)</td><td>96</td><td>₹78.4 Cr</td><td>₹51.0 Cr</td><td><div class="ltv-cell"><b>65.0%</b><div class="ltv-bar ltv-ok" style="flex:1"><i style="width:65%"></i></div></div></td><td class="muted">75% (LAP) · 90/80/75 (HL slabs)</td></tr>
+        <tr><td class="cell-main">🚛 Vehicles</td><td>121</td><td>₹31.2 Cr</td><td>₹23.9 Cr</td><td><div class="ltv-cell"><b>76.6%</b><div class="ltv-bar ltv-warn" style="flex:1"><i style="width:76%"></i></div></div></td><td class="muted">85% new · 70% used (tenant policy)</td></tr>
+        <tr><td class="cell-main">📈 Equity shares</td><td>38</td><td>₹14.8 Cr</td><td>₹6.9 Cr</td><td><div class="ltv-cell"><b>46.6%</b><div class="ltv-bar ltv-ok" style="flex:1"><i style="width:47%"></i></div></div></td><td class="muted">50% → 60% from Apr 2026</td></tr>
+        <tr><td class="cell-main">🪙 Mutual fund units</td><td>57</td><td>₹18.2 Cr</td><td>₹5.5 Cr</td><td><div class="ltv-cell"><b>30.2%</b><div class="ltv-bar ltv-ok" style="flex:1"><i style="width:30%"></i></div></div></td><td class="muted">50% equity · 75% debt</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= ASSET REGISTRY ================= -->
+<section class="screen" id="s-assets">
+  <div class="page-head">
+    <div><h1>Asset Registry</h1><p>All assets registered as security across the portfolio</p></div>
+    <div class="actions"><button class="btn btn-primary btn-sm" data-nav="create">+ New Asset</button></div>
+  </div>
+  <div class="toolbar">
+    <div class="search">⌕&nbsp; Search by asset ID, owner, registration no…</div>
+    <button class="chip on">All</button><button class="chip">Property</button><button class="chip">Vehicle</button><button class="chip">Equity</button><button class="chip">Mutual funds</button>
+    <button class="chip" style="margin-left:auto">Status ▾</button>
+  </div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Asset</th><th>Type</th><th>Owner</th><th>Latest value</th><th>Linked facility</th><th>LTV</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr data-nav="asset-detail"><td><div class="cell-main">AST-00981</div><div class="cell-sub">Flat 1204, Oberoi Springs, Andheri W, Mumbai</div></td><td><span class="badge b-gray">Property</span></td><td>Meera Traders LLP</td><td>₹2.40 Cr<div class="cell-sub">Valuer · 12 May 2026</div></td><td class="mono" style="font-size:12.5px">CRE-LAP-0138</td><td><div class="ltv-cell"><b>62.5%</b><div class="ltv-bar ltv-ok"><i style="width:62%"></i></div></div></td><td><span class="badge b-green"><span class="dot"></span>Active</span></td></tr>
+        <tr data-nav="asset-detail"><td><div class="cell-main">AST-01044</div><div class="cell-sub">Tata Ace Gold · MH-04-KT-2214</div></td><td><span class="badge b-gray">Vehicle</span></td><td>Sharma Logistics</td><td>₹6.10 L<div class="cell-sub">IDV · 02 Jun 2026</div></td><td class="mono" style="font-size:12.5px">CRE-VF-0722</td><td><div class="ltv-cell"><b>78.7%</b><div class="ltv-bar ltv-warn"><i style="width:78%"></i></div></div></td><td><span class="badge b-green"><span class="dot"></span>Active</span></td></tr>
+        <tr data-nav="asset-detail"><td><div class="cell-main">AST-01059</div><div class="cell-sub">HDFC Flexi Cap Fund · Folio 1029384/55 · 4,120.55 units</div></td><td><span class="badge b-gray">Mutual fund</span></td><td>Rohit Bansal</td><td>₹71.4 L<div class="cell-sub">NAV feed · today 06:00</div></td><td class="mono" style="font-size:12.5px">CRE-LAMF-0310</td><td><div class="ltv-cell"><b>42.0%</b><div class="ltv-bar ltv-ok"><i style="width:42%"></i></div></div></td><td><span class="badge b-green"><span class="dot"></span>Active</span></td></tr>
+        <tr data-nav="asset-detail"><td><div class="cell-main">AST-01102</div><div class="cell-sub">TCS Ltd · ISIN INE467B01029 · 1,800 shares · NSDL</div></td><td><span class="badge b-gray">Equity</span></td><td>Rohit Bansal</td><td>₹74.9 L<div class="cell-sub">EOD price · yesterday</div></td><td class="mono" style="font-size:12.5px">CRE-LAS-0119</td><td><div class="ltv-cell"><b>81.4%</b><div class="ltv-bar ltv-breach"><i style="width:81%"></i></div></div></td><td><span class="badge b-red"><span class="dot"></span>Margin call</span></td></tr>
+        <tr data-nav="asset-detail"><td><div class="cell-main">AST-01121</div><div class="cell-sub">Shop 12, Ganga Complex, Kothrud, Pune</div></td><td><span class="badge b-gray">Property</span></td><td>Deshmukh &amp; Sons</td><td>₹94.0 L<div class="cell-sub">Valuer · 28 Jun 2026</div></td><td class="mono" style="font-size:12.5px">—</td><td class="muted">—</td><td><span class="badge b-amber"><span class="dot"></span>Under valuation</span></td></tr>
+        <tr data-nav="asset-detail"><td><div class="cell-main">AST-01097</div><div class="cell-sub">Mahindra Bolero · MH-12-XY-8841 (used, 2022)</div></td><td><span class="badge b-gray">Vehicle</span></td><td>Patil Transport</td><td>₹7.8 L<div class="cell-sub">Valuer · 20 Jun 2026</div></td><td class="mono" style="font-size:12.5px">CRE-VF-0748</td><td class="muted">—</td><td><span class="badge b-blue"><span class="dot"></span>Perfection pending</span></td></tr>
+        <tr data-nav="asset-detail"><td><div class="cell-main">AST-00874</div><div class="cell-sub">Plot 88, Sector 21, Gurugram</div></td><td><span class="badge b-gray">Property</span></td><td>Nakul Ahuja</td><td>₹1.86 Cr<div class="cell-sub">Valuer · 03 Jan 2026</div></td><td class="mono" style="font-size:12.5px">CRE-LAP-0092</td><td class="muted">—</td><td><span class="badge b-gray"><span class="dot"></span>Released</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= CREATE ASSET ================= -->
+<section class="screen" id="s-create">
+  <div class="page-head">
+    <div><h1>Register New Asset</h1><p>Asset attributes are validated against the seeded schema for the selected type</p></div>
+  </div>
+  <div class="steps">
+    <div class="step cur"><span class="n">1</span>Asset details<span class="line"></span></div>
+    <div class="step"><span class="n">2</span>Ownership &amp; documents<span class="line"></span></div>
+    <div class="step"><span class="n">3</span>Link to facility<span class="line"></span></div>
+    <div class="step"><span class="n">4</span>Review &amp; submit</div>
+  </div>
+  <div class="card card-pad" style="max-width:860px">
+    <h3 style="margin-bottom:14px">Asset type</h3>
+    <div class="type-cards">
+      <button class="type-card" onclick="pickType(this,'property')"><span class="t-ico">🏠</span><b>Immovable property</b><span>LAP · Housing</span></button>
+      <button class="type-card on" onclick="pickType(this,'vehicle')"><span class="t-ico">🚛</span><b>Vehicle</b><span>New · Used · CV</span></button>
+      <button class="type-card" onclick="pickType(this,'equity')"><span class="t-ico">📈</span><b>Equity shares</b><span>Demat · listed</span></button>
+      <button class="type-card" onclick="pickType(this,'mf')"><span class="t-ico">🪙</span><b>Mutual fund units</b><span>Equity · Debt</span></button>
+    </div>
+
+    <div id="f-vehicle">
+      <h3 style="margin-bottom:14px">Vehicle details</h3>
+      <div class="form-grid">
+        <div class="field"><label>Registration number <em>*</em></label><input value="MH-04-KT-2214"><div class="hint">Will be verified against VAHAN (Phase 3)</div></div>
+        <div class="field"><label>Vehicle condition <em>*</em></label><select><option>New</option><option selected>Used</option></select></div>
+        <div class="field"><label>Make &amp; model <em>*</em></label><input value="Tata Ace Gold"></div>
+        <div class="field"><label>Year of manufacture <em>*</em></label><input value="2023"></div>
+        <div class="field"><label>Chassis number <em>*</em></label><input placeholder="MAT445123PVK56789"></div>
+        <div class="field"><label>Engine number <em>*</em></label><input placeholder="275IDI08KTZ700215"></div>
+        <div class="field"><label>Insurance policy no. <em>*</em></label><input placeholder="TATA-AIG-99-3321"></div>
+        <div class="field"><label>Insurance valid till <em>*</em></label><input type="date" value="2027-03-31"></div>
+        <div class="field"><label>Hypothecation on RC</label><select><option>Pending endorsement</option><option>Endorsed to lender</option></select></div>
+        <div class="field"><label>Declared value (IDV) ₹</label><input value="6,10,000"><div class="hint">Reference only — effective value comes from approved valuation</div></div>
+      </div>
+    </div>
+
+    <div id="f-property" style="display:none">
+      <h3 style="margin-bottom:14px">Property details</h3>
+      <div class="form-grid">
+        <div class="field"><label>Property type <em>*</em></label><select><option>Residential flat</option><option>Commercial shop</option><option>Plot</option><option>Industrial</option></select></div>
+        <div class="field"><label>Occupancy <em>*</em></label><select><option>Self-occupied</option><option>Rented</option><option>Vacant</option></select></div>
+        <div class="field" style="grid-column:1/-1"><label>Address <em>*</em></label><textarea rows="2" placeholder="Flat / survey no., street, city, PIN"></textarea></div>
+        <div class="field"><label>Survey / CTS number <em>*</em></label><input></div>
+        <div class="field"><label>Carpet area (sq ft) <em>*</em></label><input></div>
+        <div class="field"><label>Title status <em>*</em></label><select><option>Clear — title search done</option><option>Title search pending</option></select></div>
+        <div class="field"><label>Existing encumbrance</label><select><option>None</option><option>Existing charge (pari passu)</option></select></div>
+      </div>
+    </div>
+
+    <div id="f-equity" style="display:none">
+      <h3 style="margin-bottom:14px">Equity holding</h3>
+      <div class="form-grid">
+        <div class="field"><label>ISIN <em>*</em></label><input placeholder="INE467B01029"></div>
+        <div class="field"><label>Scrip <em>*</em></label><input placeholder="TCS Ltd"></div>
+        <div class="field"><label>Quantity <em>*</em></label><input placeholder="1,800"></div>
+        <div class="field"><label>Depository <em>*</em></label><select><option>NSDL</option><option>CDSL</option></select></div>
+        <div class="field"><label>Demat account (BO ID) <em>*</em></label><input placeholder="IN300394-10112233"></div>
+        <div class="field"><label>Price source</label><select><option>Exchange EOD feed</option><option>Manual</option></select></div>
+      </div>
+    </div>
+
+    <div id="f-mf" style="display:none">
+      <h3 style="margin-bottom:14px">Mutual fund holding</h3>
+      <div class="form-grid">
+        <div class="field"><label>AMC &amp; scheme <em>*</em></label><input placeholder="HDFC Flexi Cap Fund — Direct Growth"></div>
+        <div class="field"><label>Scheme category <em>*</em></label><select><option>Equity</option><option>Debt</option><option>Hybrid</option></select></div>
+        <div class="field"><label>Folio number <em>*</em></label><input placeholder="1029384/55"></div>
+        <div class="field"><label>Units <em>*</em></label><input placeholder="4,120.55"></div>
+        <div class="field"><label>RTA</label><select><option>CAMS</option><option>KFintech</option></select></div>
+        <div class="field"><label>NAV source</label><select><option>AMFI daily feed</option><option>Manual</option></select></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:8px;padding-top:16px;border-top:1px solid var(--border)">
+      <button class="btn btn-outline">Save draft</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost">Cancel</button>
+      <button class="btn btn-primary">Continue → Ownership &amp; documents</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ASSET DETAIL ================= -->
+<section class="screen" id="s-asset-detail">
+  <div class="page-head">
+    <div>
+      <div style="display:flex;gap:10px;align-items:center"><h1>AST-01102 · TCS Ltd — 1,800 shares</h1><span class="badge b-red"><span class="dot"></span>Margin call</span></div>
+      <p>Equity shares · NSDL demat · Owner: Rohit Bansal (CON-2201) · Pledged to CRE-LAS-0119</p>
+    </div>
+    <div class="actions"><button class="btn btn-outline btn-sm">Request revaluation</button><button class="btn btn-outline btn-sm" data-nav="release">Initiate release</button></div>
+  </div>
+  <div class="grid g3">
+    <div class="card card-pad">
+      <h3>Current LTV</h3>
+      <div class="gauge-wrap" style="margin-top:12px">
+        <div class="gauge">
+          <svg width="130" height="74" viewBox="0 0 130 74"><path d="M8 70 A57 57 0 0 1 122 70" fill="none" stroke="var(--muted)" stroke-width="11" stroke-linecap="round"/><path d="M8 70 A57 57 0 0 1 122 70" fill="none" stroke="var(--destructive)" stroke-width="11" stroke-linecap="round" stroke-dasharray="146 180" /></svg>
+          <div class="gv">81.4%</div>
+        </div>
+        <dl class="kv">
+          <dt>Policy cap</dt><dd>50% (60% from Apr '26)</dd>
+          <dt>Exposure</dt><dd>₹61.0 L</dd>
+          <dt>Eligible value</dt><dd>₹74.9 L × (1−0%) </dd>
+        </dl>
+      </div>
+      <div class="alert alert-red" style="margin-top:14px"><div><b>Breach · cure by 10 Jul 2026</b>7-working-day SLA per LAS policy. Margin call MC-0038 active.</div></div>
+    </div>
+    <div class="card card-pad">
+      <h3>Holding attributes</h3>
+      <dl class="kv" style="margin-top:12px">
+        <dt>ISIN</dt><dd class="mono" style="font-size:12.5px">INE467B01029</dd>
+        <dt>Quantity</dt><dd>1,800</dd>
+        <dt>Depository</dt><dd>NSDL</dd>
+        <dt>BO ID</dt><dd class="mono" style="font-size:12.5px">IN300394-10112233</dd>
+        <dt>Charge type</dt><dd>Pledge</dd>
+        <dt>Pledge ref</dt><dd class="mono" style="font-size:12.5px">PLG-2026-118876</dd>
+        <dt>Allocation</dt><dd>100% → CRE-LAS-0119</dd>
+        <dt>Price source</dt><dd>Exchange EOD feed</dd>
+      </dl>
+    </div>
+    <div class="card card-pad">
+      <h3>Event timeline</h3>
+      <ul class="tl" style="margin-top:14px">
+        <li class="hl"><div class="tl-t">LTV breach → margin call raised</div><div class="tl-s">01 Jul 2026 06:04 · system (MTM job)</div></li>
+        <li><div class="tl-t">Mark-to-market: ₹82.1L → ₹74.9L</div><div class="tl-s">01 Jul 2026 06:00 · EOD feed</div></li>
+        <li><div class="tl-t">Pledge confirmed (perfected)</div><div class="tl-s">18 Mar 2026 · NSDL ack PLG-2026-118876</div></li>
+        <li><div class="tl-t">Collateral approved · linked to CRE-LAS-0119</div><div class="tl-s">16 Mar 2026 · checker: priya.k</div></li>
+        <li><div class="tl-t">Asset registered</div><div class="tl-s">14 Mar 2026 · maker: arjun.m</div></li>
+      </ul>
+    </div>
+  </div>
+  <div class="card section-gap">
+    <div class="tabs" style="padding:0 18px;margin-bottom:0"><button class="tab on">Valuations</button><button class="tab">Documents</button><button class="tab">Linked facilities</button><button class="tab">Events</button></div>
+    <table>
+      <thead><tr><th>Date</th><th>Value</th><th>Source</th><th>Valid till</th><th>Maker</th><th>Checker</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>01 Jul 2026</td><td class="cell-main">₹74.9 L</td><td>EOD price × 1,800</td><td>02 Jul 2026</td><td class="muted">system</td><td class="muted">auto</td><td><span class="badge b-green">Effective</span></td></tr>
+        <tr><td>30 Jun 2026</td><td>₹78.3 L</td><td>EOD price × 1,800</td><td>01 Jul 2026</td><td class="muted">system</td><td class="muted">auto</td><td><span class="badge b-gray">Superseded</span></td></tr>
+        <tr><td>14 Mar 2026</td><td>₹82.1 L</td><td>Onboarding snapshot</td><td>—</td><td>arjun.m</td><td>priya.k</td><td><span class="badge b-gray">Superseded</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= FACILITY VIEW ================= -->
+<section class="screen" id="s-facility">
+  <div class="page-head">
+    <div>
+      <div style="display:flex;gap:10px;align-items:center"><h1>CRE-LAP-0138 · Meera Traders LLP</h1><span class="badge b-green"><span class="dot"></span>Active</span></div>
+      <p>LAP term loan · Product: <span class="mono" style="font-size:12px">lap-secured-tl-v2</span> · Sanctioned ₹1.60 Cr · O/s ₹1.50 Cr</p>
+    </div>
+    <div class="actions"><button class="btn btn-outline btn-sm">Add collateral</button><button class="btn btn-primary btn-sm">Request disbursal</button></div>
+  </div>
+  <div class="grid g3">
+    <div class="card card-pad">
+      <h3>Facility LTV</h3>
+      <div class="gauge-wrap" style="margin-top:12px">
+        <div class="gauge">
+          <svg width="130" height="74" viewBox="0 0 130 74"><path d="M8 70 A57 57 0 0 1 122 70" fill="none" stroke="var(--muted)" stroke-width="11" stroke-linecap="round"/><path d="M8 70 A57 57 0 0 1 122 70" fill="none" stroke="var(--success)" stroke-width="11" stroke-linecap="round" stroke-dasharray="112 180"/></svg>
+          <div class="gv">62.5%</div>
+        </div>
+        <dl class="kv">
+          <dt>Policy cap</dt><dd>75% (LAP)</dd>
+          <dt>Headroom</dt><dd style="color:var(--success)">₹30.0 L</dd>
+          <dt>Next revaluation</dt><dd>12 May 2027</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="card card-pad" style="grid-column:span 2">
+      <h3>Disbursal gate — policy check (P0-4)</h3>
+      <div style="display:flex;gap:12px;margin-top:12px;align-items:stretch">
+        <div style="flex:1" class="approve-box">
+          <div style="font-size:12.5px;color:var(--muted-fg)">Requested disbursal</div>
+          <div style="font-size:19px;font-weight:650;margin:4px 0">₹18.0 L</div>
+          <div style="font-size:12px" class="muted">Resulting LTV: <b style="color:var(--success)">70.0%</b> · within 75% cap</div>
+          <button class="btn btn-primary btn-sm" style="margin-top:10px">Proceed to approval</button>
+        </div>
+        <div style="flex:1" class="approve-box">
+          <div style="font-size:12.5px;color:var(--muted-fg)">Requested disbursal</div>
+          <div style="font-size:19px;font-weight:650;margin:4px 0">₹35.0 L</div>
+          <div style="font-size:12px" class="muted">Resulting LTV: <b style="color:var(--destructive)">77.1%</b> · exceeds cap</div>
+          <div class="alert alert-red" style="margin-top:10px;padding:9px 11px"><div style="font-size:12px"><b style="font-size:12px;margin:0">Blocked — POLICY_LTV_CAP_EXCEEDED</b>Reduce amount below ₹30.0 L headroom or add collateral.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card section-gap">
+    <div class="card-pad" style="display:flex;align-items:center"><h3>Linked collateral</h3><span class="muted" style="margin-left:auto;font-size:12px">Eligible value = approved value × allocation × (1 − haircut)</span></div>
+    <table>
+      <thead><tr><th>Asset</th><th>Charge</th><th>Allocation</th><th>Approved value</th><th>Haircut</th><th>Eligible value</th><th>Perfection</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr data-nav="asset-detail"><td><div class="cell-main">AST-00981</div><div class="cell-sub">Flat 1204, Oberoi Springs, Andheri W</div></td><td>Registered mortgage</td><td>100%</td><td>₹2.40 Cr</td><td>0%</td><td class="cell-main">₹2.40 Cr</td><td><span class="badge b-green">CERSAI · SI-88172654</span></td><td><span class="badge b-green"><span class="dot"></span>Active</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid g2 section-gap">
+    <div class="card card-pad">
+      <h3>Applicable LTV policy <span class="muted" style="font-weight:400;font-size:12px">· lap-secured-tl-v2</span></h3>
+      <dl class="kv" style="margin-top:12px">
+        <dt>Max LTV</dt><dd>75%</dd>
+        <dt>Warning threshold</dt><dd>70%</dd>
+        <dt>Margin call at</dt><dd>75%</dd>
+        <dt>Cure SLA</dt><dd>7 working days</dd>
+        <dt>Revaluation cycle</dt><dd>12 months (empanelled valuer)</dd>
+        <dt>Eligible asset types</dt><dd>Residential / commercial property</dd>
+      </dl>
+    </div>
+    <div class="card card-pad">
+      <h3>Facility events</h3>
+      <ul class="tl" style="margin-top:14px">
+        <li class="hl"><div class="tl-t">Disbursal ₹12.0 L passed LTV gate (66.3%)</div><div class="tl-s">21 Jun 2026 · policy engine</div></li>
+        <li><div class="tl-t">Annual revaluation approved — ₹2.40 Cr</div><div class="tl-s">12 May 2026 · checker: priya.k</div></li>
+        <li><div class="tl-t">CERSAI filing confirmed</div><div class="tl-s">03 Feb 2026 · SI-88172654</div></li>
+        <li><div class="tl-t">Collateral activated</div><div class="tl-s">28 Jan 2026</div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VALUATIONS ================= -->
+<section class="screen" id="s-valuations">
+  <div class="page-head">
+    <div><h1>Valuation Queue</h1><p>Maker-checker workflow · empanelled valuers &amp; market feeds</p></div>
+    <div class="actions"><button class="btn btn-outline btn-sm">Assign valuer</button><button class="btn btn-primary btn-sm">+ New valuation</button></div>
+  </div>
+  <div class="toolbar">
+    <button class="chip on">Pending approval · 4</button><button class="chip">Awaiting report · 3</button><button class="chip">Approved (30d)</button><button class="chip">Rejected</button>
+  </div>
+  <div class="grid" style="grid-template-columns:1.4fr 1fr">
+    <div class="card">
+      <table>
+        <thead><tr><th>Asset</th><th>Proposed value</th><th>Source</th><th>Maker</th><th>Age</th></tr></thead>
+        <tbody>
+          <tr style="background:var(--primary-soft)"><td><div class="cell-main">AST-01121 · Shop 12, Ganga Complex, Pune</div><div class="cell-sub">VAL-0392 · commercial shop</div></td><td class="cell-main">₹94.0 L</td><td>Kalyani Valuers Pvt Ltd</td><td>arjun.m</td><td><span class="badge b-amber">3 days</span></td></tr>
+          <tr><td><div class="cell-main">AST-01097 · Mahindra Bolero (used)</div><div class="cell-sub">VAL-0395 · vehicle revaluation</div></td><td>₹7.8 L</td><td>AutoSure Inspections</td><td>neha.d</td><td><span class="badge b-gray">1 day</span></td></tr>
+          <tr><td><div class="cell-main">AST-00963 · Flat 402, Palm Court, Thane</div><div class="cell-sub">VAL-0396 · annual revaluation</div></td><td>₹1.12 Cr</td><td>Kalyani Valuers Pvt Ltd</td><td>arjun.m</td><td><span class="badge b-gray">1 day</span></td></tr>
+          <tr><td><div class="cell-main">AST-01130 · Eicher Pro 2049 (new)</div><div class="cell-sub">VAL-0397 · onboarding</div></td><td>₹14.6 L</td><td>Invoice + IDV</td><td>neha.d</td><td><span class="badge b-gray">4 hrs</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card card-pad">
+      <h3>VAL-0392 · Review</h3>
+      <dl class="kv" style="margin-top:12px">
+        <dt>Asset</dt><dd>AST-01121 · Shop 12, Kothrud, Pune</dd>
+        <dt>Proposed value</dt><dd>₹94.0 L</dd>
+        <dt>Previous value</dt><dd>₹90.5 L (Jul 2025) · +3.9%</dd>
+        <dt>Valuer</dt><dd>Kalyani Valuers Pvt Ltd (empanelled)</dd>
+        <dt>Valid for</dt><dd>12 months</dd>
+      </dl>
+      <div style="margin-top:14px">
+        <div class="doc"><div class="d-ico">📄</div><div><b>valuation-report-shop12.pdf</b><span>2.4 MB · uploaded 01 Jul 2026</span></div><button class="btn btn-ghost btn-sm">View</button></div>
+        <div class="doc"><div class="d-ico">🖼</div><div><b>site-photos.zip</b><span>11 files · geotagged</span></div><button class="btn btn-ghost btn-sm">View</button></div>
+      </div>
+      <div class="field" style="margin-top:6px"><label>Checker remarks</label><textarea rows="2" placeholder="Optional remarks…"></textarea></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="flex:1" onclick="approveVal(this)">✓ Approve valuation</button>
+        <button class="btn btn-outline" style="flex:1">Reject &amp; return</button>
+      </div>
+      <p class="muted" style="font-size:11.5px;margin-top:10px">On approval this becomes the effective value for LTV. Checker must differ from maker (4-eyes).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PERFECTION ================= -->
+<section class="screen" id="s-perfection">
+  <div class="page-head">
+    <div><h1>Charge Perfection Register</h1><p>Legal enforceability tracking — CERSAI, RC hypothecation, pledge / lien confirmation</p></div>
+    <div class="actions"><button class="btn btn-outline btn-sm">Perfection aging report</button></div>
+  </div>
+  <div class="grid g4">
+    <div class="card card-pad stat"><div class="lbl">Perfected</div><div class="val" style="color:var(--success)">289</div><div class="sub">92.6% of active</div></div>
+    <div class="card card-pad stat"><div class="lbl">In progress</div><div class="val">21</div><div class="sub">avg 6 days open</div></div>
+    <div class="card card-pad stat"><div class="lbl">Overdue (&gt;15 days)</div><div class="val" style="color:var(--destructive)">2</div><div class="sub down">blocks activation</div></div>
+    <div class="card card-pad stat"><div class="lbl">Filings this month</div><div class="val">14</div><div class="sub">CERSAI 6 · RC 5 · lien 3</div></div>
+  </div>
+  <div class="card section-gap">
+    <table>
+      <thead><tr><th>Asset / facility</th><th>Charge type</th><th>Registration</th><th>Reference no.</th><th>Filed / due</th><th>Proof</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><div class="cell-main">AST-00981 · CRE-LAP-0138</div><div class="cell-sub">Registered mortgage — Andheri flat</div></td><td>Mortgage</td><td>CERSAI</td><td class="mono" style="font-size:12.5px">SI-88172654</td><td>03 Feb 2026</td><td><span class="badge b-green">✓ receipt.pdf</span></td><td><span class="badge b-green"><span class="dot"></span>Perfected</span></td></tr>
+        <tr><td><div class="cell-main">AST-01044 · CRE-VF-0722</div><div class="cell-sub">Hypothecation — Tata Ace Gold</div></td><td>Hypothecation</td><td>RC endorsement (RTO)</td><td class="mono" style="font-size:12.5px">HYP-MH04-77812</td><td>11 Apr 2026</td><td><span class="badge b-green">✓ rc-copy.pdf</span></td><td><span class="badge b-green"><span class="dot"></span>Perfected</span></td></tr>
+        <tr><td><div class="cell-main">AST-01102 · CRE-LAS-0119</div><div class="cell-sub">Pledge — TCS shares, NSDL</div></td><td>Pledge</td><td>NSDL depository</td><td class="mono" style="font-size:12.5px">PLG-2026-118876</td><td>18 Mar 2026</td><td><span class="badge b-green">✓ pledge-ack</span></td><td><span class="badge b-green"><span class="dot"></span>Perfected</span></td></tr>
+        <tr style="background:var(--destructive-soft)"><td><div class="cell-main">AST-01088 · CRE-LAP-0151</div><div class="cell-sub">Equitable mortgage — Baner row house</div></td><td>Mortgage</td><td>CERSAI</td><td class="muted">—</td><td><b style="color:var(--destructive)">due 19 Jun 2026 · 15 days over</b></td><td><span class="badge b-red">missing</span></td><td><span class="badge b-red"><span class="dot"></span>Overdue</span></td></tr>
+        <tr style="background:var(--warning-soft)"><td><div class="cell-main">AST-01097 · CRE-VF-0748</div><div class="cell-sub">Hypothecation — Mahindra Bolero</div></td><td>Hypothecation</td><td>RC endorsement (RTO)</td><td class="muted">applied</td><td>due 12 Jul 2026</td><td><span class="badge b-amber">form-34 ack</span></td><td><span class="badge b-amber"><span class="dot"></span>In progress</span></td></tr>
+        <tr><td><div class="cell-main">AST-01059 · CRE-LAMF-0310</div><div class="cell-sub">Lien — HDFC Flexi Cap folio</div></td><td>Lien</td><td>RTA (CAMS)</td><td class="mono" style="font-size:12.5px">LIEN-CAMS-40221</td><td>22 May 2026</td><td><span class="badge b-green">✓ lien-conf</span></td><td><span class="badge b-green"><span class="dot"></span>Perfected</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="alert alert-blue section-gap"><div><b>V1 = tracked manually with document proof</b>Phase 3 automates via CERSAI filing API, VAHAN RC status pull, NSDL/CDSL pledge APIs and CAMS/KFintech/MFCentral lien APIs. Collateral cannot reach <b style="display:inline">Active</b> without perfection proof (P0-6).</div></div>
+</section>
+
+<!-- ================= MARGIN CALLS ================= -->
+<section class="screen" id="s-margin">
+  <div class="page-head">
+    <div><h1>Margin Calls &amp; LTV Breaches</h1><p>Daily mark-to-market · warning → margin call → cure SLA → escalation</p></div>
+  </div>
+  <div class="grid" style="grid-template-columns:1.4fr 1fr">
+    <div>
+      <div class="card">
+        <table>
+          <thead><tr><th>Facility</th><th>LTV / cap</th><th>Shortfall</th><th>Stage</th><th>Cure deadline</th></tr></thead>
+          <tbody>
+            <tr style="background:var(--destructive-soft)"><td><div class="cell-main">CRE-LAS-0119 · Rohit Bansal</div><div class="cell-sub">MC-0038 · TCS shares pledge</div></td><td><div class="ltv-cell"><b>81.4%</b><div class="ltv-bar ltv-breach"><i style="width:81%"></i></div></div><div class="cell-sub">cap 50%</div></td><td class="cell-main">₹23.6 L</td><td><span class="badge b-red">Margin call</span></td><td><b>10 Jul 2026</b><div class="cell-sub">4 of 7 working days left</div></td></tr>
+            <tr><td><div class="cell-main">CRE-LAMF-0287 · S. Iyer</div><div class="cell-sub">equity MF basket</div></td><td><div class="ltv-cell"><b>52.1%</b><div class="ltv-bar ltv-warn"><i style="width:52%"></i></div></div><div class="cell-sub">cap 50%</div></td><td>₹1.1 L</td><td><span class="badge b-amber">Warning</span></td><td class="muted">watch</td></tr>
+            <tr><td><div class="cell-main">CRE-VF-0722 · Sharma Logistics</div><div class="cell-sub">used CV · IDV drift</div></td><td><div class="ltv-cell"><b>78.7%</b><div class="ltv-bar ltv-warn"><i style="width:79%"></i></div></div><div class="cell-sub">cap 85%</div></td><td class="muted">—</td><td><span class="badge b-amber">Warning</span></td><td class="muted">revaluation due</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card card-pad section-gap">
+        <h3>LTV trend · CRE-LAS-0119 <span class="muted" style="font-weight:400;font-size:12px">(30 days)</span></h3>
+        <svg viewBox="0 0 560 130" style="width:100%;margin-top:10px">
+          <line x1="0" y1="65" x2="560" y2="65" stroke="var(--destructive)" stroke-width="1" stroke-dasharray="4 4"/>
+          <text x="4" y="60" font-size="10" fill="var(--destructive)" font-family="Geist">cap 50%</text>
+          <polyline fill="none" stroke="var(--primary)" stroke-width="2" points="0,72 40,74 80,70 120,71 160,68 200,66 240,67 280,62 320,58 360,55 400,50 440,42 480,30 520,22 560,18"/>
+          <circle cx="560" cy="18" r="3.5" fill="var(--destructive)"/>
+          <text x="500" y="14" font-size="10" fill="var(--destructive)" font-family="Geist">81.4%</text>
+        </svg>
+      </div>
+    </div>
+    <div class="card card-pad">
+      <h3>MC-0038 · Margin call</h3>
+      <div class="alert alert-red" style="margin-top:12px"><div><b>Cure required by 10 Jul 2026</b>RBI LAS framework: breach must be rectified within 7 working days. Auto-escalates to invocation review if uncured.</div></div>
+      <h4 style="font-size:13px;font-weight:600;margin:16px 0 8px">Cure options offered to borrower</h4>
+      <div class="doc"><div class="d-ico">💰</div><div><b>Part-prepay ₹23.6 L</b><span>brings LTV to 50.0%</span></div><span class="badge b-gray">pending</span></div>
+      <div class="doc"><div class="d-ico">➕</div><div><b>Pledge additional units</b><span>≥ ₹47.2 L eligible value needed</span></div><span class="badge b-gray">pending</span></div>
+      <h4 style="font-size:13px;font-weight:600;margin:14px 0 8px">Notifications sent</h4>
+      <ul class="tl">
+        <li class="hl"><div class="tl-t">Reminder 2 — SMS + email + in-app</div><div class="tl-s">04 Jul 2026 09:00</div></li>
+        <li><div class="tl-t">Margin call notice issued</div><div class="tl-s">01 Jul 2026 06:10 · template mc-notice-v2</div></li>
+        <li><div class="tl-t">LTV warning at 76%</div><div class="tl-s">28 Jun 2026</div></li>
+      </ul>
+      <button class="btn btn-outline" style="width:100%">Record borrower response</button>
+      <button class="btn btn-destructive" style="width:100%;margin-top:8px">Escalate → invocation review</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RELEASE ================= -->
+<section class="screen" id="s-release">
+  <div class="page-head">
+    <div><h1>Release &amp; Substitution</h1><p>Collateral release on closure / prepayment, with maker-checker approval</p></div>
+    <div class="actions"><button class="btn btn-primary btn-sm">+ Initiate release</button></div>
+  </div>
+  <div class="grid" style="grid-template-columns:1.4fr 1fr">
+    <div class="card">
+      <table>
+        <thead><tr><th>Request</th><th>Asset / facility</th><th>Type</th><th>Trigger</th><th>Stage</th></tr></thead>
+        <tbody>
+          <tr style="background:var(--primary-soft)"><td class="mono" style="font-size:12.5px">REL-0104</td><td><div class="cell-main">AST-00874 · Plot 88, Gurugram</div><div class="cell-sub">CRE-LAP-0092 · Nakul Ahuja</div></td><td>Full release</td><td>Loan closed 28 Jun 2026</td><td><span class="badge b-amber">Checker approval</span></td></tr>
+          <tr><td class="mono" style="font-size:12.5px">REL-0105</td><td><div class="cell-main">AST-01011 · ICICI Pru Bluechip folio</div><div class="cell-sub">CRE-LAMF-0294 · partial prepay</div></td><td>Partial release (40% units)</td><td>Prepayment ₹6.0 L</td><td><span class="badge b-gray">Maker draft</span></td></tr>
+          <tr><td class="mono" style="font-size:12.5px">SUB-0021</td><td><div class="cell-main">AST-00998 → AST-01140</div><div class="cell-sub">CRE-LAP-0120 · swap Pune flat → Baner office</div></td><td>Substitution</td><td>Borrower request</td><td><span class="badge b-blue">New asset valuation</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card card-pad">
+      <h3>REL-0104 · Checker review</h3>
+      <div class="approve-box" style="margin-top:12px">
+        <dl class="kv">
+          <dt>Facility status</dt><dd><span class="badge b-green">Closed · NIL outstanding</span></dd>
+          <dt>Other links</dt><dd>None (100% allocated here)</dd>
+          <dt>Charge to lift</dt><dd>CERSAI SI-79912003</dd>
+          <dt>Maker</dt><dd>neha.d · 01 Jul 2026</dd>
+        </dl>
+      </div>
+      <h4 style="font-size:13px;font-weight:600;margin:14px 0 8px">Release checklist</h4>
+      <div class="doc"><div class="d-ico">✓</div><div><b>NOC / closure letter generated</b><span>auto-template noc-lap-v3</span></div><span class="badge b-green">done</span></div>
+      <div class="doc"><div class="d-ico">✓</div><div><b>CERSAI satisfaction filed</b><span>pending confirmation upload</span></div><span class="badge b-amber">pending</span></div>
+      <div class="doc"><div class="d-ico">📄</div><div><b>Original title deeds handover</b><span>courier / branch pickup</span></div><span class="badge b-gray">queued</span></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-primary" style="flex:1">✓ Approve release</button>
+        <button class="btn btn-outline">Return</button>
+      </div>
+      <p class="muted" style="font-size:11.5px;margin-top:10px">On approval: status → Released, release letter attached, CollateralEvent logged (P0-7).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BORROWER JOURNEY ================= -->
+<section class="screen" id="s-borrower">
+  <div class="page-head">
+    <div><h1>Borrower Pledge Journey</h1><p>Embeddable digital LAMF/LAS flow (Phase 2–3) · white-labelled in client theme</p></div>
+  </div>
+  <div style="display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap">
+    <div class="phone">
+      <div class="p-status">9:41 · tiger-capital · powered by Crego</div>
+      <div class="p-body" id="bj-1">
+        <div class="p-head">Get an instant credit line</div>
+        <div class="p-sub">Pledge mutual funds — keep your returns, unlock liquidity. Holdings fetched via MFCentral.</div>
+        <div class="holding on" onclick="this.classList.toggle('on');bjTotal()"><div class="check"></div><div class="h-logo">HD</div><div><b>HDFC Flexi Cap Fund</b><span>4,120.55 units · CAMS</span></div><div class="h-amt"><b>₹7.14 L</b><span>eligible ₹3.57 L</span></div></div>
+        <div class="holding on" onclick="this.classList.toggle('on');bjTotal()"><div class="check"></div><div class="h-logo">IC</div><div><b>ICICI Pru Corporate Bond</b><span>debt · 9,882.10 units · CAMS</span></div><div class="h-amt"><b>₹4.20 L</b><span>eligible ₹3.15 L</span></div></div>
+        <div class="holding" onclick="this.classList.toggle('on');bjTotal()"><div class="check"></div><div class="h-logo">SB</div><div><b>SBI Small Cap Fund</b><span>1,022.80 units · KFintech</span></div><div class="h-amt"><b>₹1.98 L</b><span>eligible ₹0.99 L</span></div></div>
+        <div style="background:var(--muted);border-radius:12px;padding:13px 15px;margin-top:14px;display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:11.5px;color:var(--muted-fg)">Available credit limit</div><div id="bj-limit" style="font-size:19px;font-weight:700;letter-spacing:-.02em">₹6.72 L</div></div>
+          <span class="badge b-green">50% eq · 75% debt LTV</span>
+        </div>
+        <button class="btn btn-primary p-cta" onclick="bjStep(2)">Pledge &amp; continue →</button>
+      </div>
+      <div class="p-body" id="bj-2" style="display:none">
+        <div class="p-head">Authorise pledge</div>
+        <div class="p-sub">OTP sent to +91 ••••• 43210 — this authorises lien marking with CAMS &amp; KFintech.</div>
+        <div class="otp"><i class="f">4</i><i>7</i><i>·</i><i>·</i><i>·</i><i>·</i></div>
+        <div class="alert alert-blue" style="margin:8px 0 14px"><div style="font-size:12px">Your units stay invested and keep earning returns. They're only lien-marked to the lender.</div></div>
+        <button class="btn btn-primary p-cta" onclick="bjStep(3)">Verify OTP</button>
+        <button class="btn btn-ghost p-cta" onclick="bjStep(1)" style="margin-top:6px">← Back</button>
+      </div>
+      <div class="p-body" id="bj-3" style="display:none">
+        <div style="text-align:center;padding:26px 0 14px"><div style="width:62px;height:62px;border-radius:99px;background:var(--success-soft);display:grid;place-items:center;font-size:28px;margin:0 auto 14px">✓</div>
+        <div class="p-head">Lien marked!</div>
+        <div class="p-sub">Credit line of <b>₹6.72 L</b> is active. Withdraw anytime.</div></div>
+        <dl class="kv" style="font-size:12.5px">
+          <dt>Lien ref (CAMS)</dt><dd class="mono" style="font-size:11.5px">LIEN-CAMS-41007</dd>
+          <dt>Current LTV</dt><dd>0% — nothing drawn</dd>
+          <dt>Margin call at</dt><dd>LTV &gt; cap · 7-day cure</dd>
+        </dl>
+        <div style="background:var(--muted);border-radius:12px;padding:13px 15px;margin-top:14px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span class="muted">LTV headroom</span><b>100%</b></div>
+          <div class="ltv-bar ltv-ok"><i style="width:2%"></i></div>
+        </div>
+        <button class="btn btn-primary p-cta">Withdraw funds</button>
+        <button class="btn btn-ghost p-cta" style="margin-top:6px" onclick="bjStep(1)">Restart demo</button>
+      </div>
+    </div>
+    <div class="flow-note">
+      <h3 style="font-size:15px;font-weight:600">Journey notes</h3>
+      <h4>1 · Holdings discovery</h4><p>Fetch via MFCentral / CAMS / KFintech APIs (Phase 3) or statement upload (Phase 2). Eligible value = market value × LTV cap per scheme category — the policy engine drives the math, not the UI.</p>
+      <h4>2 · OTP pledge</h4><p>Lien marking is authorised by the investor via RTA OTP. For demat shares the equivalent step is NSDL/CDSL pledge authorisation. Failures fall back to ops-assisted manual lien.</p>
+      <h4>3 · Live limit + headroom</h4><p>Post-pledge, borrower sees LTV headroom continuously (P1 story #9). Margin call notices reuse the same notification templates as the ops console (MC-0038 flow).</p>
+      <h4>States to design later</h4><p>KYC mismatch, folio under existing lien, partial pledge rejection by RTA, NAV feed delay banner, invocation notice.</p>
+    </div>
+  </div>
+</section>
+    </div>
+  </div>
+</div>
+<div class="proto-note">Design prototype · v0.1 · no real data</div>
+<script>
+const TITLES={dashboard:'Dashboard',assets:'Asset Registry',create:'New Asset','asset-detail':'Assets / AST-01102',facility:'Facilities / CRE-LAP-0138',valuations:'Valuation Queue',perfection:'Perfection Register',margin:'Margin Calls',release:'Releases',borrower:'Borrower Journey'};
+function nav(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const scr=document.getElementById('s-'+id);
+  if(scr)scr.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.nav===id||(id==='asset-detail'&&n.dataset.nav==='assets')));
+  document.getElementById('crumb').textContent=TITLES[id]||id;
+  window.scrollTo({top:0});
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-nav]');
+  if(t){e.preventDefault();nav(t.dataset.nav);}
+});
+function pickType(btn,type){
+  btn.parentElement.querySelectorAll('.type-card').forEach(c=>c.classList.remove('on'));
+  btn.classList.add('on');
+  ['vehicle','property','equity','mf'].forEach(k=>{
+    const f=document.getElementById('f-'+k);
+    if(f)f.style.display=(k===type)?'':'none';
+  });
+}
+function approveVal(btn){
+  btn.textContent='✓ Approved — value effective';
+  btn.disabled=true;btn.style.background='var(--success)';
+}
+function bjStep(n){
+  [1,2,3].forEach(i=>document.getElementById('bj-'+i).style.display=(i===n)?'':'none');
+}
+function bjTotal(){
+  const rows=[...document.querySelectorAll('#bj-1 .holding')];
+  const vals=[3.57,3.15,0.99];
+  let t=0;rows.forEach((r,i)=>{if(r.classList.contains('on'))t+=vals[i]});
+  document.getElementById('bj-limit').textContent='₹'+t.toFixed(2)+' L';
+}
+</script>
+</body>
+</html>
