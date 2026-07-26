@@ -48,20 +48,48 @@ value_date basis.
 `payment.txn_date`, set `status = processed` and `processed_at`, fill
 `Ledger.contact_id`. No amount is created, changed or moved.
 
-### 2. The remainder was never booked · 4 receipts · ₹92
+### 2. Settlement split across value dates, with no interim excess · 4 receipts
 
-Lifetime net excess is 0 and no sibling holds the money.
+On the local snapshot these four looked like a permanent shortfall — receipt
+larger than everything posted, nothing parked:
 
-| Group acct | Payment | Receipt | Parked |
+| Group acct | Payment | Receipt | Gap |
 |---|---|---:|---:|
 | CL84P73A | RECRN6BQ | 33,350 | 59 |
 | CL4NAG3A | REC39MN6 | 21,54,655 | 3 |
 | CLJEVNLA | RECB35OM | 5,00,000 | 29 |
 | CL8QN4PA | RECPL55J | 22,46,565 | 1 |
 
-**Fix:** `fix_missing_excess_parking` — post the missing `excess` leg on the
-receipt's anchor transaction and bump the contact-level excess demand, then
-re-derive counters with `fix_payment_ledger_counters`.
+**Prod says otherwise, and prod is right.** The receipts tie there, because the
+remainder was settled later against a *second* loan:
+
+```
+RECRN6BQ   paid 33,291  value_date 2026-06-24     <- first loan
+           paid     59  value_date 2026-07-02     <- second loan, 8 days later
+REC39MN6   paid 21,54,652  value_date 2026-05-22
+           paid        3  value_date 2026-07-07   <- 46 days later
+```
+
+The local copy simply predates the second settlement. So the defect is not a
+missing amount — it is that **nothing represents the money between the two
+settlement dates**. No `excess` posting is parked at the first date and no
+`settled` posting consumes it at the second, so a point-in-time report anywhere
+in that window reads zero. V1 reports 59 and 3 because its sheet is an
+as-of-end-June figure, inside those windows.
+
+**Do not use `fix_missing_excess_parking` for these.** Posting a permanent
+`excess` would break the receipt tie and overstate excess forever.
+
+The correct fix is an `excess` leg at the first value_date plus a matching
+`settled` leg at each later one — net zero over the receipt's life, correct at
+every point in it. That is the wider "cause D" shape: **1,419 tyger receipts
+settle across ≥2 value dates** (avg gap 12 days, max 377), covering
+₹3,80,64,327 consumed at a later date, and only 8 of them park anything in
+between. Not yet built; needs its own decision on scope.
+
+`fix_missing_excess_parking` remains correct for a genuine permanent shortfall,
+which is what the local snapshot presented. It is guarded by `--expect` for
+exactly this reason.
 
 ### 3. Paise noise · ~55 sheet rows · no action
 
@@ -113,6 +141,38 @@ TENANT_ALIAS=tyger pipenv run python manage.py fix_payment_ledger_counters \
 ```
 
 Both commands are dry-run by default and idempotent.
+
+## Prod result (2026-07-26)
+
+Ran from a local checkout over the existing IAP tunnel
+(`:15432` → `10.158.1.3`, `omni_tyger_db`), scope `--all`.
+
+**Applied:** `fix_contact_excess_transaction_metadata` — 26 transactions stamped
+with `txn_date`, 22 ledger rows given their `contact_id`. **Zero status changes**
+(prod's rows were already `processed`; local's were `pending`). No ledger rows
+created, no amounts touched.
+
+**Skipped, correctly:** 179 — 39 reverted/rejected receipts, ~140 whose ledger
+*exceeds* the receipt by large negative gaps (up to −₹5.04 crore). That
+over-posting is a separate defect from the 2026-07-23 July replay and needs its
+own triage; the tie guard refuses them rather than guessing.
+
+**Not applied:** `fix_missing_excess_parking` — all four receipts already tie on
+prod (see cause 2 above). Running it would have been wrong.
+
+Sheet oracle on prod at `as_of_date=2026-07-31`: **19 of 23 checked accounts
+within ₹1**, up from 14. Every large mismatch closed — CLR97PXA 92,565,
+CL8ALE5A 61,970, CL4K8L3A 45,000, CL3LXG3B 23,581, CLJYNWNA 72,996,
+CL8W5LYA 14,302, CLJBYPBA 8,334. Remaining: CL84P73A (59) and CL4NAG3A (3),
+both cause 2; CLJEVNLA off by 1.09 and CL48NN2A by 12.89, both paise class.
+
+`verify_payment_ledger_consistency` over the affected receipts: all reconcile.
+
+> **Prod was being written to concurrently during this session** — 8 `excess`
+> ledger rows appeared between 14:07 and 16:46 UTC from another process
+> (system user, historical value_dates, receipts including REC0V5VW and
+> RECQM2L3). Not from this work, which issues no inserts. Worth coordinating
+> before the next prod run.
 
 ## Local result (2026-07-26)
 
