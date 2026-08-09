@@ -4,31 +4,53 @@
     "type": "split",
     "children": [
       {
-        "id": "715da1f37c1e9ec5",
+        "id": "f7fbf36cb80dd886",
         "type": "tabs",
         "children": [
           {
-            "id": "5ec769bf7bbd6542",
+            "id": "b5fd92a7b3c919ce",
+            "type": "leaf",
+            "pinned": true,
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "engineering/fleetview-prd.md",
+                "mode": "source",
+                "source": false
+              },
+              "pinned": true,
+              "icon": "lucide-file",
+              "title": "fleetview-prd"
+            }
+          },
+          {
+            "id": "053ff27c202fcacd",
+            "type": "leaf",
+            "pinned": true,
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "engineering/omni-serialization-before-after.md",
+                "mode": "preview",
+                "source": false
+              },
+              "pinned": true,
+              "icon": "lucide-file",
+              "title": "omni-serialization-before-after"
+            }
+          },
+          {
+            "id": "d6129444feb07f9a",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "engineering/tech-stack-summary.md",
-                "mode": "source",
+                "file": "engineering/omni-serialization-before-after.md",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "tech-stack-summary"
-            }
-          },
-          {
-            "id": "637985ab04956f45",
-            "type": "leaf",
-            "state": {
-              "type": "empty",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "New tab"
+              "title": "omni-serialization-before-after"
             }
           }
         ],
@@ -52,7 +74,9 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": false,
+                "showSearch": true,
+                "searchQuery": "omni"
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -89,7 +113,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 304.5
+    "width": 287.58984375
   },
   "right": {
     "id": "1e065d34ebfd51f4",
@@ -105,7 +129,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "release-management/CLAUDE.md",
+                "file": "engineering/omni-serialization-before-after.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -115,7 +139,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for CLAUDE"
+              "title": "Backlinks"
             }
           },
           {
@@ -124,6 +148,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "engineering/omni-serialization-before-after.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -178,8 +203,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -192,54 +216,54 @@
       "bases:Create new base": false
     }
   },
-  "active": "ed4dd4587a20275d",
+  "active": "053ff27c202fcacd",
   "lastOpenFiles": [
+    "engineering/omni-transaction-serialization-design.md",
+    "engineering/omni-serialization-before-after.md",
+    "engineering/pdc-module-technical-design.md",
+    "infrastructure/target-state/Crego-Single-Tenant-Target-Architecture.pdf",
+    "infrastructure/target-state/Crego-Multi-Tenant-Target-Architecture.pdf",
+    "infrastructure/target-state/Crego-Infra-Gaps-Consolidated.xlsx",
+    "infrastructure/target-state/Crego-Infra-Gaps-Consolidated-updated.xlsx",
+    "infrastructure/target-state/04-multi-tenant-network-target.svg",
+    "infrastructure/target-state/03-single-tenant-network-target.svg",
+    "infrastructure/target-state/02-multi-tenant-overview-target.svg",
+    "infrastructure/target-state/01-single-tenant-overview-target.svg",
+    "infrastructure/target-state",
+    "infrastructure/prod-namespace-per-tenant-design.md",
+    "infrastructure/pdc-module-technical-design.md",
+    "infrastructure/flow-los-bre-architecture.png",
+    "infrastructure/dev-qa-environment-isolation-design.md",
+    "engineering/universal-view-module-plan.md",
+    "engineering/pdc-module-prd.md",
+    "engineering/opportunity-3-ai-collection-agent.pptx",
+    "engineering/opportunity-2-colending-os.pptx",
+    "engineering/opportunity-1-ai-native-onboarding.pptx",
+    "engineering/operating-lease-prd.md",
+    "engineering/operating-lease-mockup.html",
+    "engineering/lms-feature-gap-analysis.xlsx",
+    "engineering/lms-console-data-gap-analysis.md",
+    "engineering/fleetview-prd.md",
+    "engineering/rule-expression.md",
+    "engineering/rounding-application-audit.md",
+    "engineering/tyger-excess-v1-v2-mismatch-2026-07.md",
+    "engineering/uniform-rounding-config-prd.md",
+    "engineering/uniform-rounding-config-plan.md",
     "Untitled.md",
     "engineering/infra-setup-guide.md",
-    "site/platform/releases/v2.3.0-release-plan.xlsx",
-    "site/platform/releases/cycle-160-plan.xlsx",
     "site/platform/releases/v2.3.0-release-plan.md",
     "site/platform/releases/v2.2.0.md",
     "site/platform/releases/v2.1.0.md",
     "site/platform/releases/v2.0.0.md",
-    "site/infosec/v2-vapt-reports/Omni_And_Flow_Source_code_Review_Audit_Level_2_Report (1) dsc.pdf",
-    "site/infosec/v2-vapt-reports/Omni_And_Flow_Source_code_Review_Audit_Level_2_Report (1) dsc 1.pdf",
-    "site/infosec/v1-reports/Disaster_Recovery_Report.pdf",
-    "site/infosec/v1-reports/Crego_io__Source_Code_Review_Report_V_1_0.pdf",
-    "site/infosec/v1-reports/Crego_Nsa_level_2_report.pdf",
-    "site/infosec/v1-reports/Crego_API_Closure-Report.pdf",
-    "site/infosec/v1-reports/Crego_-_Audit_Log_Policy.pdf",
-    "site/infosec/v1-reports/Crego-Web-Application-Security-Audit-L2-Report_dsc.pdf",
     "engineering/tech-stack.md",
     "engineering/tech-stack-summary.md",
     "engineering/remote-environment-access.md",
     "infrastructure/source-code-security-assurance.md",
-    "engineering/sdlc-development-guide.md",
-    "engineering/utility-commands.md",
-    "engineering/unified-version-format.md",
-    "release-notes/README.md",
-    "infrastructure/platform-ips.md",
-    "infrastructure/network-architecture-diagram.md",
     "infrastructure/crego-Network-Arch-Diagram.drawio.png",
-    "infrastructure/credentials.md",
-    "architecture/high-level-design/infrastructure-diagrams.md",
-    "architecture/high-level-design/02-deployment-topology.md",
-    "architecture/high-level-design/01-system-architecture.md",
-    "compliance/README.md",
-    "engineering/rule-expression.md",
-    "engineering/environment-naming-standard.md",
-    "release-management/release-playbook.md",
-    "runbooks/sentry-alert-investigation.md",
-    "CLAUDE.md",
     "compliance/disaster-recovery/images/dr-2024-10-image-2.png",
     "compliance/disaster-recovery/images/dr-2024-10-screenshot.png",
     "compliance/disaster-recovery/images/dr-2023-08-image5.jpeg",
     "compliance/disaster-recovery/images/dr-2023-08-image-2.png",
-    "compliance/disaster-recovery/images/dr-2023-08-image-1.png",
-    "compliance/disaster-recovery/images/dr-2023-08-image.png",
-    "clients/Dehaat/dehaat-deployment-architecture.png",
-    "architecture/Dehaat/dehaat-deployment-architecture.png",
-    "clients/dehaat/dehaat-deployment-architecture.png",
     "Untitled.canvas"
   ]
 }

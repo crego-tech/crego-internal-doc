@@ -4,5 +4,6 @@
   "baseFontSizeAction": false,
   "nativeMenus": true,
   "translucency": true,
-  "cssTheme": ""
+  "cssTheme": "",
+  "showRibbon": true
 }
