@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operating Lease — Omni Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --background:#ffffff; --foreground:#0a0a0a;
+  --card:#ffffff; --popover:#ffffff;
+  --primary:#171717; --primary-foreground:#fafafa;
+  --secondary:#f5f5f5; --muted:#f5f5f5; --muted-foreground:#737373;
+  --accent:#f5f5f5; --border:#e5e5e5; --input:#e5e5e5; --ring:#b5b5b5;
+  --destructive:#d64545; --destructive-soft:#fef2f2; --destructive-border:#fecaca;
+  --success:#00a06b; --success-soft:#ecfdf5; --success-border:#a7f3d0;
+  --accent-blue:#dbeafe; --accent-blue-fg:#2563eb;
+  --warning:#fffbeb; --warning-fg:#d97706; --warning-border:#fcd34d;
+  --sidebar:#fafafa; --sidebar-border:#e5e5e5;
+  --radius:0.625rem;
+  --radius-sm:calc(var(--radius) - 4px);
+  --radius-md:calc(var(--radius) - 2px);
+  --radius-lg:var(--radius);
+  --radius-xl:calc(var(--radius) + 4px);
+  --header-height:56px;
+  --sidebar-width:16rem;
+}
+*{box-sizing:border-box;margin:0;padding:0;border-color:var(--border)}
+html,body{height:100%}
+body{
+  font-family:'Geist',ui-sans-serif,system-ui,-apple-system,sans-serif;
+  background:var(--background); color:var(--foreground);
+  font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+/* ---------- shell ---------- */
+.shell{display:flex;height:100dvh;overflow:hidden}
+.sidebar{
+  width:var(--sidebar-width);flex-shrink:0;background:var(--sidebar);
+  border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;overflow-y:auto
+}
+.sb-logo{height:var(--header-height);display:flex;align-items:center;gap:8px;padding:0 12px;flex-shrink:0}
+.sb-mark{width:26px;height:26px;border-radius:7px;background:var(--primary);color:var(--primary-foreground);
+  display:grid;place-items:center;font-weight:700;font-size:13px;letter-spacing:-0.03em}
+.sb-name{font-size:14px;font-weight:600;letter-spacing:-0.01em}
+.sb-sub{font-size:10px;color:var(--muted-foreground);font-weight:500}
+.sb-group{padding:8px 8px 4px}
+.sb-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--muted-foreground);padding:6px 8px 4px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:var(--radius-md);
+  font-size:13px;font-weight:500;color:var(--foreground);cursor:pointer;user-select:none;
+  border:1px solid transparent;transition:background .12s}
+.sb-item:hover{background:#efefef}
+.sb-item.active{background:var(--background);border-color:var(--border);box-shadow:0 1px 2px rgba(0,0,0,.05);font-weight:600}
+.sb-item.dim{color:var(--muted-foreground)}
+.sb-ico{width:15px;height:15px;flex-shrink:0;stroke-width:1.7}
+.sb-badge{margin-left:auto;font-size:9px;font-weight:700;background:var(--accent-blue);color:var(--accent-blue-fg);
+  border-radius:99px;padding:1px 6px;letter-spacing:.03em}
+.sb-foot{margin-top:auto;padding:8px;border-top:1px solid var(--sidebar-border)}
+.sb-user{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:var(--radius-md)}
+.avatar{width:26px;height:26px;border-radius:99px;background:var(--primary);color:var(--primary-foreground);
+  display:grid;place-items:center;font-size:11px;font-weight:600}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:var(--header-height);flex-shrink:0;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;padding:0 12px;background:var(--background)}
+.crumbs{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted-foreground)}
+.crumbs b{color:var(--foreground);font-weight:500}
+.crumb-sep{opacity:.4}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.content{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:16px}
+.screen{display:none;flex-direction:column;gap:16px}
+.screen.active{display:flex}
+
+/* ---------- primitives ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 12px;
+  border-radius:var(--radius-md);font-size:13px;font-weight:500;border:1px solid var(--border);
+  background:var(--background);color:var(--foreground);cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.04);
+  white-space:nowrap;font-family:inherit}
+.btn:hover{background:var(--secondary)}
+.btn.primary{background:var(--primary);color:var(--primary-foreground);border-color:var(--primary)}
+.btn.primary:hover{opacity:.9}
+.btn.ghost{border-color:transparent;box-shadow:none;background:transparent}
+.btn.ghost:hover{background:var(--secondary)}
+.btn.sm{height:28px;padding:0 10px;font-size:12px}
+.btn.xs{height:24px;padding:0 8px;font-size:11px}
+.btn.danger{color:var(--destructive);border-color:var(--destructive-border);background:var(--destructive-soft)}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-xl);
+  box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.card-h{padding:14px 16px 0;display:flex;align-items:flex-start;gap:10px}
+.card-t{font-size:14px;font-weight:600;letter-spacing:-0.01em}
+.card-d{font-size:12px;color:var(--muted-foreground);margin-top:2px}
+.card-a{margin-left:auto;display:flex;gap:6px;align-items:center}
+.card-b{padding:14px 16px}
+.card-b.tight{padding:0}
+.card-f{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
+
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:99px;border:1px solid var(--border);
+  padding:1px 8px;font-size:11px;font-weight:500;background:var(--background);white-space:nowrap}
+.badge.green{background:var(--success-soft);color:#047857;border-color:var(--success-border)}
+.badge.red{background:var(--destructive-soft);color:#b91c1c;border-color:var(--destructive-border)}
+.badge.amber{background:var(--warning);color:var(--warning-fg);border-color:var(--warning-border)}
+.badge.blue{background:var(--accent-blue);color:var(--accent-blue-fg);border-color:#bfdbfe}
+.badge.grey{background:var(--muted);color:var(--muted-foreground)}
+.badge.solid{background:var(--primary);color:var(--primary-foreground);border-color:var(--primary)}
+
+.page-head{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.page-t{font-size:20px;font-weight:600;letter-spacing:-0.02em}
+.page-d{font-size:13px;color:var(--muted-foreground);margin-top:3px;max-width:62ch}
+.page-a{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:1100px){.g4,.g5{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.stat{border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;background:var(--card)}
+.stat-l{font-size:11px;color:var(--muted-foreground);font-weight:500;display:flex;align-items:center;gap:5px}
+.stat-v{font-size:19px;font-weight:600;letter-spacing:-0.02em;margin-top:3px;font-variant-numeric:tabular-nums}
+.stat-s{font-size:11px;color:var(--muted-foreground);margin-top:2px}
+.stat.hl{background:#fafafa;border-color:#d4d4d4}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;font-size:11px;font-weight:600;color:var(--muted-foreground);
+  text-transform:uppercase;letter-spacing:.04em;padding:9px 12px;border-bottom:1px solid var(--border);
+  background:#fbfbfb;white-space:nowrap}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#fafafa}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+th.num{text-align:right}
+.tw{max-height:400px;overflow:auto;border-radius:0 0 var(--radius-xl) var(--radius-xl)}
+.tw thead th{position:sticky;top:0;z-index:1}
+tr.hlrow{background:#fffbeb !important}
+tr.hlrow:hover{background:#fef3c7 !important}
+tr.total td{background:#fafafa;font-weight:600;border-top:1px solid var(--border)}
+
+.field{display:flex;flex-direction:column;gap:5px}
+.lbl{font-size:12px;font-weight:500}
+.hint{font-size:11px;color:var(--muted-foreground)}
+.inp{height:32px;border:1px solid var(--input);border-radius:var(--radius-md);padding:0 10px;
+  font-size:13px;background:var(--background);font-family:inherit;color:var(--foreground);width:100%}
+.inp:focus{outline:2px solid rgba(181,181,181,.5);outline-offset:1px}
+.inp[readonly]{background:var(--muted);color:var(--muted-foreground)}
+select.inp{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2'><path d='m6 9 6 6 6-6'/></svg>");
+  background-repeat:no-repeat;background-position:right 9px center;padding-right:28px}
+
+.seg{display:inline-flex;background:var(--muted);border-radius:var(--radius-md);padding:2px;gap:2px}
+.seg button{border:0;background:transparent;font-family:inherit;font-size:12px;font-weight:500;
+  padding:5px 11px;border-radius:calc(var(--radius-md) - 2px);cursor:pointer;color:var(--muted-foreground)}
+.seg button.on{background:var(--background);color:var(--foreground);box-shadow:0 1px 2px rgba(0,0,0,.07);font-weight:600}
+
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);overflow-x:auto}
+.tab{padding:8px 12px;font-size:13px;font-weight:500;color:var(--muted-foreground);cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab:hover{color:var(--foreground)}
+.tab.on{color:var(--foreground);font-weight:600;border-bottom-color:var(--primary)}
+.tabpane{display:none;padding-top:14px}
+.tabpane.on{display:block}
+
+.sw{width:34px;height:19px;border-radius:99px;background:#d4d4d4;position:relative;cursor:pointer;flex-shrink:0;transition:background .15s}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:99px;
+  background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s}
+.sw.on{background:var(--primary)}
+.sw.on::after{transform:translateX(15px)}
+.row{display:flex;align-items:center;gap:10px}
+.between{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.kv{display:flex;justify-content:space-between;gap:14px;padding:6px 0;font-size:13px;border-bottom:1px dashed #ececec}
+.kv:last-child{border-bottom:0}
+.kv .k{color:var(--muted-foreground)}
+.kv .v{font-weight:500;font-variant-numeric:tabular-nums}
+.kv.big .v{font-size:15px;font-weight:600}
+
+.note{border:1px solid var(--warning-border);background:var(--warning);border-radius:var(--radius-lg);
+  padding:10px 12px;font-size:12px;color:#92400e;display:flex;gap:8px;align-items:flex-start}
+.note.blue{border-color:#bfdbfe;background:var(--accent-blue);color:#1e40af}
+.note.red{border-color:var(--destructive-border);background:var(--destructive-soft);color:#991b1b}
+.note.green{border-color:var(--success-border);background:var(--success-soft);color:#065f46}
+.note b{font-weight:600}
+
+.flow{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:2px}
+.fstep{flex:1;min-width:118px;border:1px solid var(--border);border-radius:var(--radius-lg);padding:9px 11px;
+  background:var(--card);position:relative}
+.fstep+.fstep{margin-left:14px}
+.fstep+.fstep::before{content:'';position:absolute;left:-14px;top:50%;width:14px;height:1px;background:var(--border)}
+.fstep .n{font-size:10px;font-weight:700;color:var(--muted-foreground);letter-spacing:.05em}
+.fstep .t{font-size:12px;font-weight:600;margin-top:2px;letter-spacing:-0.01em}
+.fstep .s{font-size:10.5px;color:var(--muted-foreground);margin-top:2px;line-height:1.35}
+.fstep.done{background:var(--success-soft);border-color:var(--success-border)}
+.fstep.done .n{color:#047857}
+.fstep.now{border-color:var(--primary);box-shadow:0 0 0 2px rgba(23,23,23,.08)}
+
+.journal{font-size:13px;width:100%;border-collapse:collapse}
+.journal td{padding:6px 10px;border-bottom:1px solid #f0f0f0}
+.journal .acc{padding-left:10px}
+.journal .acc.cr{padding-left:34px;color:var(--muted-foreground)}
+.journal tr.jhead td{background:#fafafa;font-weight:600;font-size:11px;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--muted-foreground)}
+.journal tr.jtot td{font-weight:600;border-top:1px solid var(--border);background:#fbfbfb}
+
+.evlist{display:flex;flex-direction:column;gap:2px}
+.ev{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:var(--radius-md);cursor:pointer;
+  border:1px solid transparent;font-size:12.5px}
+.ev:hover{background:var(--secondary)}
+.ev.on{background:var(--background);border-color:var(--border);box-shadow:0 1px 2px rgba(0,0,0,.05);font-weight:600}
+.ev .dot{width:6px;height:6px;border-radius:99px;background:var(--muted-foreground);flex-shrink:0}
+.ev.on .dot{background:var(--primary)}
+
+.bar{height:7px;border-radius:99px;background:var(--muted);overflow:hidden}
+.bar > i{display:block;height:100%;background:var(--primary);border-radius:99px}
+.mono{font-variant-numeric:tabular-nums}
+.mut{color:var(--muted-foreground)}
+.xs{font-size:11px}
+.sm{font-size:12px}
+.b6{font-weight:600}
+.sep{height:1px;background:var(--border);margin:12px 0}
+.pill-row{display:flex;flex-wrap:wrap;gap:6px}
+.chart{width:100%;height:150px}
+.ref-tag{font-size:10px;font-weight:600;background:var(--muted);color:var(--muted-foreground);
+  border-radius:4px;padding:1px 5px;letter-spacing:.03em}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-mark">C</div>
+      <div>
+        <div class="sb-name">Crego Omni</div>
+        <div class="sb-sub">Lease Management</div>
+      </div>
+    </div>
+
+    <div class="sb-group">
+      <div class="sb-label">Lease</div>
+      <div class="sb-item" data-nav="product">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12.9 6.9 19 5l-1.9 6.1"/><path d="M21 12a9 9 0 1 1-9-9"/><circle cx="12" cy="12" r="3"/></svg>
+        Product Configuration
+      </div>
+      <div class="sb-item" data-nav="booking">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6"/></svg>
+        Lease Booking
+      </div>
+      <div class="sb-item" data-nav="schedule">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Rental Schedule
+      </div>
+      <div class="sb-item" data-nav="invoices">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2V2l-3 2-3-2-3 2-3-2z"/><path d="M8 9h8M8 13h6"/></svg>
+        Invoicing &amp; GST
+      </div>
+      <div class="sb-item" data-nav="collections">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        Collections
+      </div>
+      <div class="sb-item" data-nav="restructure">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 2v6h6"/><path d="M21 12A9 9 0 0 0 6 5.3L3 8"/><path d="M21 22v-6h-6"/><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"/></svg>
+        Restructuring
+      </div>
+      <div class="sb-item" data-nav="asset">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>
+        Asset &amp; Residual
+      </div>
+      <div class="sb-item" data-nav="gl">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18"/><path d="M7 16v-5M12 16V8M17 16v-3"/></svg>
+        GL Entries
+      </div>
+    </div>
+
+    <div class="sb-group">
+      <div class="sb-label">LMS</div>
+      <div class="sb-item dim">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </div>
+      <div class="sb-item dim">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/></svg>
+        Accounts
+      </div>
+      <div class="sb-item dim">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        Payments
+      </div>
+      <div class="sb-item dim">
+        <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Demands
+      </div>
+    </div>
+
+    <div class="sb-foot">
+      <div class="sb-user">
+        <div class="avatar">AB</div>
+        <div style="min-width:0">
+          <div class="sm b6">Abhishek</div>
+          <div class="xs mut">Product · Crego</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <header class="topbar">
+      <div class="crumbs">
+        <span>LMS</span><span class="crumb-sep">/</span>
+        <span>Operating Lease</span><span class="crumb-sep">/</span>
+        <b id="crumb">Product Configuration</b>
+      </div>
+      <div class="topbar-actions">
+        <span class="badge blue">Mockup · not live data</span>
+        <button class="btn sm ghost">Help</button>
+        <div class="avatar" style="width:28px;height:28px">AB</div>
+      </div>
+    </header>
+
+    <div class="content">
+
+    <!-- ================= 1. PRODUCT CONFIG ================= -->
+    <section class="screen" id="s-product">
+      <div class="page-head">
+        <div>
+          <div class="page-t">Operating Lease — Product Configuration</div>
+          <div class="page-d">Define lease terms, components and GST, depreciation &amp; residual value policy. The rental preview updates live as terms change.</div>
+        </div>
+        <div class="page-a">
+          <span class="badge amber">Draft</span>
+          <button class="btn">Save draft</button>
+          <button class="btn primary">Activate product</button>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)">
+        <div class="card">
+          <div class="card-b" style="padding-bottom:0">
+            <div class="tabs" data-tabs="prod">
+              <div class="tab on" data-tab="p1">Lease Terms</div>
+              <div class="tab" data-tab="p2">Components &amp; GST</div>
+              <div class="tab" data-tab="p3">Depreciation &amp; RV</div>
+              <div class="tab" data-tab="p4">Settlement</div>
+              <div class="tab" data-tab="p5">DPD &amp; Penal</div>
+              <div class="tab" data-tab="p6">Restructuring</div>
+            </div>
+
+            <!-- Lease Terms -->
+            <div class="tabpane on" id="tp-p1">
+              <div class="grid g3">
+                <div class="field"><label class="lbl">Product name</label><input class="inp" value="Equipment Operating Lease — Standard"></div>
+                <div class="field"><label class="lbl">Product type</label>
+                  <select class="inp"><option>operating_lease</option><option>term_loan</option><option>scf_sid</option></select></div>
+                <div class="field"><label class="lbl">Bureau product code</label>
+                  <select class="inp"><option>leasing</option><option>construction_equipment_loan</option></select></div>
+              </div>
+              <div class="sep"></div>
+              <div class="grid g4">
+                <div class="field"><label class="lbl">Tenure</label>
+                  <div class="row"><input class="inp" id="c-tenure" value="7" style="width:70px">
+                  <select class="inp" style="flex:1"><option>years</option><option>months</option></select></div></div>
+                <div class="field"><label class="lbl">Rental frequency</label>
+                  <select class="inp"><option>Monthly (12/yr)</option><option>Quarterly</option><option>Half-yearly</option><option>Yearly</option></select></div>
+                <div class="field"><label class="lbl">Rental timing</label>
+                  <select class="inp" id="c-timing"><option value="0">Arrears — end of period (0)</option><option value="1">Advance — start of period (1)</option></select>
+                  <span class="hint">Workbook flag: 0 = arrears, 1 = advance</span></div>
+                <div class="field"><label class="lbl">Implicit rate (ROI) % p.a.</label><input class="inp" id="c-roi" value="12.00"></div>
+              </div>
+              <div class="sep"></div>
+              <div class="grid g4">
+                <div class="field"><label class="lbl">Days in year</label><select class="inp"><option>360</option><option selected>365</option><option>actual</option></select></div>
+                <div class="field"><label class="lbl">Days in month</label><select class="inp"><option>30</option><option selected>actual</option></select></div>
+                <div class="field"><label class="lbl">Rounding precision</label><select class="inp"><option>2</option><option>0</option></select></div>
+                <div class="field"><label class="lbl">Rounding method</label><select class="inp"><option>normal</option><option>up</option><option>down</option></select></div>
+              </div>
+              <div class="sep"></div>
+              <div class="grid g2">
+                <div class="between" style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 12px">
+                  <div><div class="sm b6">Show interest / principal to customer</div>
+                  <div class="xs mut">Off — customer sees only Lease Rental + GST</div></div>
+                  <div class="sw" data-sw></div>
+                </div>
+                <div class="between" style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 12px">
+                  <div><div class="sm b6">Allow rental override at booking</div>
+                  <div class="xs mut">System solves for implied rate; deviation needs approval</div></div>
+                  <div class="sw on" data-sw></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Components -->
+            <div class="tabpane" id="tp-p2">
+              <div class="note blue"><b>Rule from the workbook:</b>&nbsp;the entire lease rental attracts GST — not just fees. Penal charges always attract GST too.</div>
+              <div style="margin-top:12px;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden">
+                <table>
+                  <thead><tr><th>Component</th><th>Category</th><th>Mode</th><th>Value</th><th>GST</th><th>Settlement</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td><b>lease_rental</b> <span class="badge grey xs">required</span></td><td>rental</td><td>scheduled</td><td class="mono">computed</td><td><span class="badge green">18%</span></td><td>as scheduled</td><td class="num"><button class="btn xs ghost">Edit</button></td></tr>
+                    <tr><td>residual_value</td><td>residual</td><td>event_based</td><td class="mono">2,00,000</td><td><span class="badge green">18%</span></td><td>at termination</td><td class="num"><button class="btn xs ghost">Edit</button></td></tr>
+                    <tr><td>security_deposit</td><td>margin</td><td>one_time</td><td class="mono">10% of cost</td><td><span class="badge grey">N/A</span></td><td>deduct upfront</td><td class="num"><button class="btn xs ghost">Edit</button></td></tr>
+                    <tr><td>advance_rental</td><td>rental</td><td>one_time</td><td class="mono">1 rental</td><td><span class="badge green">18%</span></td><td>deduct upfront</td><td class="num"><button class="btn xs ghost">Edit</button></td></tr>
+                    <tr><td>penal_charge</td><td>penal</td><td>event_based</td><td class="mono">24% p.a. on overdue</td><td><span class="badge green">18%</span></td><td>as and when</td><td class="num"><button class="btn xs ghost">Edit</button></td></tr>
+                    <tr><td>maintenance_fee</td><td>fee</td><td>scheduled</td><td class="mono">0</td><td><span class="badge green">18%</span></td><td>add to rental</td><td class="num"><button class="btn xs ghost">Edit</button></td></tr>
+                    <tr><td>insurance_recovery</td><td>charge</td><td>event_based</td><td class="mono">at actuals</td><td><span class="badge green">18%</span></td><td>as and when</td><td class="num"><button class="btn xs ghost">Edit</button></td></tr>
+                    <tr><td>recovery_income</td><td>charge</td><td>event_based</td><td class="mono">RV shortfall</td><td><span class="badge grey">N/A</span></td><td>at termination</td><td class="num"><button class="btn xs ghost">Edit</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="margin-top:10px" class="row"><button class="btn sm">+ Add component</button>
+                <span class="hint">Place of supply drives the CGST+SGST vs IGST split at invoicing.</span></div>
+            </div>
+
+            <!-- Depreciation & RV -->
+            <div class="tabpane" id="tp-p3">
+              <div class="grid g3">
+                <div class="field"><label class="lbl">Residual value basis</label>
+                  <select class="inp"><option>Absolute amount</option><option>% of asset cost</option></select></div>
+                <div class="field"><label class="lbl">Residual value</label><input class="inp" id="c-rv" value="200000"></div>
+                <div class="field"><label class="lbl">RV type</label>
+                  <select class="inp" id="c-rvtype"><option>Guaranteed by lessee</option><option>Non-guaranteed</option></select>
+                  <span class="hint">Guaranteed → lessee makes good any shortfall</span></div>
+              </div>
+              <div class="sep"></div>
+              <div class="grid g3">
+                <div class="field"><label class="lbl">Depreciation method</label>
+                  <select class="inp"><option>Straight line (SLM)</option><option disabled>Written down value — phase 2</option></select></div>
+                <div class="field"><label class="lbl">Depreciation start</label>
+                  <select class="inp"><option>Capitalisation date</option><option>Lease start date</option></select></div>
+                <div class="field"><label class="lbl">Depreciable base</label>
+                  <input class="inp" value="Asset cost − Residual value" readonly></div>
+              </div>
+              <div class="sep"></div>
+              <div class="note green">Asset stays on the <b>lessor's</b> books. NBV converges to the residual value on the same curve as the schedule closing balance — both land on ₹2,00,000 at instalment 84.</div>
+            </div>
+
+            <!-- Settlement -->
+            <div class="tabpane" id="tp-p4">
+              <div class="field" style="max-width:520px"><label class="lbl">Settlement waterfall (drag to reorder)</label>
+                <div class="pill-row" style="margin-top:4px">
+                  <span class="badge solid">1 · penal_charge</span><span class="badge">2 · insurance_recovery</span>
+                  <span class="badge">3 · maintenance_fee</span><span class="badge">4 · lease_rental + GST</span>
+                  <span class="badge">5 · residual_value</span>
+                </div></div>
+              <div class="sep"></div>
+              <div class="grid g2">
+                <div class="field"><label class="lbl">Excess payment treatment</label>
+                  <select class="inp"><option>Advance from Lessee (liability)</option><option>Refund immediately</option></select>
+                  <span class="hint">Workbook default — excess is a liability, auto-applied next cycle</span></div>
+                <div class="field"><label class="lbl">Short payment treatment</label>
+                  <select class="inp"><option>Keep invoice open, accrue DPD</option><option>Auto-waive below threshold</option></select>
+                  <span class="hint">No GST reversal — GST was recognised at invoice</span></div>
+              </div>
+            </div>
+
+            <!-- DPD -->
+            <div class="tabpane" id="tp-p5">
+              <div class="grid g4">
+                <div class="field"><label class="lbl">Grace period (days)</label><input class="inp" value="5"></div>
+                <div class="field"><label class="lbl">Penal rate % p.a.</label><input class="inp" value="24.00"></div>
+                <div class="field"><label class="lbl">Penal basis</label><select class="inp"><option>Overdue rental</option><option>Total overdue incl. GST</option></select></div>
+                <div class="field"><label class="lbl">GST on penal</label><input class="inp" value="18% — mandatory" readonly></div>
+              </div>
+              <div class="sep"></div>
+              <div style="border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden">
+                <table><thead><tr><th>DPD from</th><th>DPD to</th><th>Asset category</th><th>Action</th></tr></thead>
+                <tbody>
+                  <tr><td>0</td><td>0</td><td><span class="badge green">STD</span></td><td class="mut">—</td></tr>
+                  <tr><td>1</td><td>30</td><td><span class="badge">SMA-0</span></td><td>Reminder + penal</td></tr>
+                  <tr><td>31</td><td>60</td><td><span class="badge amber">SMA-1</span></td><td>Field visit</td></tr>
+                  <tr><td>61</td><td>90</td><td><span class="badge amber">SMA-2</span></td><td>Repossession notice</td></tr>
+                  <tr><td>91</td><td>—</td><td><span class="badge red">NPA</span></td><td>Repossess + income suspension</td></tr>
+                </tbody></table>
+              </div>
+            </div>
+
+            <!-- Restructuring -->
+            <div class="tabpane" id="tp-p6">
+              <div class="note blue">Lease rentals only change when one of these five changes. All are re-priced from the outstanding balance at the effective date.</div>
+              <div class="grid g2" style="margin-top:12px">
+                <div class="between" style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 12px"><div class="sm b6">Tenure change</div><div class="sw on" data-sw></div></div>
+                <div class="between" style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 12px"><div class="sm b6">ROI change</div><div class="sw on" data-sw></div></div>
+                <div class="between" style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 12px"><div class="sm b6">Residual value change</div><div class="sw on" data-sw></div></div>
+                <div class="between" style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 12px"><div class="sm b6">Moratorium</div><div class="sw on" data-sw></div></div>
+                <div class="between" style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 12px"><div><div class="sm b6">Prepayment</div><div class="xs mut">Lock-in 12 months · charge 2%</div></div><div class="sw on" data-sw></div></div>
+                <div class="between" style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 12px"><div><div class="sm b6">Fractional tenure → stub rental</div><div class="xs mut">58.40 mo → 59 with reduced final</div></div><div class="sw on" data-sw></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- live preview -->
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Live rental preview</div>
+              <div class="card-d">Recomputes as you edit terms</div></div></div>
+            <div class="card-b">
+              <div class="field" style="margin-bottom:10px"><label class="lbl">Asset value (₹)</label><input class="inp" id="c-asset" value="1000000"></div>
+              <div class="kv"><span class="k">Residual value</span><span class="v" id="pv-rv">₹2,00,000.00</span></div>
+              <div class="kv"><span class="k">Instalments</span><span class="v" id="pv-n">84</span></div>
+              <div class="kv"><span class="k">Rate / period</span><span class="v" id="pv-rate">1.0000%</span></div>
+              <div class="sep" style="margin:8px 0"></div>
+              <div class="kv big"><span class="k">Lease rental</span><span class="v" id="pv-rent">₹16,122.19</span></div>
+              <div class="kv"><span class="k">GST @ 18%</span><span class="v" id="pv-gst">₹2,901.99</span></div>
+              <div class="kv big"><span class="k">Total per cycle</span><span class="v" id="pv-tot">₹19,024.18</span></div>
+              <div class="sep" style="margin:8px 0"></div>
+              <div class="kv"><span class="k">Depreciation / month</span><span class="v" id="pv-dep">₹9,523.81</span></div>
+              <div class="kv"><span class="k">Total rentals over term</span><span class="v" id="pv-sum">₹13,54,263.64</span></div>
+            </div>
+            <div class="card-f"><button class="btn sm" style="width:100%" data-nav="schedule">Preview full schedule →</button></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Validation</div></div></div>
+            <div class="card-b" style="display:flex;flex-direction:column;gap:7px">
+              <div class="row"><span class="badge green">✓</span><span class="sm">lease_rental present with GST configured</span></div>
+              <div class="row"><span class="badge green">✓</span><span class="sm">All components in settlement order</span></div>
+              <div class="row"><span class="badge green">✓</span><span class="sm">Closing balance converges to RV</span></div>
+              <div class="row"><span class="badge amber">!</span><span class="sm">GL mappings pending for 3 components</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 2. BOOKING ================= -->
+    <section class="screen" id="s-booking">
+      <div class="page-head">
+        <div><div class="page-t">Lease Booking — LSE-2026-00418</div>
+        <div class="page-d">Capture lessee and asset, price the lease, then activate. On activation the asset is capitalised on the lessor's books and the rental schedule is generated.</div></div>
+        <div class="page-a"><span class="badge amber">Pending activation</span>
+          <button class="btn">Save</button><button class="btn primary">Activate lease</button></div>
+      </div>
+
+      <div class="flow">
+        <div class="fstep done"><div class="n">01</div><div class="t">Application</div><div class="s">Lessee &amp; product selected</div></div>
+        <div class="fstep done"><div class="n">02</div><div class="t">Credit approval</div><div class="s">Approved 22 Jul 2026</div></div>
+        <div class="fstep done"><div class="n">03</div><div class="t">Asset onboarding</div><div class="s">Vendor invoice verified</div></div>
+        <div class="fstep now"><div class="n">04</div><div class="t">Booking &amp; pricing</div><div class="s">Rental preview confirmed</div></div>
+        <div class="fstep"><div class="n">05</div><div class="t">Disbursement</div><div class="s">Pay vendor · capitalise asset</div></div>
+        <div class="fstep"><div class="n">06</div><div class="t">Schedule live</div><div class="s">84 rentals generated</div></div>
+      </div>
+
+      <div class="grid" style="grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Lessee</div></div>
+              <div class="card-a"><button class="btn xs ghost">Change</button></div></div>
+            <div class="card-b grid g3">
+              <div class="field"><label class="lbl">Lessee</label><input class="inp" value="Sharda Infra Equipments Pvt Ltd" readonly></div>
+              <div class="field"><label class="lbl">GSTIN</label><input class="inp" value="27AABCS1429B1ZQ" readonly></div>
+              <div class="field"><label class="lbl">Place of supply</label><input class="inp" value="27 — Maharashtra" readonly></div>
+              <div class="field"><label class="lbl">Product</label><input class="inp" value="Equipment Operating Lease — Standard" readonly></div>
+              <div class="field"><label class="lbl">Program</label><input class="inp" value="CE Leasing — West" readonly></div>
+              <div class="field"><label class="lbl">Lessor GSTIN state</label><input class="inp" value="27 — Maharashtra" readonly></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Leased asset</div>
+              <div class="card-d">Capitalised on lessor books at activation</div></div></div>
+            <div class="card-b grid g3">
+              <div class="field"><label class="lbl">Asset description</label><input class="inp" value="Excavator — CAT 320D"></div>
+              <div class="field"><label class="lbl">Category</label><select class="inp"><option>Construction equipment</option><option>Commercial vehicle</option><option>IT hardware</option></select></div>
+              <div class="field"><label class="lbl">Serial / chassis no.</label><input class="inp" value="CAT0320DKMEY02184"></div>
+              <div class="field"><label class="lbl">Vendor</label><input class="inp" value="Gmmco Ltd"></div>
+              <div class="field"><label class="lbl">Vendor invoice value (₹)</label><input class="inp" value="10,00,000"></div>
+              <div class="field"><label class="lbl">Capitalisation date</label><input class="inp" value="01 Aug 2026"></div>
+              <div class="field"><label class="lbl">Insurance policy</label><input class="inp" value="ICICI-LMB-99214"></div>
+              <div class="field"><label class="lbl">Insurance expiry</label><input class="inp" value="31 Jul 2027"></div>
+              <div class="field"><label class="lbl">Physical status</label><select class="inp"><option>With lessee</option><option>In yard</option><option>Repossessed</option></select></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Lease terms</div>
+              <div class="card-d">Inherited from product · override with approval</div></div></div>
+            <div class="card-b grid g4">
+              <div class="field"><label class="lbl">Asset value (₹)</label><input class="inp" value="10,00,000" readonly></div>
+              <div class="field"><label class="lbl">Residual value (₹)</label><input class="inp" value="2,00,000"></div>
+              <div class="field"><label class="lbl">RV type</label><select class="inp"><option>Guaranteed</option><option>Non-guaranteed</option></select></div>
+              <div class="field"><label class="lbl">ROI % p.a.</label><input class="inp" value="12.00"></div>
+              <div class="field"><label class="lbl">Tenure</label><input class="inp" value="7 years / 84 rentals" readonly></div>
+              <div class="field"><label class="lbl">Frequency</label><input class="inp" value="Monthly" readonly></div>
+              <div class="field"><label class="lbl">Rental timing</label><input class="inp" value="Arrears" readonly></div>
+              <div class="field"><label class="lbl">First rental due</label><input class="inp" value="01 Sep 2026" readonly></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Pricing</div>
+              <div class="card-d">PMT with FV = residual value</div></div></div>
+            <div class="card-b">
+              <div class="kv big"><span class="k">Lease rental</span><span class="v">₹16,122.19</span></div>
+              <div class="kv"><span class="k">GST @ 18%</span><span class="v">₹2,901.99</span></div>
+              <div class="kv big"><span class="k">Billed per month</span><span class="v">₹19,024.18</span></div>
+              <div class="sep" style="margin:8px 0"></div>
+              <div class="kv"><span class="k">Depreciation / month</span><span class="v">₹9,523.81</span></div>
+              <div class="kv"><span class="k">Closing bal. @ 84</span><span class="v">₹2,00,000.00</span></div>
+              <div class="sep" style="margin:8px 0"></div>
+              <div class="field"><label class="lbl">Override rental (₹)</label><input class="inp" placeholder="16,122.19"></div>
+              <div class="hint" style="margin-top:5px">Overriding solves for the implied rate. Deviation &gt; 25 bps needs approval.</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Disbursement summary</div></div></div>
+            <div class="card-b">
+              <div class="kv"><span class="k">Vendor payout</span><span class="v">₹10,00,000.00</span></div>
+              <div class="kv"><span class="k">Less: security deposit</span><span class="v">− ₹1,00,000.00</span></div>
+              <div class="kv"><span class="k">Less: advance rental (1)</span><span class="v">− ₹19,024.18</span></div>
+              <div class="kv"><span class="k">Less: documentation fee</span><span class="v">− ₹5,900.00</span></div>
+              <div class="sep" style="margin:8px 0"></div>
+              <div class="kv big"><span class="k">Net collected from lessee</span><span class="v">₹1,24,924.18</span></div>
+            </div>
+          </div>
+          <div class="note">On activation Omni will post <b>Leased Asset Dr ₹10,00,000 / Vendor Payable Cr ₹10,00,000</b> and generate all 84 rental demands.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 3. SCHEDULE ================= -->
+    <section class="screen" id="s-schedule">
+      <div class="page-head">
+        <div><div class="page-t">Rental Schedule — LSE-2026-00418</div>
+        <div class="page-d">Interest and principal are internal only — used to roll the outstanding balance and price restructures. The customer view shows Lease Rental + GST.</div></div>
+        <div class="page-a">
+          <div class="seg" id="sch-view"><button class="on" data-schview="ops">Ops view</button><button data-schview="cust">Customer view</button></div>
+          <button class="btn">Export XLSX</button>
+        </div>
+      </div>
+
+      <div class="grid g5">
+        <div class="stat"><div class="stat-l">Asset value</div><div class="stat-v">₹10,00,000</div><div class="stat-s">Capitalised 01 Aug 2026</div></div>
+        <div class="stat"><div class="stat-l">Lease rental</div><div class="stat-v">₹16,122.19</div><div class="stat-s">Monthly, in arrears</div></div>
+        <div class="stat hl"><div class="stat-l">Billed / month</div><div class="stat-v">₹19,024.18</div><div class="stat-s">incl. GST ₹2,901.99</div></div>
+        <div class="stat"><div class="stat-l">Residual value</div><div class="stat-v">₹2,00,000</div><div class="stat-s"><span class="badge green">Guaranteed</span></div></div>
+        <div class="stat"><div class="stat-l">Outstanding</div><div class="stat-v">₹9,22,355</div><div class="stat-s">after 12 of 84 · <span class="mono">14.3%</span> elapsed</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">
+          <div><div class="card-t">Schedule</div><div class="card-d" id="sch-cap">84 instalments · closing balance converges to residual value, not zero</div></div>
+          <div class="card-a">
+            <input class="inp sm" placeholder="Jump to instalment #" style="width:170px;height:28px">
+            <button class="btn sm">Filters</button>
+          </div>
+        </div>
+        <div class="card-b tight">
+          <div class="tw"><table id="sch-table"><thead id="sch-head"></thead><tbody id="sch-body"></tbody></table></div>
+        </div>
+        <div class="card-f">
+          <span class="xs mut">Rows 1–84 · highlighted rows appear in the reference workbook</span>
+          <span style="margin-left:auto" class="badge green">✓ Final closing balance ₹2,00,000.00</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 4. INVOICING ================= -->
+    <section class="screen" id="s-invoices">
+      <div class="page-head">
+        <div><div class="page-t">Invoicing &amp; GST</div>
+        <div class="page-d">A tax invoice is raised each cycle for the full rental. Intra-state splits CGST + SGST; inter-state posts IGST. Corrections only via credit note.</div></div>
+        <div class="page-a"><button class="btn">Run billing cycle</button><button class="btn primary">New credit note</button></div>
+      </div>
+
+      <div class="grid g4">
+        <div class="stat"><div class="stat-l">Invoices this cycle</div><div class="stat-v">1,284</div><div class="stat-s">Aug 2026 run · completed</div></div>
+        <div class="stat"><div class="stat-l">Taxable value</div><div class="stat-v">₹2.07 Cr</div><div class="stat-s">Lease rental + penal</div></div>
+        <div class="stat"><div class="stat-l">Output GST</div><div class="stat-v">₹37.3 L</div><div class="stat-s">CGST 18.6L · SGST 18.6L · IGST 0.1L</div></div>
+        <div class="stat"><div class="stat-l">Credit notes</div><div class="stat-v">7</div><div class="stat-s">₹1.12 L reversed incl. GST</div></div>
+      </div>
+
+      <div class="grid" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
+        <div class="card">
+          <div class="card-h"><div><div class="card-t">Invoices — LSE-2026-00418</div></div>
+            <div class="card-a"><button class="btn sm">Export</button></div></div>
+          <div class="card-b tight">
+            <div class="tw" style="max-height:330px"><table>
+              <thead><tr><th>Invoice #</th><th>Cycle</th><th>Date</th><th class="num">Taxable</th><th class="num">GST</th><th class="num">Total</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr class="hlrow"><td class="b6">INV/26-27/004182</td><td>Sep 2026</td><td>01 Sep 26</td><td class="num">16,122.19</td><td class="num">2,901.99</td><td class="num b6">19,024.18</td><td><span class="badge green">Paid</span></td></tr>
+                <tr><td class="b6">INV/26-27/004311</td><td>Oct 2026</td><td>01 Oct 26</td><td class="num">16,122.19</td><td class="num">2,901.99</td><td class="num b6">19,024.18</td><td><span class="badge green">Paid</span></td></tr>
+                <tr class="hlrow"><td class="b6">INV/26-27/004466</td><td>Nov 2026</td><td>01 Nov 26</td><td class="num">16,122.19</td><td class="num">2,901.99</td><td class="num b6">19,024.18</td><td><span class="badge red">Short paid</span></td></tr>
+                <tr><td class="b6">INV/26-27/004602</td><td>Dec 2026</td><td>01 Dec 26</td><td class="num">16,122.19</td><td class="num">2,901.99</td><td class="num b6">19,024.18</td><td><span class="badge green">Paid</span></td></tr>
+                <tr class="hlrow"><td class="b6">INV/26-27/004751</td><td>Jan 2027</td><td>01 Jan 27</td><td class="num">16,122.19</td><td class="num">2,901.99</td><td class="num b6">19,024.18</td><td><span class="badge blue">Excess recd</span></td></tr>
+                <tr><td class="b6">CRN/26-27/000091</td><td>Feb 2027</td><td>08 Feb 27</td><td class="num">−16,122.19</td><td class="num">−2,901.99</td><td class="num b6">−19,024.18</td><td><span class="badge amber">Credit note</span></td></tr>
+                <tr><td class="b6">INV/26-27/004908</td><td>Feb 2027</td><td>01 Feb 27</td><td class="num">16,122.19</td><td class="num">2,901.99</td><td class="num b6">19,024.18</td><td><span class="badge grey">Reversed</span></td></tr>
+              </tbody></table></div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Tax invoice</div><div class="card-d">INV/26-27/004182 · 01 Sep 2026</div></div>
+              <div class="card-a"><span class="badge green">Paid</span></div></div>
+            <div class="card-b">
+              <div class="kv"><span class="k">Lessee</span><span class="v">Sharda Infra Equipments</span></div>
+              <div class="kv"><span class="k">GSTIN</span><span class="v mono">27AABCS1429B1ZQ</span></div>
+              <div class="kv"><span class="k">Place of supply</span><span class="v">27 — Maharashtra <span class="badge blue">Intra-state</span></span></div>
+              <div class="kv"><span class="k">HSN / SAC</span><span class="v mono">997314</span></div>
+              <div class="sep" style="margin:8px 0"></div>
+              <div class="kv"><span class="k">Lease rental — Sep 2026</span><span class="v">₹16,122.19</span></div>
+              <div class="kv"><span class="k">CGST @ 9%</span><span class="v">₹1,450.997</span></div>
+              <div class="kv"><span class="k">SGST @ 9%</span><span class="v">₹1,450.997</span></div>
+              <div class="kv"><span class="k">IGST @ 18%</span><span class="v mut">—</span></div>
+              <div class="sep" style="margin:8px 0"></div>
+              <div class="kv big"><span class="k">Invoice total</span><span class="v">₹19,024.18</span></div>
+            </div>
+            <div class="card-f"><button class="btn sm">Download PDF</button><button class="btn sm ghost">View journal</button>
+              <span style="margin-left:auto" class="ref-tag">IRN pending</span></div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Credit note — service deficiency</div>
+              <div class="card-d">Partial waiver reverses GST in the same proportion</div></div></div>
+            <div class="card-b">
+              <div class="field" style="margin-bottom:9px"><label class="lbl">Waiver type</label>
+                <div class="seg"><button class="on">Full</button><button>Partial</button></div></div>
+              <div class="grid g2" style="gap:9px">
+                <div class="field"><label class="lbl">Waiver amount (₹)</label><input class="inp" value="16,122.19"></div>
+                <div class="field"><label class="lbl">GST reversed (₹)</label><input class="inp" value="2,901.99" readonly></div>
+              </div>
+              <div class="sep" style="margin:10px 0"></div>
+              <div class="note">Invoice already <b>paid</b> → Omni creates a <b>Customer Payable</b> of ₹19,024.18, then Ops chooses <b>refund</b> or <b>adjust against future rentals</b>.</div>
+              <div class="row" style="margin-top:10px"><button class="btn sm">Refund to bank</button><button class="btn sm primary">Adjust next rental</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 5. COLLECTIONS ================= -->
+    <section class="screen" id="s-collections">
+      <div class="page-head">
+        <div><div class="page-t">Collections &amp; Payment Allocation</div>
+        <div class="page-d">Receipts flow through the configured waterfall. Short payments keep the invoice open and accrue DPD; excess becomes an Advance from Lessee liability.</div></div>
+        <div class="page-a"><button class="btn">Record receipt</button><button class="btn primary">Run allocation</button></div>
+      </div>
+
+      <div class="grid g5">
+        <div class="stat"><div class="stat-l">Billed to date</div><div class="stat-v">₹2,28,290</div><div class="stat-s">12 cycles</div></div>
+        <div class="stat"><div class="stat-l">Collected</div><div class="stat-v">₹2,19,266</div><div class="stat-s">96.0%</div></div>
+        <div class="stat"><div class="stat-l">Overdue</div><div class="stat-v" style="color:var(--destructive)">₹9,024.18</div><div class="stat-s">1 invoice · Nov 2026</div></div>
+        <div class="stat"><div class="stat-l">DPD</div><div class="stat-v">27</div><div class="stat-s"><span class="badge">SMA-0</span></div></div>
+        <div class="stat hl"><div class="stat-l">Advance from lessee</div><div class="stat-v">₹975.82</div><div class="stat-s">Auto-applies next cycle</div></div>
+      </div>
+
+      <div class="grid" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)">
+        <div class="card">
+          <div class="card-h"><div><div class="card-t">Receipts &amp; allocation trail</div>
+            <div class="card-d">Click a receipt to see which demand each rupee settled</div></div></div>
+          <div class="card-b tight">
+            <table>
+              <thead><tr><th>Receipt</th><th>Value date</th><th class="num">Received</th><th class="num">Billed</th><th class="num">Variance</th><th>Outcome</th></tr></thead>
+              <tbody>
+                <tr><td class="b6">RCP-00711</td><td>03 Sep 26</td><td class="num">19,024.18</td><td class="num">19,024.18</td><td class="num mut">—</td><td><span class="badge green">Settled in full</span></td></tr>
+                <tr><td class="b6">RCP-00844</td><td>02 Oct 26</td><td class="num">19,024.18</td><td class="num">19,024.18</td><td class="num mut">—</td><td><span class="badge green">Settled in full</span></td></tr>
+                <tr class="hlrow"><td class="b6">RCP-00979</td><td>05 Nov 26</td><td class="num">10,000.00</td><td class="num">19,024.18</td><td class="num" style="color:var(--destructive)">−9,024.18</td><td><span class="badge red">Short payment</span></td></tr>
+                <tr><td class="b6">RCP-01108</td><td>02 Dec 26</td><td class="num">19,024.18</td><td class="num">19,024.18</td><td class="num mut">—</td><td><span class="badge green">Settled in full</span></td></tr>
+                <tr class="hlrow"><td class="b6">RCP-01241</td><td>02 Jan 27</td><td class="num">20,000.00</td><td class="num">19,024.18</td><td class="num" style="color:var(--success)">+975.82</td><td><span class="badge blue">Excess → advance</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card-f"><span class="xs mut">Waterfall: penal_charge → insurance → maintenance → lease_rental + GST</span></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Short payment — RCP-00979</div>
+              <div class="card-d">₹10,000 received against ₹19,024.18</div></div>
+              <div class="card-a"><span class="badge red">Open</span></div></div>
+            <div class="card-b">
+              <div class="bar" style="margin-bottom:10px"><i style="width:52.6%"></i></div>
+              <div class="kv"><span class="k">Invoice total</span><span class="v">₹19,024.18</span></div>
+              <div class="kv"><span class="k">Allocated to lease_rental</span><span class="v">₹10,000.00</span></div>
+              <div class="kv"><span class="k">Balance receivable</span><span class="v" style="color:var(--destructive)">₹9,024.18</span></div>
+              <div class="kv"><span class="k">DPD accruing from</span><span class="v">01 Nov 2026</span></div>
+              <div class="sep" style="margin:8px 0"></div>
+              <div class="note red"><b>No GST reversal.</b>&nbsp;The full ₹2,901.99 was recognised at invoice. GST only reverses via a credit note.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Excess payment — RCP-01241</div>
+              <div class="card-d">₹20,000 received against ₹19,024.18</div></div>
+              <div class="card-a"><span class="badge blue">Advance held</span></div></div>
+            <div class="card-b">
+              <div class="kv"><span class="k">Applied to Jan 2027 invoice</span><span class="v">₹19,024.18</span></div>
+              <div class="kv"><span class="k">Excess → Advance from Lessee</span><span class="v">₹975.82</span></div>
+              <div class="sep" style="margin:8px 0"></div>
+              <div class="kv"><span class="k">Feb 2027 invoice</span><span class="v">₹19,024.18</span></div>
+              <div class="kv"><span class="k">Less: advance auto-applied</span><span class="v">− ₹975.82</span></div>
+              <div class="kv big"><span class="k">Net payable in Feb</span><span class="v">₹18,048.36</span></div>
+              <div class="sep" style="margin:8px 0"></div>
+              <div class="note green">Excess is a <b>liability</b>, not a prepayment of principal. It does not shorten the lease or reduce the outstanding balance.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 6. RESTRUCTURE ================= -->
+    <section class="screen" id="s-restructure">
+      <div class="page-head">
+        <div><div class="page-t">Restructure Lease — LSE-2026-00418</div>
+        <div class="page-d">Rentals re-price from the outstanding balance at the effective date. Settled instalments are frozen; only future ones are redrawn.</div></div>
+        <div class="page-a"><button class="btn">Discard</button><button class="btn primary">Submit for approval</button></div>
+      </div>
+
+      <div class="card">
+        <div class="card-b" style="padding-bottom:0">
+          <div class="tabs" data-tabs="rs">
+            <div class="tab on" data-tab="r1">Residual value change</div>
+            <div class="tab" data-tab="r2">Prepayment — keep tenure</div>
+            <div class="tab" data-tab="r3">Prepayment — keep rental</div>
+            <div class="tab" data-tab="r4">Moratorium</div>
+          </div>
+
+          <!-- R1 -->
+          <div class="tabpane on" id="tp-r1">
+            <div class="grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)">
+              <div>
+                <div class="grid g2">
+                  <div class="field"><label class="lbl">Effective after instalment</label><input class="inp" value="12" readonly></div>
+                  <div class="field"><label class="lbl">Outstanding at that point (₹)</label><input class="inp" value="9,22,355.35" readonly></div>
+                  <div class="field"><label class="lbl">Remaining instalments</label><input class="inp" value="72" readonly></div>
+                  <div class="field"><label class="lbl">ROI % p.a.</label><input class="inp" value="12.00"></div>
+                  <div class="field"><label class="lbl">Old residual value (₹)</label><input class="inp" value="2,00,000" readonly></div>
+                  <div class="field"><label class="lbl">New residual value (₹)</label><input class="inp" value="3,00,000"></div>
+                </div>
+                <div class="note blue" style="margin-top:12px">Raising the RV lowers the rental — less value is being amortised over the remaining term.</div>
+              </div>
+              <div class="card" style="box-shadow:none">
+                <div class="card-h"><div><div class="card-t">Before / after</div></div></div>
+                <div class="card-b tight">
+                  <table><thead><tr><th></th><th class="num">Before</th><th class="num">After</th><th class="num">Δ</th></tr></thead>
+                  <tbody>
+                    <tr><td>Lease rental</td><td class="num">16,122.19</td><td class="num b6">15,167.17</td><td class="num" style="color:var(--success)">−955.02</td></tr>
+                    <tr><td>GST @ 18%</td><td class="num">2,901.99</td><td class="num">2,730.09</td><td class="num" style="color:var(--success)">−171.90</td></tr>
+                    <tr><td>Billed / month</td><td class="num b6">19,024.18</td><td class="num b6">17,897.26</td><td class="num" style="color:var(--success)">−1,126.92</td></tr>
+                    <tr><td>Residual value</td><td class="num">2,00,000</td><td class="num">3,00,000</td><td class="num">+1,00,000</td></tr>
+                    <tr><td>Remaining tenure</td><td class="num">72</td><td class="num">72</td><td class="num mut">—</td></tr>
+                    <tr class="total"><td>Total rentals remaining</td><td class="num">11,60,797.41</td><td class="num">10,92,036.02</td><td class="num" style="color:var(--success)">−68,761.39</td></tr>
+                  </tbody></table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- R2 -->
+          <div class="tabpane" id="tp-r2">
+            <div class="grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)">
+              <div>
+                <div class="grid g2">
+                  <div class="field"><label class="lbl">Outstanding at instalment 12 (₹)</label><input class="inp" value="9,22,355.35" readonly></div>
+                  <div class="field"><label class="lbl">Prepayment amount (₹)</label><input class="inp" value="1,00,000"></div>
+                  <div class="field"><label class="lbl">Revised outstanding (₹)</label><input class="inp" value="8,22,355.35" readonly></div>
+                  <div class="field"><label class="lbl">Residual value (₹)</label><input class="inp" value="2,00,000" readonly></div>
+                  <div class="field"><label class="lbl">Remaining instalments</label><input class="inp" value="72" readonly></div>
+                  <div class="field"><label class="lbl">Prepayment charge</label><input class="inp" value="2% — ₹2,000 + GST"></div>
+                </div>
+                <div class="note" style="margin-top:12px">Lock-in of 12 months satisfied. Prepayment charge attracts GST and is billed on the next invoice.</div>
+              </div>
+              <div class="card" style="box-shadow:none">
+                <div class="card-h"><div><div class="card-t">Case 1 — tenure unchanged</div><div class="card-d">Rental falls, term stays at 72</div></div></div>
+                <div class="card-b tight">
+                  <table><thead><tr><th></th><th class="num">Before</th><th class="num">After</th><th class="num">Δ</th></tr></thead>
+                  <tbody>
+                    <tr><td>Lease rental</td><td class="num">16,122.19</td><td class="num b6">14,167.17</td><td class="num" style="color:var(--success)">−1,955.02</td></tr>
+                    <tr><td>Billed / month</td><td class="num">19,024.18</td><td class="num b6">16,717.26</td><td class="num" style="color:var(--success)">−2,306.92</td></tr>
+                    <tr><td>Remaining tenure</td><td class="num">72</td><td class="num">72</td><td class="num mut">—</td></tr>
+                    <tr><td>Residual value</td><td class="num">2,00,000</td><td class="num">2,00,000</td><td class="num mut">—</td></tr>
+                    <tr class="total"><td>Total rentals remaining</td><td class="num">11,60,797.41</td><td class="num">10,20,036.02</td><td class="num" style="color:var(--success)">−1,40,761.39</td></tr>
+                  </tbody></table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- R3 -->
+          <div class="tabpane" id="tp-r3">
+            <div class="grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)">
+              <div>
+                <div class="grid g2">
+                  <div class="field"><label class="lbl">Revised outstanding (₹)</label><input class="inp" value="8,22,355.35" readonly></div>
+                  <div class="field"><label class="lbl">Rental held constant (₹)</label><input class="inp" value="16,122.19" readonly></div>
+                  <div class="field"><label class="lbl">Solved tenure (periods)</label><input class="inp" value="58.395785" readonly></div>
+                  <div class="field"><label class="lbl">Stub handling</label><select class="inp"><option>59 periods, reduced final rental</option><option>58 periods, higher final rental</option></select></div>
+                </div>
+                <div class="note" style="margin-top:12px"><b>Fractional tenure.</b>&nbsp;58.40 periods is not payable. Omni bills <b>58</b> full rentals, leaving a balance of ₹2,05,550.66; the <b>59th</b> is a reduced stub of <b>₹7,606.16</b> that lands the closing balance exactly on the residual value.</div>
+              </div>
+              <div class="card" style="box-shadow:none">
+                <div class="card-h"><div><div class="card-t">Case 2 — rental unchanged</div><div class="card-d">Term shortens by 13 months</div></div></div>
+                <div class="card-b tight">
+                  <table><thead><tr><th></th><th class="num">Before</th><th class="num">After</th><th class="num">Δ</th></tr></thead>
+                  <tbody>
+                    <tr><td>Lease rental</td><td class="num">16,122.19</td><td class="num">16,122.19</td><td class="num mut">—</td></tr>
+                    <tr><td>Billed / month</td><td class="num">19,024.18</td><td class="num">19,024.18</td><td class="num mut">—</td></tr>
+                    <tr><td>Remaining tenure</td><td class="num">72</td><td class="num b6">59 (58.40)</td><td class="num" style="color:var(--success)">−13</td></tr>
+                    <tr><td>Final stub rental</td><td class="num mut">—</td><td class="num b6">7,606.16</td><td class="num">new</td></tr>
+                    <tr><td>New lease end date</td><td class="num">01 Aug 2033</td><td class="num b6">01 Jul 2032</td><td class="num" style="color:var(--success)">−13 mo</td></tr>
+                    <tr class="total"><td>Total rentals remaining</td><td class="num">11,60,797.41</td><td class="num">9,42,692.96</td><td class="num" style="color:var(--success)">−2,18,104.45</td></tr>
+                  </tbody></table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- R4 -->
+          <div class="tabpane" id="tp-r4">
+            <div class="grid g4">
+              <div class="field"><label class="lbl">Moratorium from</label><input class="inp" value="01 Sep 2027"></div>
+              <div class="field"><label class="lbl">Number of periods</label><input class="inp" value="3"></div>
+              <div class="field"><label class="lbl">Moratorium type</label><select class="inp"><option>Full — no rental billed</option><option>Interest-only</option></select></div>
+              <div class="field"><label class="lbl">Accrued interest treatment</label><select class="inp"><option>Capitalise into outstanding</option><option>Bill as arrears at end</option></select></div>
+            </div>
+            <div class="sep"></div>
+            <div class="note">Rentals pause for 3 cycles. Interest accrued during the moratorium is capitalised, then the schedule is redrawn for the remaining term at the new outstanding. <b>Depreciation continues</b> throughout — the asset is still in use.</div>
+          </div>
+        </div>
+        <div class="card-f">
+          <span class="xs mut">Past instalments frozen · old schedule retained for audit · maker-checker approval required</span>
+          <button class="btn sm" style="margin-left:auto">Preview redrawn schedule</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 7. ASSET & RV ================= -->
+    <section class="screen" id="s-asset">
+      <div class="page-head">
+        <div><div class="page-t">Asset Register, Residual Value &amp; Termination</div>
+        <div class="page-d">The asset stays on the lessor's books. Depreciation runs monthly regardless of collections; NBV converges to the residual value.</div></div>
+        <div class="page-a"><button class="btn">Run depreciation</button><button class="btn primary">Terminate lease</button></div>
+      </div>
+
+      <div class="grid g5">
+        <div class="stat"><div class="stat-l">Asset cost</div><div class="stat-v">₹10,00,000</div><div class="stat-s">CAT 320D Excavator</div></div>
+        <div class="stat"><div class="stat-l">Accum. depreciation</div><div class="stat-v">₹1,14,286</div><div class="stat-s">12 months @ ₹9,523.81</div></div>
+        <div class="stat hl"><div class="stat-l">Net book value</div><div class="stat-v">₹8,85,714</div><div class="stat-s">as at 31 Aug 2027</div></div>
+        <div class="stat"><div class="stat-l">Residual value</div><div class="stat-v">₹2,00,000</div><div class="stat-s"><span class="badge green">Guaranteed</span></div></div>
+        <div class="stat"><div class="stat-l">Physical status</div><div class="stat-v" style="font-size:16px">With lessee</div><div class="stat-s">Insured to 31 Jul 2027</div></div>
+      </div>
+
+      <div class="grid" style="grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)">
+        <div class="card">
+          <div class="card-h"><div><div class="card-t">NBV vs schedule closing balance</div>
+            <div class="card-d">Both converge to ₹2,00,000 at month 84</div></div></div>
+          <div class="card-b"><svg class="chart" id="nbvchart" viewBox="0 0 620 160" preserveAspectRatio="none"></svg>
+            <div class="row" style="margin-top:8px;gap:16px">
+              <span class="row xs"><i style="width:16px;height:2px;background:var(--primary);display:inline-block"></i>&nbsp;NBV (asset)</span>
+              <span class="row xs"><i style="width:16px;height:2px;background:var(--accent-blue-fg);display:inline-block"></i>&nbsp;Schedule closing balance</span>
+              <span class="row xs"><i style="width:16px;height:0;border-top:2px dashed var(--muted-foreground);display:inline-block"></i>&nbsp;Residual value</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><div><div class="card-t">Depreciation register</div></div>
+            <div class="card-a"><button class="btn sm">Export</button></div></div>
+          <div class="card-b tight">
+            <div class="tw" style="max-height:240px"><table>
+              <thead><tr><th>Month</th><th class="num">Opening NBV</th><th class="num">Depreciation</th><th class="num">Closing NBV</th><th>Posted</th></tr></thead>
+              <tbody id="dep-body"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-b" style="padding-bottom:0">
+          <div class="tabs" data-tabs="term">
+            <div class="tab on" data-tab="t1">End of lease</div>
+            <div class="tab" data-tab="t2">RV shortfall</div>
+            <div class="tab" data-tab="t3">Repossession</div>
+          </div>
+
+          <div class="tabpane on" id="tp-t1">
+            <div class="grid g3">
+              <div class="card" style="box-shadow:none"><div class="card-b">
+                <div class="b6">Return &amp; sell</div>
+                <div class="sm mut" style="margin-top:4px">Lessee returns the asset; lessor disposes in the market. Any gap to RV is a gain/loss on sale — or a claim on the lessee if RV is guaranteed.</div>
+                <button class="btn sm" style="margin-top:10px;width:100%">Select</button></div></div>
+              <div class="card" style="box-shadow:none"><div class="card-b">
+                <div class="b6">Renew / re-lease</div>
+                <div class="sm mut" style="margin-top:4px">A fresh lease is written on the same asset at a new capitalised value (current NBV) and a new residual value.</div>
+                <button class="btn sm" style="margin-top:10px;width:100%">Select</button></div></div>
+              <div class="card" style="box-shadow:none"><div class="card-b">
+                <div class="b6">Lessee purchases at RV</div>
+                <div class="sm mut" style="margin-top:4px">Lessee buys the asset for ₹2,00,000 + GST. Asset is de-recognised; no gain or loss since NBV equals RV.</div>
+                <button class="btn sm" style="margin-top:10px;width:100%">Select</button></div></div>
+            </div>
+          </div>
+
+          <div class="tabpane" id="tp-t2">
+            <div class="grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)">
+              <div>
+                <div class="grid g2">
+                  <div class="field"><label class="lbl">Residual value (₹)</label><input class="inp" value="2,00,000" readonly></div>
+                  <div class="field"><label class="lbl">Realised sale value (₹)</label><input class="inp" value="1,60,000"></div>
+                  <div class="field"><label class="lbl">Shortfall (₹)</label><input class="inp" value="40,000" readonly></div>
+                  <div class="field"><label class="lbl">RV type</label><select class="inp"><option>Guaranteed</option><option>Non-guaranteed</option></select></div>
+                </div>
+                <div class="note green" style="margin-top:12px"><b>Guaranteed:</b>&nbsp;lessor raises a ₹40,000 demand on the lessee (Recovery Income). <b>Non-guaranteed:</b>&nbsp;the ₹40,000 is the lessor's loss on sale and no demand is raised.</div>
+              </div>
+              <div class="card" style="box-shadow:none">
+                <div class="card-h"><div><div class="card-t">Journal — guaranteed RV</div></div></div>
+                <div class="card-b tight"><table class="journal">
+                  <tr class="jhead"><td>Account</td><td class="num">Debit</td><td class="num">Credit</td></tr>
+                  <tr><td class="acc">Bank</td><td class="num">1,60,000.00</td><td class="num"></td></tr>
+                  <tr><td class="acc">Loss on Asset Sale</td><td class="num">40,000.00</td><td class="num"></td></tr>
+                  <tr><td class="acc cr">To Leased Asset (NBV)</td><td class="num"></td><td class="num">2,00,000.00</td></tr>
+                  <tr class="jhead"><td colspan="3">Guarantee claim</td></tr>
+                  <tr><td class="acc">Lessee Receivable</td><td class="num">40,000.00</td><td class="num"></td></tr>
+                  <tr><td class="acc cr">To Recovery Income</td><td class="num"></td><td class="num">40,000.00</td></tr>
+                  <tr class="jhead"><td colspan="3">On recovery</td></tr>
+                  <tr><td class="acc">Bank</td><td class="num">40,000.00</td><td class="num"></td></tr>
+                  <tr><td class="acc cr">To Lessee Receivable</td><td class="num"></td><td class="num">40,000.00</td></tr>
+                </table></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tabpane" id="tp-t3">
+            <div class="note red" style="margin-bottom:12px"><b>Scenario:</b>&nbsp;lessee stops paying after 12 months and the lessor repossesses the asset. Unpaid rentals ₹20,000.</div>
+            <div class="grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)">
+              <div>
+                <div class="kv"><span class="k">Asset value</span><span class="v">₹10,00,000.00</span></div>
+                <div class="kv"><span class="k">Accumulated depreciation (12 mo)</span><span class="v">₹1,14,285.71</span></div>
+                <div class="kv big"><span class="k">Net book value</span><span class="v">₹8,85,714.29</span></div>
+                <div class="kv"><span class="k">Unpaid lease rentals</span><span class="v">₹20,000.00</span></div>
+                <div class="sep" style="margin:8px 0"></div>
+                <div class="field"><label class="lbl">Resale value (₹)</label><input class="inp" value="7,50,000"></div>
+                <div class="kv big" style="margin-top:8px"><span class="k">Loss on sale</span><span class="v" style="color:var(--destructive)">₹1,35,714.29</span></div>
+              </div>
+              <div class="card" style="box-shadow:none">
+                <div class="card-h"><div><div class="card-t">Journal — repossession &amp; disposal</div></div></div>
+                <div class="card-b tight"><table class="journal">
+                  <tr class="jhead"><td>1 · Catch-up depreciation</td><td class="num">Debit</td><td class="num">Credit</td></tr>
+                  <tr><td class="acc">Depreciation Expense</td><td class="num">1,14,285.71</td><td class="num"></td></tr>
+                  <tr><td class="acc cr">To Accumulated Depreciation</td><td class="num"></td><td class="num">1,14,285.71</td></tr>
+                  <tr class="jhead"><td>2 · Write off unpaid rentals</td><td class="num"></td><td class="num"></td></tr>
+                  <tr><td class="acc">Bad Debt Expense</td><td class="num">20,000.00</td><td class="num"></td></tr>
+                  <tr><td class="acc cr">To Lessee Receivable</td><td class="num"></td><td class="num">20,000.00</td></tr>
+                  <tr class="jhead"><td>3 · Resale of asset</td><td class="num"></td><td class="num"></td></tr>
+                  <tr><td class="acc">Bank</td><td class="num">7,50,000.00</td><td class="num"></td></tr>
+                  <tr><td class="acc">Loss on Sale</td><td class="num">1,35,714.29</td><td class="num"></td></tr>
+                  <tr><td class="acc cr">To Leased Asset (NBV)</td><td class="num"></td><td class="num">8,85,714.29</td></tr>
+                  <tr class="jtot"><td>Total</td><td class="num">10,20,000.00</td><td class="num">10,20,000.00</td></tr>
+                </table></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 8. GL ================= -->
+    <section class="screen" id="s-gl">
+      <div class="page-head">
+        <div><div class="page-t">GL Entries — Lease Event Catalogue</div>
+        <div class="page-d">Every lease event produces a balanced journal. Omni posts the lessor side; the lessee side is shown for reference and reconciliation only.</div></div>
+        <div class="page-a">
+          <div class="seg" id="gl-side"><button class="on" data-side="lessor">Lessor (posted)</button><button data-side="lessee">Lessee (reference)</button></div>
+          <button class="btn">Post batch</button>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns:270px minmax(0,1fr)">
+        <div class="card">
+          <div class="card-h"><div><div class="card-t">Events</div></div></div>
+          <div class="card-b" style="padding:8px"><div class="evlist" id="ev-list"></div></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="card">
+            <div class="card-h">
+              <div><div class="card-t" id="gl-title">Rental invoice raised</div>
+                <div class="card-d" id="gl-desc">Posted on the due date of every cycle</div></div>
+              <div class="card-a"><span class="badge" id="gl-code">lease_rental_invoice</span><span class="badge green" id="gl-bal">✓ Balanced</span></div>
+            </div>
+            <div class="card-b tight">
+              <table class="journal" id="gl-journal"></table>
+            </div>
+            <div class="card-f">
+              <span class="xs mut" id="gl-note"></span>
+              <button class="btn sm ghost" style="margin-left:auto">Drill to demand →</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><div><div class="card-t">Component → GL mapping</div>
+              <div class="card-d">Resolved by (component, posting type, transaction code). Most specific mapping wins.</div></div></div>
+            <div class="card-b tight">
+              <table>
+                <thead><tr><th>Component</th><th>Posting type</th><th>Debit GL</th><th>Credit GL</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td>lease_rental</td><td>outstanding</td><td>Lessee Receivable</td><td>Lease Income</td><td><span class="badge green">Mapped</span></td></tr>
+                  <tr><td>lease_rental</td><td>tax</td><td>Lessee Receivable</td><td class="mut">CGST / SGST / IGST — auto</td><td><span class="badge green">Auto</span></td></tr>
+                  <tr><td>lease_rental</td><td>paid</td><td>Bank</td><td>Lessee Receivable</td><td><span class="badge green">Mapped</span></td></tr>
+                  <tr><td>lease_rental</td><td>excess</td><td>Bank</td><td>Advance from Lessee</td><td><span class="badge green">Mapped</span></td></tr>
+                  <tr><td>lease_rental</td><td>waived</td><td>Lease Income</td><td>Lessee Receivable</td><td><span class="badge green">Mapped</span></td></tr>
+                  <tr><td>lease_rental</td><td>write_off</td><td>Bad Debt Expense</td><td>Lessee Receivable</td><td><span class="badge green">Mapped</span></td></tr>
+                  <tr><td>depreciation</td><td>accrued</td><td>Depreciation Expense</td><td>Accumulated Depreciation</td><td><span class="badge amber">Pending</span></td></tr>
+                  <tr><td>residual_value</td><td>settled</td><td>Bank</td><td>Leased Asset</td><td><span class="badge amber">Pending</span></td></tr>
+                  <tr><td>recovery_income</td><td>outstanding</td><td>Lessee Receivable</td><td>Recovery Income</td><td><span class="badge amber">Pending</span></td></tr>
+                  <tr><td>penal_charge</td><td>outstanding</td><td>Lessee Receivable</td><td>Penal Income</td><td><span class="badge green">Mapped</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="note red"><b>Known dependency.</b>&nbsp;The GST posting routine returns after the first tax ledger of a transaction, so an invoice carrying both rental GST and penal GST would under-post GST. Must be fixed before the billing phase ships.</div>
+        </div>
+      </div>
+    </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ schedule maths ============ */
+const fmt = (n,d=2)=>n.toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});
+const inr = (n,d=2)=>'₹'+fmt(n,d);
+
+function pmt(rate,n,pv,fv){ // fv passed as negative residual, matching Excel PMT convention
+  return (pv*Math.pow(1+rate,n) + fv) * rate / (Math.pow(1+rate,n)-1);
+}
+
+const A=1000000, RV=200000, ROI=0.12, N=84, GSTR=0.18;
+const r=ROI/12;
+const RENTAL = pmt(r,N,A,-RV);        // 16122.186238
+const GST = RENTAL*GSTR;
+const TOTAL = RENTAL+GST;
+const DEP = (A-RV)/N;
+
+const rows=[]; let ob=A;
+for(let i=1;i<=N;i++){
+  const interest=ob*r, principal=RENTAL-interest, cb=ob-principal;
+  rows.push({i,ob,interest,principal,cb,rental:RENTAL,gst:GST,total:TOTAL});
+  ob=cb;
+}
+
+/* ============ schedule table ============ */
+const HL=[1,2,12,84];
+function renderSchedule(view){
+  const head=document.getElementById('sch-head'), body=document.getElementById('sch-body');
+  const cap=document.getElementById('sch-cap');
+  if(view==='cust'){
+    cap.textContent='Customer view — 84 instalments · lease rental and GST only';
+    head.innerHTML='<tr><th>#</th><th>Due date</th><th class="num">Lease rental</th><th class="num">GST @ 18%</th><th class="num">Total payable</th><th>Status</th></tr>';
+    body.innerHTML=rows.map(x=>{
+      const st = x.i<=12 ? (x.i===3?'<span class="badge red">Short paid</span>':'<span class="badge green">Paid</span>') : '<span class="badge grey">Pending</span>';
+      return `<tr class="${HL.includes(x.i)?'hlrow':''}"><td class="b6">${x.i}</td><td>${dueDate(x.i)}</td>
+      <td class="num">${fmt(x.rental)}</td><td class="num">${fmt(x.gst)}</td><td class="num b6">${fmt(x.total)}</td><td>${st}</td></tr>`;
+    }).join('');
+  } else {
+    cap.textContent='84 instalments · closing balance converges to residual value, not zero';
+    head.innerHTML='<tr><th>#</th><th>Due date</th><th class="num">Opening</th><th class="num">Interest <span class="ref-tag">int</span></th><th class="num">Principal <span class="ref-tag">int</span></th><th class="num">Closing</th><th class="num">Lease rental</th><th class="num">GST</th><th class="num">Total (incl GST)</th><th>Status</th></tr>';
+    body.innerHTML=rows.map(x=>{
+      const st = x.i<=12 ? (x.i===3?'<span class="badge red">Short paid</span>':'<span class="badge green">Paid</span>') : '<span class="badge grey">Pending</span>';
+      return `<tr class="${HL.includes(x.i)?'hlrow':''}"><td class="b6">${x.i}</td><td>${dueDate(x.i)}</td>
+      <td class="num">${fmt(x.ob)}</td><td class="num mut">${fmt(x.interest)}</td><td class="num mut">${fmt(x.principal)}</td>
+      <td class="num">${fmt(x.cb)}</td><td class="num">${fmt(x.rental)}</td><td class="num">${fmt(x.gst)}</td>
+      <td class="num b6">${fmt(x.total)}</td><td>${st}</td></tr>`;
+    }).join('');
+  }
+}
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function dueDate(i){ const d=new Date(2026,8,1); d.setMonth(d.getMonth()+i-1);
+  return `01 ${MON[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`; }
+
+/* ============ depreciation register ============ */
+(function(){
+  const b=document.getElementById('dep-body'); let nbv=A; let out='';
+  for(let i=1;i<=24;i++){
+    const cl=nbv-DEP;
+    out+=`<tr class="${i===12?'hlrow':''}"><td>${dueDate(i)}</td><td class="num">${fmt(nbv)}</td>
+    <td class="num">${fmt(DEP)}</td><td class="num b6">${fmt(cl)}</td>
+    <td>${i<=12?'<span class="badge green">Posted</span>':'<span class="badge grey">Scheduled</span>'}</td></tr>`;
+    nbv=cl;
+  }
+  b.innerHTML=out;
+})();
+
+/* ============ NBV chart ============ */
+(function(){
+  const svg=document.getElementById('nbvchart'); const W=620,H=160,P=6;
+  const max=A, min=150000;
+  const y=v=>H-P-((v-min)/(max-min))*(H-2*P);
+  const x=i=>P+(i/N)*(W-2*P);
+  let nbvPts='', cbPts='';
+  for(let i=0;i<=N;i++){
+    nbvPts+=`${x(i)},${y(A-DEP*i)} `;
+    cbPts+=`${x(i)},${y(i===0?A:rows[i-1].cb)} `;
+  }
+  svg.innerHTML=`
+   <line x1="${P}" y1="${y(RV)}" x2="${W-P}" y2="${y(RV)}" stroke="#737373" stroke-width="1" stroke-dasharray="4 4"/>
+   <text x="${W-P-4}" y="${y(RV)-5}" text-anchor="end" font-size="9" fill="#737373">Residual ₹2,00,000</text>
+   <polyline points="${cbPts}" fill="none" stroke="#2563eb" stroke-width="1.75"/>
+   <polyline points="${nbvPts}" fill="none" stroke="#171717" stroke-width="1.75"/>
+   <circle cx="${x(12)}" cy="${y(A-DEP*12)}" r="3" fill="#171717"/>
+   <text x="${x(12)+6}" y="${y(A-DEP*12)-5}" font-size="9" fill="#171717">NBV @12: ₹8,85,714</text>
+   <circle cx="${x(12)}" cy="${y(rows[11].cb)}" r="3" fill="#2563eb"/>
+   <text x="${x(12)+6}" y="${y(rows[11].cb)+13}" font-size="9" fill="#2563eb">O/S @12: ₹9,22,355</text>`;
+})();
+
+/* ============ GL events ============ */
+const EVENTS=[
+ {k:'cap',t:'Asset capitalisation',c:'lease_disbursement',d:'On activation — asset comes onto the lessor books',
+  lessor:[['Leased Asset',1000000,null],['To Vendor Payable / Bank',null,1000000]],
+  lessee:[['(No entry — asset is not the lessee’s)',null,null]],
+  note:'Operating lease: the asset never transfers to the lessee.'},
+ {k:'inv',t:'Rental invoice raised',c:'lease_rental_invoice',d:'Posted on the due date of every cycle',
+  lessor:[['Lessee Receivable',19024.18,null],['To Lease Income',null,16122.19],['To Output GST (CGST+SGST)',null,2901.99]],
+  lessee:[['Lease Liability',16122.19,null],['GST Input Credit',2901.99,null],['To Lessor Payable',null,19024.18]],
+  note:'Entire rental is income — there is no principal/interest split to the customer.'},
+ {k:'rcpt',t:'Receipt in full',c:'lease_repayment',d:'₹19,024.18 received on the due date',
+  lessor:[['Bank',19024.18,null],['To Lessee Receivable',null,19024.18]],
+  lessee:[['Lessor Payable',19024.18,null],['To Bank',null,19024.18]],
+  note:'Settled per the waterfall: penal → charges → lease_rental + GST.'},
+ {k:'dep',t:'Depreciation (monthly)',c:'depreciation_accrual',d:'Straight line — (cost − RV) ÷ 84',
+  lessor:[['Depreciation Expense',9523.81,null],['To Accumulated Depreciation',null,9523.81]],
+  lessee:[['(No entry — asset not on lessee books)',null,null]],
+  note:'Runs regardless of collections. NBV converges to the residual value.'},
+ {k:'short',t:'Short payment',c:'lease_repayment',d:'₹10,000 received against ₹19,024.18',
+  lessor:[['Bank',10000,null],['To Lessee Receivable',null,10000]],
+  lessee:[['Lessor Payable',10000,null],['To Bank',null,10000]],
+  note:'Balance ₹9,024.18 stays receivable and accrues DPD. No GST reversal.'},
+ {k:'excess',t:'Excess payment',c:'excess_payment',d:'₹20,000 received against ₹19,024.18',
+  lessor:[['Bank',20000,null],['To Lessee Receivable',null,19024.18],['To Advance from Lessee',null,975.82]],
+  lessee:[['Lessor Payable',19024.18,null],['Advance to Lessor',975.82,null],['To Bank',null,20000]],
+  note:'Excess is a liability, not a prepayment. It does not shorten the lease.'},
+ {k:'adv',t:'Advance adjusted next cycle',c:'advance_adjustment',d:'₹975.82 applied against the next receivable',
+  lessor:[['Advance from Lessee',975.82,null],['To Lessee Receivable',null,975.82]],
+  lessee:[['Lessor Payable',975.82,null],['To Advance to Lessor',null,975.82]],
+  note:'Any further excess again goes to Advance from Lessee.'},
+ {k:'wvu',t:'Waiver — invoice unpaid',c:'rental_waiver',d:'Credit note for service deficiency',
+  lessor:[['Lease Income',16122.19,null],['Output GST',2901.99,null],['To Lessee Receivable',null,19024.18]],
+  lessee:[['Lessor Payable',19024.18,null],['To Lease Liability',null,16122.19],['To GST Input Credit',null,2901.99]],
+  note:'Partial waiver reverses GST in the same proportion as the taxable value.'},
+ {k:'wvp',t:'Waiver — invoice already paid',c:'rental_waiver',d:'Creates a customer payable',
+  lessor:[['Lease Income',16122.19,null],['Output GST',2901.99,null],['To Customer Payable',null,19024.18]],
+  lessee:[['Lessor Receivable',19024.18,null],['To Lease Liability',null,16122.19],['To GST Input Credit',null,2901.99]],
+  note:'Ops then chooses to refund the payable or adjust it against future rentals.'},
+ {k:'rfd',t:'Refund / adjust customer payable',c:'refund',d:'Settle the payable created by the credit note',
+  lessor:[['Customer Payable',19024.18,null],['To Bank / Advance',null,19024.18]],
+  lessee:[['Bank / Advance',19024.18,null],['To Lessor Receivable',null,19024.18]],
+  note:'Adjustment reduces the next cycle’s receivable instead of moving cash.'},
+ {k:'rv',t:'RV shortfall — guaranteed',c:'residual_settlement',d:'RV ₹2,00,000 · asset sold for ₹1,60,000',
+  lessor:[['Bank',160000,null],['Loss on Asset Sale',40000,null],['To Leased Asset (NBV)',null,200000],
+          ['Lessee Receivable',40000,null],['To Recovery Income',null,40000]],
+  lessee:[['Loss on Residual Guarantee',40000,null],['To Residual Guarantee Payable',null,40000]],
+  note:'If RV were non-guaranteed the ₹40,000 stays a lessor loss and no demand is raised.'},
+ {k:'repo',t:'Repossession & disposal',c:'repossession',d:'Stops paying after 12 months · resold for ₹7,50,000',
+  lessor:[['Depreciation Expense',114285.71,null],['To Accumulated Depreciation',null,114285.71],
+          ['Bad Debt Expense',20000,null],['To Lessee Receivable',null,20000],
+          ['Bank',750000,null],['Loss on Sale',135714.29,null],['To Leased Asset (NBV)',null,885714.29]],
+  lessee:[['(Derecognise lease liability and any accrued rentals)',null,null]],
+  note:'Catch up depreciation first, then write off unpaid rentals, then dispose.'},
+ {k:'penal',t:'Penal charge levied',c:'penal_charge',d:'Penal always attracts GST',
+  lessor:[['Lessee Receivable',1180,null],['To Penal Income',null,1000],['To Output GST',null,180]],
+  lessee:[['Penal Expense',1000,null],['GST Input Credit',180,null],['To Lessor Payable',null,1180]],
+  note:'Billed on the same invoice as the rental — watch the GST multi-ledger bug.'}
+];
+
+let curEv='inv', curSide='lessor';
+function renderEvents(){
+  document.getElementById('ev-list').innerHTML=EVENTS.map(e=>
+    `<div class="ev ${e.k===curEv?'on':''}" data-ev="${e.k}"><span class="dot"></span>${e.t}</div>`).join('');
+  document.querySelectorAll('[data-ev]').forEach(el=>el.onclick=()=>{curEv=el.dataset.ev;renderEvents();renderJournal();});
+}
+function renderJournal(){
+  const e=EVENTS.find(x=>x.k===curEv);
+  document.getElementById('gl-title').textContent=e.t;
+  document.getElementById('gl-desc').textContent=e.d;
+  document.getElementById('gl-code').textContent=e.c;
+  document.getElementById('gl-note').textContent=e.note;
+  const lines=e[curSide];
+  let dr=0,cr=0;
+  let html='<tr class="jhead"><td>Account</td><td class="num">Debit</td><td class="num">Credit</td></tr>';
+  lines.forEach(([acc,d,c])=>{
+    if(d) dr+=d; if(c) cr+=c;
+    const isCr = c!==null && c!==undefined;
+    html+=`<tr><td class="acc ${isCr?'cr':''}">${acc}</td>
+      <td class="num">${d?fmt(d):''}</td><td class="num">${c?fmt(c):''}</td></tr>`;
+  });
+  if(dr||cr) html+=`<tr class="jtot"><td>Total</td><td class="num">${fmt(dr)}</td><td class="num">${fmt(cr)}</td></tr>`;
+  document.getElementById('gl-journal').innerHTML=html;
+  const bal=document.getElementById('gl-bal');
+  const ok = Math.abs(dr-cr)<0.01;
+  bal.textContent = (dr===0&&cr===0) ? 'Memo only' : (ok?'✓ Balanced':'✗ Unbalanced');
+  bal.className = 'badge '+((dr===0&&cr===0)?'grey':(ok?'green':'red'));
+}
+
+/* ============ live product preview ============ */
+function updatePreview(){
+  const a=parseFloat(document.getElementById('c-asset').value.replace(/[^0-9.]/g,''))||1000000;
+  const rv=parseFloat(document.getElementById('c-rv').value.replace(/[^0-9.]/g,''))||0;
+  const roi=(parseFloat(document.getElementById('c-roi').value)||0)/100;
+  const yrs=parseFloat(document.getElementById('c-tenure').value)||1;
+  const n=Math.round(yrs*12), rate=roi/12;
+  const p = rate===0 ? (a-rv)/n : pmt(rate,n,a,-rv);
+  document.getElementById('pv-rv').textContent=inr(rv);
+  document.getElementById('pv-n').textContent=n;
+  document.getElementById('pv-rate').textContent=(rate*100).toFixed(4)+'%';
+  document.getElementById('pv-rent').textContent=inr(p);
+  document.getElementById('pv-gst').textContent=inr(p*GSTR);
+  document.getElementById('pv-tot').textContent=inr(p*(1+GSTR));
+  document.getElementById('pv-dep').textContent=inr((a-rv)/n);
+  document.getElementById('pv-sum').textContent=inr(p*n);
+}
+['c-asset','c-rv','c-roi','c-tenure'].forEach(id=>{
+  const el=document.getElementById(id); if(el){ el.oninput=updatePreview; el.onchange=updatePreview; }
+});
+
+/* ============ nav / tabs / switches ============ */
+const TITLES={product:'Product Configuration',booking:'Lease Booking',schedule:'Rental Schedule',
+  invoices:'Invoicing & GST',collections:'Collections',restructure:'Restructuring',
+  asset:'Asset & Residual',gl:'GL Entries'};
+function go(k){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='s-'+k));
+  document.querySelectorAll('.sb-item[data-nav]').forEach(s=>s.classList.toggle('active',s.dataset.nav===k));
+  document.getElementById('crumb').textContent=TITLES[k];
+  document.querySelector('.content').scrollTop=0;
+}
+document.querySelectorAll('[data-nav]').forEach(el=>el.onclick=()=>go(el.dataset.nav));
+
+document.querySelectorAll('[data-tabs]').forEach(group=>{
+  group.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+    group.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+    const panes=group.parentElement.querySelectorAll('.tabpane');
+    panes.forEach(p=>p.classList.toggle('on',p.id==='tp-'+t.dataset.tab));
+  });
+});
+document.querySelectorAll('[data-sw]').forEach(s=>s.onclick=()=>s.classList.toggle('on'));
+
+document.querySelectorAll('#sch-view button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#sch-view button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); renderSchedule(b.dataset.schview);
+});
+document.querySelectorAll('#gl-side button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#gl-side button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); curSide=b.dataset.side; renderJournal();
+});
+
+/* init */
+renderSchedule('ops'); renderEvents(); renderJournal(); updatePreview(); go('product');
+</script>
+</body>
+</html>
