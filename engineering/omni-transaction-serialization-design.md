@@ -1,21 +1,33 @@
 # Omni — Transaction Serialization: Design & Remediation Plan
 
-**Date:** 2026-08-05 (updated 2026-08-08) · **Repo:** `crego-omni` · Paths relative to `project/apps/`
+**Date:** 2026-08-05 (updated 2026-08-11) · **Repo:** `crego-omni` · Paths relative to `project/apps/`
 **Answers:** [omni-npa-bulk-payment-limit-gap-analysis.md](./omni-npa-bulk-payment-limit-gap-analysis.md)
-**Visual before/after:** [omni-serialization-before-after.md](./omni-serialization-before-after.md)
-**Tracked on:** [CRE-6136](https://linear.app/crego/issue/CRE-6136)
+**Visual before/after:** [omni_ctm_transaction_improvments.md](./omni_ctm_transaction_improvments.md)
+**Tracked on:** [CRE-6136](https://linear.app/crego/issue/CRE-6136) · **PR:** [crego-omni#1590](https://github.com/crego-tech/crego-omni/pull/1590)
 **Branch:** `feature/cre-6136-credit-limit-enforcement-is-unsound-under-concurrency-over`
 
-> **Status 2026-08-08.** Phase 0 and Phase 1's money path are implemented and green
-> (32 new tests on Postgres; `ctm`+`lib`+`addon` = 270 tests, the only 2 failures
-> being `test_last_accrual_eod`, already red on the parent commit):
+> **Status 2026-08-11.** **Phases 0 and 1 are both ✅ and PR'd to `develop`.** Phase 0's
+> four open items are closed — three fixed, C3 reclassified as intended behaviour (see
+> below). Phase 1's two uncovered behaviours now have tests; both fail against `HEAD~`.
 >
 > | Commit | What |
 > |---|---|
-> | `96729962` | limit locks: Redis → Postgres row locks, deterministic order, `lock_timeout` |
-> | `e4ec8d99` | `verify_limit_consistency` + DB-agnostic limit tests |
+> | `18d51650` | limit locks: Redis → Postgres row locks, deterministic order, `lock_timeout` |
+> | `8c6e14bb` | `verify_limit_consistency` + DB-agnostic limit tests |
 > | `6262ea47` | **fail-closed `TenantAwareCache`** + **`lib/serialization.py`** advisory-lock primitive |
 > | `8f8e6c5a` | **account lock → `serialization_lock`**; `process` always opens its own transaction; colending roots taken in one call |
+> | *(Phase 0 tail)* | `peak_dpd` `max()`, `primary_limit` None-guard, `lock_backend_healthy`, backdated + reversal tests |
+>
+> ⚠️ **The deploy-impact item under Risk 3 is now a blocker on merge, not a note.** The
+> `HEAD~` canary run reproduced the skip live: the inline excess settlement failed with
+> *"Could not acquire lock for account … Another transaction may be processing"*, the EOD
+> reported `payments_failed: 1` — and the whole run still reported `success: True`. Quantify
+> the backlog per tenant before this ships.
+>
+> ⚠️ **`lock_backend_healthy` is emitted but not scraped.** Omni has no `/metrics` endpoint
+> and no `ServiceMonitor` in `crego-infra`, so today the alertable signal is the paired
+> ERROR log (Sentry raises `event_level=ERROR`). The gauge is registered so it is already
+> there when a scrape target is added; wiring that is infra follow-up work.
 >
 > **Six of the seven original cache-lock sites are now gone.** The only one left is the
 > batch lock (`transaction_batches.py:49`) — see the note below on why it does not
@@ -27,7 +39,9 @@
 > regression sweep" cited in the 2026-08-06 status above was, for this code path,
 > vacuous. `ctm/tests/test_transaction_serialization.py` now covers it (7 of its 8
 > tests fail against the pre-change code). Treat any other "the suite is green"
-> claim in this document with the same suspicion until a canary says otherwise.
+> claim in this document with the same suspicion until a canary says otherwise —
+> every assertion added on 2026-08-11 was canaried the same way, by reverting the
+> file under test and confirming the suite went red for the expected reason.
 >
 > **Batch lock reclassified to Phase 2.** `TransactionBatchService.process` runs a
 > loop whose items each commit in their own transaction, so a transaction-scoped
@@ -299,12 +313,12 @@ Every finding from the gap analysis and CRE-6136, and what closes it.
 | **B2** NPA threshold hardcoded 91 | separate — read `dpd.npa_days` | `product/handlers/eod.py:251` |
 | **B3** stale settlement order | §4 read-after-lock | |
 | **B4** RBI stickiness vs flag disagree | resolved once B1 lands | |
-| **B5** `peak_dpd` overwritten | separate — `max()` | `repayment.py:395-401`; ledger path already correct at `base.py:663` |
-| **B6** backdated payment reversal | §1 + §2 | self-deadlock on the account lock disappears (advisory locks are re-entrant per transaction); reversal of N accounts under one contact root is one lock |
+| **B5** ~~`peak_dpd` overwritten~~ | `max()` ✅ **2026-08-11** | `repayment.py` now maxes like `base.py:664`. Covered by `ctm/tests/test_phase0_dpd_and_limit.py`; the regression case (re-settle at a lower DPD) wrote `2` instead of `45` before the fix |
+| **B6** backdated payment reversal | §1 + §2 | ~~self-deadlock~~ — **corrected 2026-08-10**: it never deadlocked. The inner `process()` got `cache.add → False` → `BadRequest`, which `EODHandler.settle_single_excess_payment` (`eod.py:971`) **catches** and reports as `success=False`. So on a healthy Redis a backdated post committed while *silently skipping* its excess re-settlement; on a degraded Redis it ran unlocked. Advisory locks are re-entrant per transaction, so the nested call now runs. Reversal of N accounts under one contact root is one lock. See the deploy-impact note in Risks. |
 | **C1** no NPA gate on utilization | separate — credit policy gate | **product decision required**, see Open questions |
 | **C2** schedule-based loans don't free | separate — product decision | correct for SCF, wrong for term loans |
-| **C3** write-off never frees limit | separate — one-liner in `written_off.py` | |
-| **C4** limit failure kills payment | §5 outbox + None-guard on `primary_limit` | |
+| **C3** ~~write-off never frees limit~~ | **not a defect — reclassified 2026-08-11** | Current behaviour is correct; see below. |
+| **C4** limit failure kills payment | §5 outbox + None-guard on `primary_limit` ✅ | None-guard shipped; outbox is Phase 4 |
 | **C5** shared-path silent no-op | CRE-6136 #4 — fail loud | |
 | **C6** no limit reconciliation | CRE-6136 Phase 1 `LimitMovement` + nightly verify | |
 | **C7** limit lock hygiene | §2 — the locks being fixed are deleted | |
@@ -316,6 +330,35 @@ Every finding from the gap analysis and CRE-6136, and what closes it.
 | **6136-6** validate/enforce read different limit sets | CRE-6136 Phase 0 | |
 | **6136-9** no admission control at creation | CRE-6136 Phase 3 | |
 
+### C3 reclassified — a written-off loan must not return headroom
+
+The gap analysis called this "a one-liner in `written_off.py`". It is neither a one-liner
+nor something we want.
+
+**Business.** A write-off is the lender recognising the exposure as a loss, not the borrower
+discharging it. Freeing the limit would hand headroom back to a borrower who has just
+defaulted — and there is **no NPA or write-off gate anywhere on the drawdown path** (C1 below
+is still an open product question), so that headroom would be immediately re-drawable. Every
+other caller of `_check_and_free_limit` — settlement, waiver, foreclosure, prepayment —
+follows money actually received, or contractually forgiven as part of closing the loan out.
+Write-off follows neither.
+
+**Mechanical.** The one-liner would also not have done anything. `_check_and_free_limit`
+counts only `paid` / `waived` **principal** ledgers, and a write-off posts `write_off`:
+
+| Loan shape | What the helper reads | Result |
+|---|---|---|
+| non-schedule-based (SCF) | the write-off transaction's own ledgers — all `write_off` | `amount_to_free = 0` |
+| schedule-based (term) | requires `account.status in (closed, settled_off, foreclosed)`; `_process_write_off` has already set `written_off` | branch not taken |
+
+Adding the call would read as coverage while changing nothing, which is worse than leaving
+it out.
+
+**Revisit when C1 is answered.** If credit policy grows a gate on utilization for NPA /
+written-off borrowers, releasing the exposure becomes safe and arguably correct for portfolio
+reporting. It then needs a real implementation — a `write_off`-aware amount, and an explicit
+decision about what happens to recoveries after write-off — not this call.
+
 ---
 
 ## Phasing
@@ -326,8 +369,8 @@ serialization is real.
 
 | Phase | Scope | Schema? | Risk | Why here |
 |---|---|---|---|---|
-| **0 — Stop the bleeding** ✅ | ~~Make `TenantAwareCache` fail closed instead of falling back to DummyCache~~ (`6262ea47`). Still open: `lock_backend_healthy` metric + alert, `peak_dpd` `max()` (B5), free limit on write-off (C3), None-guard `primary_limit` (C4a). | no | low | Nothing else is trustworthy until the DummyCache path is dead. |
-| **1 — Serialization primitive** ✅ | ~~`lib/serialization.py` + ordering-root resolver + Postgres concurrency harness~~ (`6262ea47`); ~~limit locks~~ (`96729962`); ~~account lock~~ (`8f8e6c5a`). Batch lock moved to Phase 2 — a transaction-scoped lock cannot span its multi-commit loop. | no | **high** | The whole guarantee rests here. Behaviour-preserving on the happy path; the change is that contention now *waits* instead of failing. |
+| **0 — Stop the bleeding** ✅ | ~~Fail-closed `TenantAwareCache`~~ (`6262ea47`). Closed 2026-08-11: ~~`lock_backend_healthy` metric + alert~~ (`lib/metrics.py` gauge + a stable ERROR log Sentry raises as an event — see the exposure caveat below); ~~`peak_dpd` `max()`~~ (B5); ~~None-guard `primary_limit`~~ (C4a — and the free now still happens, since `free_limit` ignores the dates it was reading off that row). **C3 reclassified, not fixed** — a written-off loan must not return headroom; see above. | no | low | Nothing else is trustworthy until the DummyCache path is dead. |
+| **1 — Serialization primitive** ✅ | ~~`lib/serialization.py` + ordering-root resolver + Postgres concurrency harness~~ (`6262ea47`); ~~limit locks~~ (`18d51650`); ~~account lock~~ (`8f8e6c5a`). Batch lock moved to Phase 2 — a transaction-scoped lock cannot span its multi-commit loop. | no | **high** | The whole guarantee rests here. Behaviour-preserving on the happy path; the change is that contention now *waits* instead of failing. |
 | **2 — One queue, one grain** | Merge payment batching into the CTM batch on the ordering-root key. Deterministic item order. Head-of-line quarantine + dead-letter + `blocked` flag. Drain-on-commit; beat demoted. | yes (item `attempts`, `next_attempt_at`, batch `blocked`) | **high** | Dissolves A1/A4/A6/A7/A9/C8 together. Must follow Phase 1 — the queue relies on the lock. |
 | **3 — Anti-staleness** | `state_version` on Account/Contact. `computed_at_version` on summaries. Read-after-lock in `get_settlement_order`. `stale` flag on weak reads. | yes | medium | P3. Independent of Phase 2, can run in parallel. |
 | **4 — Limits** | **CRE-6136 as written** — Phase 0→4. Outbox decoupling of `free_limit` from the payment. Nightly `verify_limit_consistency`. | yes | medium | CRE-6136 Phase 0 partially overlaps Phase 1 here — see coordination note below. |
@@ -349,7 +392,7 @@ CRE-6136 is in Development and its analysis is correct. Two adjustments:
 
 ---
 
-## Risks — the three that will actually bite
+## Risks — the five that will actually bite
 
 **1. The default test harness cannot express any of this — and there are two separate traps.**
 
@@ -390,7 +433,44 @@ root from day one of Phase 1, before Phase 2 depends on it. If p99 > ~200 ms, sp
 to a group-account root and move contact-level excess to the reservation pattern. Do not discover
 this in production.
 
-**3. Blocking replaces failing — and blocking is visible to users.**
+**3. Phase 1 changes what backdated posts DO, not just how they lock.**
+
+Per the corrected B6 above, backdated posts have been silently skipping their inline excess
+re-settlement whenever Redis was healthy. After Phase 1 they run it. **The first backdated
+posts after deploy will move money that the same operation did not move last week.** This is
+the intended, correct behaviour — but it is a data-impact change, not a pure locking change,
+and it must not surprise finance.
+
+Required before deploy, in this order:
+
+1. Quantify the exposure. `settle_single_excess_payment` logs a `success=False` outcome per
+   skipped payment, surfaced in Day Rollover history — count those per tenant, and count
+   `Payment.excess_amount > 0` rows that a backdated post touched and left parked.
+2. Decide whether the backlog gets swept deliberately (a one-off `settle_excess_payments`
+   run per tenant, reviewed) or is allowed to drain organically as backdated posts occur.
+   Sweeping is preferable: organic drain means the change lands unannounced, loan by loan.
+3. Tell the tenant-facing team the number before it shows up in a report.
+
+**4. The reversal loops rely on an invariant nobody wrote down.**
+
+`PaymentService.reverse`, `PayoutService.reverse` and
+`_check_and_reverse_backdated_future_sibling_transactions` each loop `process()` over N
+originals inside one transaction — roots acquired *incrementally*, which §2 explicitly warns
+against. They are safe today only because every item in each loop resolves to the **same**
+contact root:
+
+- `Payment` has a single `contact` FK, and its transactions inherit it;
+- payout reversal filters on `account=payout.account`, so one contact;
+- sibling loans share a parent, and `product/serializers.py:254` **rejects** a child whose
+  `contact` differs from its parent's.
+
+That third one is load-bearing. If parent/child contact equality is ever relaxed — or if a
+payment is ever allowed to span contacts — the sibling-reversal loop becomes a genuine
+deadlock cycle. Phase 2 must either preserve the constraint explicitly (a test that asserts
+it, not just a serializer that happens to enforce it) or pre-resolve all roots into a single
+`serialization_lock` call the way `_ordering_roots` already does for colending legs.
+
+**5. Blocking replaces failing — and blocking is visible to users.**
 Today contention throws `BadRequest` and the payment silently disappears into a stopped batch.
 After Phase 1 it *waits*. That is correct, but a 5 s `lock_timeout` on a synchronous API endpoint is
 a user-visible latency change, and a genuinely stuck root now produces a queue that visibly backs
@@ -414,7 +494,9 @@ real Postgres with `TransactionTestCase` + threads on separate connections (see 
 | Distinct roots don't block | serialization is per-root, not global | ✅ |
 | `lock_timeout` doesn't leak | `SET LOCAL` scoped to the transaction | ✅ |
 | Redis down for the whole run | `add()` returns False, never True; degradation bounded and logged at ERROR | ✅ |
-| Limit over-utilisation fuzz | `sum(movements) == limit balance` under N concurrent drawdowns | ✅ `e4ec8d99` |
+| **Backdated post re-enters `process()`** | a backdated txn whose inline EOD settles excess on the same account completes both spans in one transaction, under one lock — the pre-`8f8e6c5a` code skipped the inner one | ✅ `ctm/tests/test_transaction_serialization.py::BackdatedPostReEntersProcessTests` |
+| **Reversal loop is atomic and single-lock** | N reversals of one payment commit together; a failure at item K rolls back 1..K-1; the contact root is held across the whole loop | ✅ `…::ReversalLoopAtomicityTests` |
+| Limit over-utilisation fuzz | `sum(movements) == limit balance` under N concurrent drawdowns | ✅ `8c6e14bb` |
 | 100 payments, 1 NPA contact, 100 loans, N threads | all 100 applied exactly once; `sequence` is a dense 1..100; final outstanding independent of thread scheduling | ⬜ Phase 2 |
 | Same, with a poison item at #38 | #1-37 applied, root blocked, **other contacts unaffected**, dead-letter after N attempts | ⬜ Phase 2 |
 | Kill -9 a worker mid-item | item reclaimed, applied exactly once, no `processing` orphan | ⬜ Phase 2 |
