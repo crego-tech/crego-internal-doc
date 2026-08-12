@@ -2,7 +2,23 @@
 
 **Created:** 2026-07-27
 **Client response:** `crego-internal-docs/clients/jkcement/jkcement-security-review-response.md`
-**Status:** backlog defined, Linear issues not yet raised
+**Status:** P0 Linear issues raised 2026-08-12 (P0 target 2026-08-08 **missed**). P1s not yet raised.
+
+| Item | Linear | Title |
+|---|---|---|
+| P0-1 | [CRE-6237](https://linear.app/crego/issue/CRE-6237) | Trusted-issuer allowlist in Flow JWT validation |
+| P0-2 | [CRE-6238](https://linear.app/crego/issue/CRE-6238) | Bind permission cache to token identity |
+| P0-3 | [CRE-6239](https://linear.app/crego/issue/CRE-6239) | Make `resource_name` mandatory |
+| P0-4 | [CRE-6240](https://linear.app/crego/issue/CRE-6240) | De-privilege the Flow service account |
+| P0-5 | [CRE-6241](https://linear.app/crego/issue/CRE-6241) | Pin provisioned profile server-side |
+| P0-6 | [CRE-6242](https://linear.app/crego/issue/CRE-6242) | Route-template matching for `no_auth` |
+
+> **P0-1 is still live on `master` and `develop` as of 2026-08-12.** It was re-detected
+> independently by the Semgrep SAST job added in CRE-6236
+> (`python.jwt.security.unverified-jwt-decode`). The finding is suppressed in
+> `crego-flow/.semgrepignore` **only** so that CI is usable — the entry is dated and
+> annotated as known-live debt, not a false positive. **Delete that entry when CRE-6237
+> ships.**
 
 > **Internal only.** This document contains exploit detail and exact source locations.
 > The client-facing response deliberately omits both.
